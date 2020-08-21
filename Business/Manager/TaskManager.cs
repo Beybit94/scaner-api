@@ -48,13 +48,13 @@ namespace Business.Manager
             return entity;
         }
 
-        public List<GoodsModel> GetActiveTask(TaskQueryModel queryModel)
+        public TasksModel GetTaskById(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var entity = _taskRepository.GetActiveTask(query);
-            return _mapper.Map<List<GoodsModel>>(entity);
+            var entity = _taskRepository.GetTaskById(query);
+            return _mapper.Map<TasksModel>(entity); ;
         }
     }
 }

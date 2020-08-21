@@ -12,6 +12,8 @@ namespace ScanerApi.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<UsersManager>().InstancePerRequest();
+            builder.RegisterType<TaskManager>().InstancePerRequest();
+            builder.RegisterType<GoodManager>().InstancePerRequest();
         }
     }
 }

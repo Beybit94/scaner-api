@@ -28,8 +28,8 @@ namespace Data.Repositories
 
             var entity = UnitOfWork.Session.QueryFirst<int>($@"
 SELECT count(pm.PlanNum)
-FROM [WebProject].[dbo].[ROT1c1] pm (nolock)
-join [WebProject].[dbo].[Inventory_Taskss] it (nolock) on it.ROT = pm._Number
+FROM ROT1c1 pm (nolock)
+join Inventory_Taskss it (nolock) on it.ROT = pm._Number
 WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             return entity;
         }
@@ -51,19 +51,52 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<int>("WMS_GetActiveTaskListNew", new { UserId = _query.UserId, DivisionId = _query.DivisionId }, commandType: CommandType.StoredProcedure);
+            var entity = UnitOfWork.Session.QueryFirst<int>($@"
+IF @UserId = 0
+BEGIN
+	SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId 
+    FROM wms_tasks t
+	WHERE t.DivisionId] = @DivisionId AND t.WmsStatus = 1
+END
+ELSE
+BEGIN
+	IF (SELECT COUNT(*) FROM [WebProject].[dbo].[wms_tasks] WHERE UserId = @UserId AND [WmsStatus] = 1) > 0
+	BEGIN
+		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId,'2' as TypeId
+		FROM wms_tasks t
+		WHERE t.UserId = @UserId AND t.WmsStatus = 1
+		order by 1 desc
+			
+	END
+	ELSE
+	BEGIN
+		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId,'2' as TypeId 
+        FROM wms_tasks t
+		WHERE t.DivisionId = @DivisionId AND t.WmsStatus = 1
+		order by 1 desc
+	END
+END", new { UserId = _query.UserId, DivisionId = _query.DivisionId });
+
             return entity;
         }
 
-        public List<Goods> GetActiveTask(Query query)
+        public Tasks GetTaskById(Query query)
         {
+
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.Query<Goods>("WMS_GetActiveTaskNew", new { @taskid = _query.TaskId }, commandType: CommandType.StoredProcedure);
-            return entity.ToList();
+            var entity = UnitOfWork.Session.QueryFirst<Tasks>($@"
+select Id,
+       PlanNum,
+       BoxNum,
+       TaskTypeId
+from wms_tasks wt 		  
+WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
+            return entity;
         }
+
     }
 }

@@ -8,21 +8,14 @@ using System.Threading.Tasks;
 
 namespace Data.Model
 {
-    [Table("Tasks")]
+    [Table("wms_tasks")]
     public class Tasks: Entity
     {
-        public int InventoryType { get; set; }
+        public string Id { get; set; }
         public int DivisionId { get; set; }
         public int UserId { get; set; }
-        public int ControlId { get; set; }
-        public string TaskId { get; set; }
-        public string Text1 { get; set; }
-        public string Text2 { get; set; }
-        public string Param1 { get; set; }
-        public string Param2 { get; set; }
-        public string Param3 { get; set; }
-        public bool IsEmpty { get; set; }
-        public bool HandEnter { get; set; }
-        public int TaskType { get; set; }
+        public int TaskTypeId { get; set; }
+        public string PlanNum { get; set; }
+        public string BoxNum { get; set; }
     }
 }

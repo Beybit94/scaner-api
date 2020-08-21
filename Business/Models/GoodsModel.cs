@@ -14,8 +14,7 @@ namespace Business.Models
         public int Count { get; set; }
         public string GoodName { get; set; }
         public string GoodArticle { get; set; }
-        public string GoodBarCode { get; set; }
-        public bool Favorite { get; set; }
+        public string BarCode { get; set; }
 
         public override ModelValidationResult Validate()
         {

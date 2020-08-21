@@ -17,6 +17,8 @@ namespace ScanerApi.Modules
                }).As<IUnitOfWork>().SingleInstance();
 
             builder.RegisterType<UserRepository>().InstancePerRequest();
+            builder.RegisterType<TaskRepository>().InstancePerRequest();
+            builder.RegisterType<GoodRepository>().InstancePerRequest();
         }
     }
 }

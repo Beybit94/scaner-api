@@ -40,16 +40,16 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
-        [ActionName("GetActiveTask")]
-        [Route("GetActiveTask")]
-        public IHttpActionResult GetActiveTask([FromBody] TaskQueryModel model)
+        [ActionName("GetTask")]
+        [Route("GetTask")]
+        public IHttpActionResult GetTask([FromBody] TaskQueryModel model)
         {
             try
             {
                 var taskId = _taskManager.GetTaskId(model);
-
                 var taskQueyModel = new TaskQueryModel { TaskId = taskId };
-                return Ok(new { success = true, data = _taskManager.GetActiveTask(taskQueyModel) });
+
+                return Ok(new { success = true, data = _taskManager.GetTaskById(taskQueyModel) });
             }
             catch (Exception ex)
             {
