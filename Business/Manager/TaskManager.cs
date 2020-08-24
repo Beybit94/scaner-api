@@ -39,13 +39,13 @@ namespace Business.Manager
             _taskRepository.UnloadTask(query);
         }
 
-        public int GetTaskId(TaskQueryModel queryModel)
+        public TasksModel GetActiveTask(TaskQueryModel queryModel)
         {
             if(queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var entity = _taskRepository.GetTaskId(query);
-            return entity;
+            var entity = _taskRepository.GetActiveTask(query);
+            return _mapper.Map<TasksModel>(entity);
         }
 
         public TasksModel GetTaskById(TaskQueryModel queryModel)

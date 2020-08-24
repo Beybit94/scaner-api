@@ -19,13 +19,28 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
-        [ActionName("Get")]
-        [Route("Get")]
-        public IHttpActionResult Get([FromBody] GoodQueryModel model)
+        [ActionName("GetGoodByCode")]
+        [Route("GetGoodByCode")]
+        public IHttpActionResult GetGoodByCode([FromBody] GoodQueryModel model)
         {
             try
             {
-                return Ok(new { success = true, data = _goodManager.Get(model) });
+                return Ok(new { success = true, data = _goodManager.GetGoodByCode(model) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("GetGoodsByTask")]
+        [Route("GetGoodsByTask")]
+        public IHttpActionResult GetGoodsByTask([FromBody] GoodQueryModel model)
+        {
+            try
+            {
+                return Ok(new { success = true, data = _goodManager.GetGoodsByTask(model) });
             }
             catch (Exception ex)
             {
@@ -41,7 +56,7 @@ namespace ScanerApi.Controllers
             try
             {
                 _goodManager.UnloadGood(model);
-                return Ok(new { success = true, data = _goodManager.Get(model) });
+                return Ok(new { success = true, data = _goodManager.GetGoodByCode(model) });
             }
             catch (Exception ex)
             {

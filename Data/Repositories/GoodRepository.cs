@@ -19,7 +19,26 @@ namespace Data.Repositories
         {
         }
 
-        public List<Goods> Get(Query query)
+        public Goods GetGoodByCode(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<Goods>(@"
+SELECT GoodId,
+       [CountQty] as Count,
+       isnull([GoodName], 'box'),
+       isnull([GoodArticle], 'box'),
+       BarCode
+FROM Scaner_Goods
+WHERE WmsTaskId = @TaskId 
+and BarCode = @BarCode", new { @TaskId = _query.TaskId, @BarCode = _query.BarCode });
+            return entity;
+        }
+
+        public List<Goods> GetGoodsByTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
@@ -33,8 +52,7 @@ SELECT GoodId,
        isnull([GoodArticle], 'box'),
        BarCode
 FROM Scaner_Goods
-WHERE WmsTaskId = @TaskId 
-and (BarCode is null or  BarCode = @BarCode)", new { @TaskId = _query.TaskId, @BarCode = _query.BarCode });
+WHERE WmsTaskId = @TaskId", new { @TaskId = _query.TaskId });
             return entity.ToList();
         }
 

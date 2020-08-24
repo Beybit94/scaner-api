@@ -44,25 +44,25 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             UnitOfWork.Session.Execute("wms_CreateTaskSscaner", new { @PlanNum = _query.PlanNum, @userid = _query.UserId }, commandType: CommandType.StoredProcedure);
         }
 
-        public int GetTaskId(Query query)
+        public Tasks GetActiveTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<int>($@"
+            var entity = UnitOfWork.Session.QueryFirst<Tasks>($@"
 IF @UserId = 0
 BEGIN
 	SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId 
     FROM wms_tasks t
-	WHERE t.DivisionId] = @DivisionId AND t.WmsStatus = 1
+	WHERE t.DivisionId = @DivisionId AND t.WmsStatus = 1
 END
 ELSE
 BEGIN
-	IF (SELECT COUNT(*) FROM [WebProject].[dbo].[wms_tasks] WHERE UserId = @UserId AND [WmsStatus] = 1) > 0
+	IF (SELECT COUNT(*) FROM wms_tasks WHERE UserId = @UserId AND WmsStatus = 1) > 0
 	BEGIN
-		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId,'2' as TypeId
+		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId
 		FROM wms_tasks t
 		WHERE t.UserId = @UserId AND t.WmsStatus = 1
 		order by 1 desc
@@ -70,7 +70,7 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId,'2' as TypeId 
+		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId
         FROM wms_tasks t
 		WHERE t.DivisionId = @DivisionId AND t.WmsStatus = 1
 		order by 1 desc
@@ -93,7 +93,7 @@ select Id,
        PlanNum,
        BoxNum,
        TaskTypeId
-from wms_tasks wt 		  
+from wms_tasks t 		  
 WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
             return entity;
         }

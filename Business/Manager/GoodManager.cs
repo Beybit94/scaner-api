@@ -22,12 +22,21 @@ namespace Business.Manager
             _mapper = mappper;
         }
 
-        public List<GoodsModel> Get(GoodQueryModel queryModel)
+        public GoodsModel GetGoodByCode(GoodQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<GoodQuery>(queryModel);
 
-            var entity = _goodRepository.Get(query);
+            var entity = _goodRepository.GetGoodByCode(query);
+            return _mapper.Map<GoodsModel>(entity);
+        }
+
+        public List<GoodsModel> GetGoodsByTask(GoodQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<GoodQuery>(queryModel);
+
+            var entity = _goodRepository.GetGoodsByTask(query);
             return _mapper.Map<List<GoodsModel>>(entity);
         }
 
