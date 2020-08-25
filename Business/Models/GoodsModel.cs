@@ -16,6 +16,14 @@ namespace Business.Models
         public string GoodArticle { get; set; }
         public string BarCode { get; set; }
 
+        public bool IsBox
+        {
+            get
+            {
+                return string.IsNullOrEmpty(GoodArticle) || GoodArticle.Equals("0") || GoodId == 0;
+            }
+        }
+
         public override ModelValidationResult Validate()
         {
             var result = new ModelValidator<GoodsModel>().Validate(this);

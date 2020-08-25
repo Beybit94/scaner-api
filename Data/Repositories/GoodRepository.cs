@@ -27,10 +27,11 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirstOrDefault<Goods>(@"
-SELECT GoodId,
+SELECT Id,
+       GoodId,
        [CountQty] as Count,
-       isnull([GoodName], 'box'),
-       isnull([GoodArticle], 'box'),
+       [GoodName],
+       [GoodArticle],
        BarCode
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
@@ -46,10 +47,11 @@ and BarCode = @BarCode", new { @TaskId = _query.TaskId, @BarCode = _query.BarCod
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Goods>(@"
-SELECT GoodId,
+SELECT Id,
+       GoodId,
        [CountQty] as Count,
-       isnull([GoodName], 'box'),
-       isnull([GoodArticle], 'box'),
+       [GoodName],
+       [GoodArticle],
        BarCode
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId", new { @TaskId = _query.TaskId });
