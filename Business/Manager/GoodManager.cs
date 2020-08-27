@@ -40,6 +40,15 @@ namespace Business.Manager
             return _mapper.Map<List<GoodsModel>>(entity);
         }
 
+        public List<GoodsModel> GetGoodsByBox(GoodQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<GoodQuery>(queryModel);
+
+            var entity = _goodRepository.GetGoodsByBox(query);
+            return _mapper.Map<List<GoodsModel>>(entity);
+        }
+
         public void UnloadGood(GoodQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));

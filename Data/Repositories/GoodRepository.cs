@@ -54,7 +54,28 @@ SELECT Id,
        [GoodArticle],
        BarCode
 FROM Scaner_Goods
-WHERE WmsTaskId = @TaskId", new { @TaskId = _query.TaskId });
+WHERE WmsTaskId = @TaskId 
+and BoxId is null", new { @TaskId = _query.TaskId });
+            return entity.ToList();
+        }
+
+        public List<Goods> GetGoodsByBox(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Goods>(@"
+SELECT Id,
+       GoodId,
+       [CountQty] as Count,
+       [GoodName],
+       [GoodArticle],
+       BarCode
+FROM Scaner_Goods
+WHERE WmsTaskId = @TaskId 
+and BoxId = @BoxId", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             return entity.ToList();
         }
 
@@ -65,7 +86,7 @@ WHERE WmsTaskId = @TaskId", new { @TaskId = _query.TaskId });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"Scaner_SetGood", new { @PlanNum = _query.PlanNum, @GoodBarCode = _query.BarCode, @Id = _query.TaskId }, commandType: CommandType.StoredProcedure);
+            UnitOfWork.Session.Execute(@"Scaner_SetGood", new { @PlanNum = _query.PlanNum, @GoodBarCode = _query.BarCode, @Id = _query.TaskId, @BoxId = _query.BoxId }, commandType: CommandType.StoredProcedure);
         }
 
         public void Update(Query query)
@@ -76,8 +97,7 @@ WHERE WmsTaskId = @TaskId", new { @TaskId = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-update Scaner_Goods set CountQty = @CountQty 
-where WmsTaskId = @TaskId and GoodArticle = @GoodArticle", new { CountQty = _query.CountQty, TaskId = _query.TaskId, @GoodBarCode = _query.GoodArticle });
+update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { CountQty = _query.CountQty, Id = _query.Id });
         }
 
         public void Delete(Query query)
@@ -88,7 +108,7 @@ where WmsTaskId = @TaskId and GoodArticle = @GoodArticle", new { CountQty = _que
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-delete from Scaner_Goods where WmsTaskId = @TaskId and GoodArticle = @GoodArticle", new { TaskId = _query.TaskId, @GoodBarCode = _query.GoodArticle });
+delete from Scaner_Goods where Id = @Id", new { Id = _query.Id });
         }
     }
 }
