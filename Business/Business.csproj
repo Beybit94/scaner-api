@@ -58,6 +58,7 @@
     <Compile Include="Models\Base\IModel.cs" />
     <Compile Include="Models\Base\ListModel.cs" />
     <Compile Include="Models\Base\Model.cs" />
+    <Compile Include="Models\DifferencesModel.cs" />
     <Compile Include="Models\GoodsModel.cs" />
     <Compile Include="Models\TasksModel.cs" />
     <Compile Include="Models\UsersModel.cs" />

@@ -1,4 +1,5 @@
 ﻿using Business.Manager;
+using Business.QueryModels.Good;
 using Business.QueryModels.Task;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,11 @@ namespace ScanerApi.Controllers
     public class TaskController : ApiController
     {
         private readonly TaskManager _taskManager;
-        public TaskController(TaskManager taskManager)
+        private readonly GoodManager _goodManager;
+        public TaskController(TaskManager taskManager, GoodManager goodManager)
         {
             _taskManager = taskManager;
+            _goodManager = goodManager;
         }
 
         [HttpPost]
@@ -47,6 +50,22 @@ namespace ScanerApi.Controllers
             try
             {
                 return Ok(new { success = true, data = _taskManager.GetActiveTask(model) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("EndTask")]
+        [Route("EndTask")]
+        public IHttpActionResult EndTask([FromBody] TaskQueryModel model)
+        {
+            try
+            {
+                _taskManager.EndTask(model);
+                return Ok(new { success = true } );
             }
             catch (Exception ex)
             {

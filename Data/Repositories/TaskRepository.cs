@@ -98,5 +98,62 @@ WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
             return entity;
         }
 
+        public void EndTask(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            UnitOfWork.Session.Execute(@"
+INSERT INTO wms_taskResult 
+SELECT [WmsTaskId],
+       [GoodId],
+       [CountQty],
+       [BarCode],
+       [GoodArticle], 
+       '0',
+       [Favorite],
+       [PlanNum] 
+FROM Scaner_Goods where WmsTaskId = @TaskId
+
+UPDATE wms_tasks SET [WmsStatus] = 2, CloseDate = GETDATE()
+WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
+        }
+
+        public List<Differences> Differences(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Differences>(@"
+select sg.Id 
+	   , cd.NumberDoc
+	   ,sg.[GoodId]
+	   ,cd.Article as GoodArticle
+	   ,g.GoodName
+		, cd.Quantity as Quantity
+		,[CountQty]
+		,[ExcessQty]
+		,WmsTaskId as TaskId
+		, gg.GoodGroupName
+		, wtr.Favorite
+		, sg.Img
+		, wt.Text1
+		, (u.UserFirstName + ' ' + u.UserSecondName) as UserName 
+		, wt.CreationDate
+		, wt.WmsStatus as Status
+from [Scaner_Goods]  sg
+join WebProject.dbo.Goods g (nolock) on g.GoodId = sg.GoodId
+join WebProject.dbo.GoodGroups gg (nolock) on gg.GoodGroupId = g.GoodGroupId
+join [WebProject].[dbo].[wms_tasks] wt (nolock) on wt.Id = sg.WmsTaskId
+join WebProject.dbo.Users u (nolock) on u.UserId = wt.CreationUserId 
+left join [WebProject].[dbo].[wms_taskResult] wtr (nolock) on wtr.wms_taskId = sg.WmsTaskId and wtr.GoodArticle = sg.GoodArticle
+left join [WebProject].[dbo].[Scaner_1cDocData] cd (nolock) on cd.PlanNum = @PlanNum
+WHERE [WmsTaskId] = @id	", new { Id = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
+            return entity;
+        }
     }
 }

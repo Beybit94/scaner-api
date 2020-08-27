@@ -51,6 +51,7 @@
     <Compile Include="Extensions\TableExtensions.cs" />
     <Compile Include="Model\Base\Entity.cs" />
     <Compile Include="Model\Base\IEntity.cs" />
+    <Compile Include="Model\Differences.cs" />
     <Compile Include="Model\Goods.cs" />
     <Compile Include="Model\Tasks.cs" />
     <Compile Include="Model\Users.cs" />

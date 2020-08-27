@@ -1,5 +1,7 @@
 ﻿using Autofac;
+using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using ScanerApi.Areas.Web.Controllers;
 using System.Reflection;
 
 namespace ScanerApi.Modules
@@ -8,6 +10,7 @@ namespace ScanerApi.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterControllers(Assembly.GetExecutingAssembly());
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
         }
     }

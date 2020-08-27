@@ -11,6 +11,7 @@ namespace Business.Mappers
             CreateMap<UsersModel, Users>();
             CreateMap<TasksModel, Tasks>();
             CreateMap<GoodsModel, Goods>();
+            CreateMap<DifferencesModel, Differences>();
         }
 
         public override string ProfileName => "ModelToEntityMappingProfile";
