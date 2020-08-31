@@ -129,7 +129,7 @@ WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-select sg.Id 
+select sg.Id
 	   , cd.NumberDoc
 	   ,sg.[GoodId]
 	   ,cd.Article as GoodArticle

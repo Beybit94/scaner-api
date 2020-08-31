@@ -16,6 +16,10 @@ namespace ScanerApi.Areas.Web.Controllers
             _taskManager = taskManager;
         }
 
+        public ActionResult Disqus()
+        {
+            return View();
+        }
         public string RenderRazorViewToString(string viewName, object model)
         {
             ViewData.Model = model;
@@ -30,14 +34,17 @@ namespace ScanerApi.Areas.Web.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
-        public ActionResult Index(TaskQueryModel model)
+
+        public FileResult Index(TaskQueryModel model)
         {
             var goods = _taskManager.Differences(model);
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", goods);
+            
             PdfDocument pdf = PdfGenerator.GeneratePdf(content, PageSize.A4);
             pdf.Save(stream, false);
 
+            //return Json(new { success = true, data = content }, JsonRequestBehavior.AllowGet);
             return File(stream.ToArray(), "application/pdf");
         }
     }

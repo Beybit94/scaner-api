@@ -251,6 +251,7 @@
   <ItemGroup>
     <Content Include="Areas\Web\Views\web.config" />
     <Content Include="Areas\Web\Views\Pdf\Index.cshtml" />
+    <Content Include="Areas\Web\Views\Pdf\Disqus.cshtml" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

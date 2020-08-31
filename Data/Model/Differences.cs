@@ -9,7 +9,6 @@ namespace Data.Model
 {
     public class Differences : Entity
     {
-        public int Id { get; set; }
         public string NumberDoc { get; set; }
         public int GoodId { get; set; }
         public string GoodArticle { get; set; }
