@@ -65,7 +65,7 @@ namespace ScanerApi.Controllers
             try
             {
                 _taskManager.EndTask(model);
-                return Ok(new { success = true } );
+                return Ok(new { success = true, data = _taskManager.Differences(model) } );
             }
             catch (Exception ex)
             {
