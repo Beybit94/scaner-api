@@ -26,7 +26,7 @@ namespace Data.Repositories
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<int>($@"
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<int>($@"
 SELECT count(pm.PlanNum)
 FROM ROT1c1 pm (nolock)
 join Inventory_Taskss it (nolock) on it.ROT = pm._Number
@@ -51,7 +51,7 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<Tasks>($@"
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
 IF @UserId = 0
 BEGIN
 	SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId 
@@ -88,7 +88,7 @@ END", new { UserId = _query.UserId, DivisionId = _query.DivisionId });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<Tasks>($@"
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
 select Id,
        PlanNum,
        BoxNum,
