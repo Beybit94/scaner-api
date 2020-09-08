@@ -65,7 +65,22 @@ namespace ScanerApi.Controllers
             try
             {
                 _taskManager.EndTask(model);
-                return Ok(new { success = true, data = _taskManager.Differences(model) } );
+                return Ok(new { success = true } );
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Differences")]
+        [Route("Differences")]
+        public IHttpActionResult Differences([FromBody] TaskQueryModel model)
+        {
+            try
+            {
+                return Ok(new { success = true, data = _taskManager.Differences(model) });
             }
             catch (Exception ex)
             {
