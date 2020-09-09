@@ -55,7 +55,8 @@ SELECT Id,
        BarCode
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
-and BoxId is null", new { @TaskId = _query.TaskId });
+and BoxId = 0
+order by Id", new { @TaskId = _query.TaskId });
             return entity.ToList();
         }
 
@@ -75,7 +76,8 @@ SELECT Id,
        BarCode
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
-and BoxId = @BoxId", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
+and BoxId = @BoxId
+order by Id", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             return entity.ToList();
         }
 

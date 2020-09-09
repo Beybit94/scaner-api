@@ -111,16 +111,22 @@
 
         @foreach (var item in Model)
         {
-            <tr>
-                <td>№</td>
-                <td>№ накладной (инвойса)</td>
-                <td>н.н. / артикул товара</td>
-                <td>Наименование модели товара</td>
-                <td>Количество по накладной</td>
-                <td>Фактическое количество</td>
-                <td>Количество расхождений</td>
-                <td>Статус</td>
-            </tr>
+            var i = 1;
+            if (item.CountQty != item.Quantity)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>@item.NumberDoc</td>
+                    <td>@item.GoodArticle</td>
+                    <td>@item.GoodName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.CountQty</td>
+                    <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
+                    <td>@item.Status</td>
+                </tr>
+
+                i++;
+            }
         }
 
     </table>
