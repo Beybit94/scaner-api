@@ -70,8 +70,8 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                _goodManager.UnloadGood(model);
-                return Ok(new { success = true, data = _goodManager.GetGoodByCode(model) });
+                var id = _goodManager.Save(model);
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {

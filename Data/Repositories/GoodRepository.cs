@@ -19,6 +19,25 @@ namespace Data.Repositories
         {
         }
 
+        public Goods GetGoodById(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<Goods>(@"
+SELECT Id,
+       GoodId,
+       [CountQty] as Count,
+       [GoodName],
+       [GoodArticle],
+       BarCode
+FROM Scaner_Goods
+WHERE Id = @Id", new { _query.Id });
+            return entity;
+        }
+
         public Goods GetGoodByCode(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -55,7 +74,7 @@ SELECT Id,
        BarCode
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
-and BoxId = 0
+and (BoxId = 0 or BoxId is null)
 order by Id", new { @TaskId = _query.TaskId });
             return entity.ToList();
         }
@@ -81,14 +100,130 @@ order by Id", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             return entity.ToList();
         }
 
-        public void UnloadGood(Query query)
+        public int Save(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"Scaner_SetGood", new { @PlanNum = _query.PlanNum, @GoodBarCode = _query.BarCode, @Id = _query.TaskId, @BoxId = _query.BoxId }, commandType: CommandType.StoredProcedure);
+            var Id = UnitOfWork.Session.QueryFirstOrDefault<int?>(@"
+IF (ISNULL(@BoxId,0)=0)
+BEGIN
+    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND BARCODE = @GoodBarCode AND BOXID IS NULL
+END
+ELSE
+BEGIN
+    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND BARCODE = @GoodBarCode AND BOXID = @BoxId
+END", new { @WmsTaskId = _query.TaskId, @BoxId = _query.BoxId, @GoodBarCode = _query.BarCode });
+
+            return UnitOfWork.Session.QueryFirstOrDefault<int>(@"
+IF NOT EXISTS (select cor._Fld44670 from [KAZ-1CBASE5].[ARENAS].[dbo].[_Document44667] cor where cor._Fld44670 = @GoodBarCode)
+BEGIN
+    IF (ISNULL(@Id,0) = 0)
+    BEGIN
+        INSERT INTO SCANER_GOODS (
+            [WMSTASKID], 
+            [BOXID], 
+            [CONUMBER], 
+            [GOODID], 
+            [GOODARTICLE], 
+            [ORDERQTY], 
+            [COUNTQTY], 
+            [EXCESSQTY], 
+            [ORDERGUID], 
+            [SAVED], 
+            [SEND1C], 
+            [IMG],
+            [FAVORITE1], 
+            [FAVORITE], 
+            [PLANNUM], 
+            [GOODNAME], 
+            [BARCODE], 
+            BOXBAR)
+        SELECT  @WmsTaskId,
+                @BoxId,
+                '1' AS CONUMBER, 
+                G.GOODID AS GOODID, 
+                G.GOODARTICLE,
+                1 AS ORDERQTY,
+                1 AS COUNTQTY ,
+                1 AS EXCESSQTY ,
+                '1' AS ORDERGUID ,
+                1 AS SAVED ,
+                1 AS SEND1C  ,
+                '1' AS IMG ,
+                '1' AS FAVORITE1 ,
+                1 AS FAVORITE ,
+                @PlanNum, 
+                G.GOODNAME, 
+                @GoodBarCode, 
+                '0'
+	    FROM GOODS G 
+	    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+	    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
+	    WHERE  BC.BARCODE = @GoodBarCode
+        
+        SELECT SCOPE_IDENTITY();
+    END
+    ELSE
+    BEGIN
+        DECLARE @Countup INT = (SELECT ISNULL(COUNTQTY,0) FROM SCANER_GOODS WHERE ID = @Id) + 1
+        UPDATE SCANER_GOODS SET COUNTQTY = @Countup, BOXID = @BoxId WHERE ID = @Id
+
+        SELECT @Id;
+    END
+END
+ELSE
+BEGIN
+    INSERT INTO SCANER_GOODS (     
+        [WMSTASKID],
+        [CONUMBER],
+        [GOODID],
+        [GOODARTICLE],
+        [ORDERQTY],
+        [COUNTQTY],
+        [EXCESSQTY],
+        [ORDERGUID],
+        [SAVED],
+        [SEND1C],
+        [IMG],
+        [FAVORITE1],
+        [FAVORITE],
+        [PLANNUM],
+        [GOODNAME],
+        [BARCODE],
+        BOXBAR)
+    SELECT  @WmsTaskId,
+            '1' AS CONUMBER,
+            0 AS GOODID,
+            0 AS GOODARTICLE,
+            1 AS ORDERQTY,
+            1 AS COUNTQTY,
+            1 AS EXCESSQTY,
+            '1' AS ORDERGUID,
+            1 AS SAVED,
+            1 AS SEND1C,
+            '1' AS IMG,
+            '1' AS FAVORITE1,
+            1 AS FAVORITE,
+            @PlanNum,
+            ('КОРОБ' +' ' +  @GoodBarCode) AS GOODNAME,
+            @GoodBarCode,
+            COR._FLD44670
+    FROM [KAZ-1CBASE5].[ARENAS].[DBO].[_DOCUMENT44667] COR
+    WHERE COR._FLD44670 = @GoodBarCode
+    
+    SELECT SCOPE_IDENTITY();
+END",
+new
+{
+    @Id = Id,
+    @WmsTaskId = _query.TaskId,
+    @BoxId = _query.BoxId,
+    @PlanNum = _query.PlanNum,
+    @GoodBarCode = _query.BarCode,
+});
         }
 
         public void Update(Query query)

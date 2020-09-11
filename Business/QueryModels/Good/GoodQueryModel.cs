@@ -12,7 +12,7 @@ namespace Business.QueryModels.Good
     {
         public int Id { get; set; }
         public int TaskId { get; set; }
-        public int BoxId { get; set; }
+        public int? BoxId { get; set; }
         public string BarCode { get; set; }
         public string PlanNum { get; set; }
         public string GoodArticle { get; set; }
