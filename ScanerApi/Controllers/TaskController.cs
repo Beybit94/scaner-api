@@ -105,15 +105,14 @@ namespace ScanerApi.Controllers
                 var provider = new MultipartMemoryStreamProvider();
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                FtpWebResponse response = null;
                 foreach (var file in provider.Contents)
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    response = _fileManager.UploadFile(fileArray,filename);
+                    _fileManager.UploadFile(fileArray,filename);
                 }
 
-                return Ok(new { success = true, data = response });
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
