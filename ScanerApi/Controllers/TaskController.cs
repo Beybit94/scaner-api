@@ -102,7 +102,6 @@ namespace ScanerApi.Controllers
 
             try
             {
-                _fileManager.MakeDirectory();
                 var provider = new MultipartMemoryStreamProvider();
                 await Request.Content.ReadAsMultipartAsync(provider);
 
@@ -111,7 +110,7 @@ namespace ScanerApi.Controllers
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    response = _fileManager.UploadPhoto(fileArray,filename);
+                    response = _fileManager.UploadFile(fileArray,filename);
                 }
 
                 return Ok(new { success = true, data = response });

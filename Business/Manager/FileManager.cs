@@ -24,7 +24,7 @@ namespace Business.Manager
                 DeleteFile(filePath);
             }
 
-            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
+            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, filePath);
            
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser,ConfigurtionOptions.FtpPass);
