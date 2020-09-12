@@ -102,6 +102,7 @@ namespace ScanerApi.Controllers
 
             try
             {
+                _fileManager.MakeDirectory();
                 var provider = new MultipartMemoryStreamProvider();
                 await Request.Content.ReadAsMultipartAsync(provider);
 
