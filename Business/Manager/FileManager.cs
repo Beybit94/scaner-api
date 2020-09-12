@@ -21,11 +21,6 @@ namespace Business.Manager
                 }
 
                 string filePath = string.Concat(ConfigurtionOptions.FtpFolder, fileName);
-                if (DirectoryExists(filePath))
-                {
-                    DeleteFile(filePath);
-                }
-
                 string path = string.Concat(ConfigurtionOptions.FtpConnectionString, filePath);
 
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
@@ -57,12 +52,19 @@ namespace Business.Manager
 
         public bool DeleteFile(string fileName)
         {
-            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, fileName);
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
-            request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
-            request.Method = WebRequestMethods.Ftp.DeleteFile;
+            try
+            {
+                string path = string.Concat(ConfigurtionOptions.FtpConnectionString, fileName);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
+                request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
+                request.Method = WebRequestMethods.Ftp.DeleteFile;
 
-            return request.GetResponse() != null;
+                return request.GetResponse() != null;
+            }
+            catch (WebException e)
+            {
+                throw new Exception("DeleteFile:"+ fileName + ((FtpWebResponse)e.Response).StatusDescription);
+            }
         }
 
         public bool DirectoryExists(string folder)
