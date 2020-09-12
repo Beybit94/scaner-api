@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{412D2736-DC38-4C5F-9B43-0F4BD4D6062D}</ProjectGuid>
+    <ProjectGuid>{7D4D2D5B-7EEC-4A19-91F6-880A66333698}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Data</RootNamespace>
-    <AssemblyName>Data</AssemblyName>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -24,19 +24,15 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -46,39 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Access\IUnitOfWork.cs" />
-    <Compile Include="Access\UnitOfWork.cs" />
-    <Compile Include="Extensions\QueryExtenstions.cs" />
-    <Compile Include="Extensions\TableExtensions.cs" />
-    <Compile Include="Model\Base\Entity.cs" />
-    <Compile Include="Model\Base\IEntity.cs" />
-    <Compile Include="Model\Differences.cs" />
-    <Compile Include="Model\Goods.cs" />
-    <Compile Include="Model\Tasks.cs" />
-    <Compile Include="Model\Users.cs" />
+    <Compile Include="Configuration\ConfigurtionOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\Good\GoodQuery.cs" />
-    <Compile Include="Queries\Task\TaskQuery.cs" />
-    <Compile Include="Queries\ListQuery.cs" />
-    <Compile Include="Queries\Query.cs" />
-    <Compile Include="Queries\SortDirection.cs" />
-    <Compile Include="Queries\Users\UsersQuery.cs" />
-    <Compile Include="Repositories\Base\IRepository.cs" />
-    <Compile Include="Repositories\Base\Repository.cs" />
-    <Compile Include="Repositories\GoodRepository.cs" />
-    <Compile Include="Repositories\TaskRepository.cs" />
-    <Compile Include="Repositories\UserRepository.cs" />
-    <Compile Include="Transaction\TransactionStub.cs" />
-    <Compile Include="Transaction\TransactionWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{7d4d2d5b-7eec-4a19-91f6-880a66333698}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
+    <Folder Include="Constants\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -16,10 +16,12 @@ namespace ScanerApi.Controllers
     {
         private readonly TaskManager _taskManager;
         private readonly GoodManager _goodManager;
-        public TaskController(TaskManager taskManager, GoodManager goodManager)
+        private readonly FileManager _fileManager;
+        public TaskController(TaskManager taskManager, GoodManager goodManager, FileManager fileManager)
         {
             _taskManager = taskManager;
             _goodManager = goodManager;
+            _fileManager = fileManager;
         }
 
         [HttpPost]
@@ -65,7 +67,7 @@ namespace ScanerApi.Controllers
             try
             {
                 _taskManager.EndTask(model);
-                return Ok(new { success = true } );
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
@@ -81,6 +83,37 @@ namespace ScanerApi.Controllers
             try
             {
                 return Ok(new { success = true, data = _taskManager.Differences(model) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("UploadPhoto")]
+        [Route("UploadPhoto")]
+        public async Task<IHttpActionResult> UploadPhotoAsync()
+        {
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new Exception(BadRequest().ToString());
+            }
+
+            try
+            {
+                var provider = new MultipartMemoryStreamProvider();
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                FtpWebResponse response = null;
+                foreach (var file in provider.Contents)
+                {
+                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                    byte[] fileArray = await file.ReadAsByteArrayAsync();
+                    response = _fileManager.UploadPhoto(fileArray,filename);
+                }
+
+                return Ok(new { success = true, data = response });
             }
             catch (Exception ex)
             {

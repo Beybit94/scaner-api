@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Common.Configuration;
 using Data.Repositories;
 using ScanerApi.Data.Access;
 using System.Configuration;
@@ -11,7 +12,7 @@ namespace ScanerApi.Modules
         {
             builder.Register(ctx =>
                {
-                   var unitOfWork = new UnitOfWork(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString);
+                   var unitOfWork = new UnitOfWork(ConfigurtionOptions.MainConnectionString);
                    unitOfWork.Init();
                    return unitOfWork;
                }).As<IUnitOfWork>().SingleInstance();

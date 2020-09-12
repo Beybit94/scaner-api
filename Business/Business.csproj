@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Manager\FileManager.cs" />
     <Compile Include="Manager\GoodManager.cs" />
     <Compile Include="Manager\TaskManager.cs" />
     <Compile Include="Manager\UsersManager.cs" />
@@ -76,6 +77,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{7d4d2d5b-7eec-4a19-91f6-880a66333698}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Data\Data.csproj">
       <Project>{412D2736-DC38-4C5F-9B43-0F4BD4D6062D}</Project>
       <Name>Data</Name>
