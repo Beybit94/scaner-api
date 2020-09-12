@@ -33,6 +33,15 @@ namespace Common.Configuration
             }
         }
 
+        private static string _ftpFolder;
+        public static string FtpFolder
+        {
+            get
+            {
+                return _ftpFolder ?? (_ftpFolder = ConfigurationManager.AppSettings["FtpFolder"]);
+            }
+        }
+
         private static string _ftpUser;
         public static string FtpUser
         {

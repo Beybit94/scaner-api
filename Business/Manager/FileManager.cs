@@ -13,9 +13,19 @@ namespace Business.Manager
     {
         public FtpWebResponse UploadFile(byte[] fileContents,string fileName)
         {
-            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
-            DeleteFile(fileName);
+            if (!DirectoryExists(ConfigurtionOptions.FtpFolder))
+            {
+                MakeDirectory(ConfigurtionOptions.FtpFolder);
+            }
 
+            string filePath = string.Concat(ConfigurtionOptions.FtpFolder, fileName);
+            if (DirectoryExists(filePath))
+            {
+                DeleteFile(filePath);
+            }
+
+            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
+           
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser,ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.UploadFile;
@@ -28,17 +38,13 @@ namespace Business.Manager
             }
 
             return (FtpWebResponse)request.GetResponse();
-            //using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-            //{
-            //    Console.WriteLine($"Upload File Complete, status {response.StatusDescription}");
-            //}
-
         }
 
-        public FtpWebResponse MakeDirectory()
+        public FtpWebResponse MakeDirectory(string folder)
         {
+            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, folder);
 
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ConfigurtionOptions.FtpConnectionString);
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.MakeDirectory;
 
@@ -47,13 +53,29 @@ namespace Business.Manager
 
         public FtpWebResponse DeleteFile(string fileName)
         {
-            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
+            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, fileName);
 
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ConfigurtionOptions.FtpConnectionString);
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.DeleteFile;
 
             return (FtpWebResponse)request.GetResponse();
+        }
+
+        public bool DirectoryExists(string folder)
+        {
+            try
+            {
+                string path = string.Concat(ConfigurtionOptions.FtpConnectionString, folder);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
+                request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+                return request.GetResponse() != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
