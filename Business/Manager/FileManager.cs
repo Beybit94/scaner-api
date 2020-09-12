@@ -11,13 +11,10 @@ namespace Business.Manager
 {
     public class FileManager
     {
-        public FtpWebResponse UploadPhoto(byte[] fileContents,string fileName)
+        public FtpWebResponse UploadFile(byte[] fileContents,string fileName)
         {
             string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
-            if (System.IO.File.Exists(path))
-            {
-                System.IO.File.Delete(path);
-            }
+            DeleteFile(fileName);
 
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser,ConfigurtionOptions.FtpPass);
@@ -44,6 +41,17 @@ namespace Business.Manager
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ConfigurtionOptions.FtpConnectionString);
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.MakeDirectory;
+
+            return (FtpWebResponse)request.GetResponse();
+        }
+
+        public FtpWebResponse DeleteFile(string fileName)
+        {
+            string path = string.Concat(ConfigurtionOptions.FtpConnectionString, Path.GetFileName(fileName));
+
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ConfigurtionOptions.FtpConnectionString);
+            request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
+            request.Method = WebRequestMethods.Ftp.DeleteFile;
 
             return (FtpWebResponse)request.GetResponse();
         }
