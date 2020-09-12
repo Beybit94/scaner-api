@@ -15,13 +15,19 @@ namespace Business.Manager
         {
             if (!DirectoryExists(ConfigurtionOptions.FtpFolder))
             {
-                MakeDirectory(ConfigurtionOptions.FtpFolder);
+                if (!MakeDirectory(ConfigurtionOptions.FtpFolder))
+                {
+                    throw new Exception("ConfigurtionOptions.FtpFolder");
+                }
             }
 
             string filePath = string.Concat(ConfigurtionOptions.FtpFolder, fileName);
             if (DirectoryExists(filePath))
             {
-                DeleteFile(filePath);
+                if (!DeleteFile(filePath))
+                {
+                    throw new Exception(filePath);
+                }
             }
 
             string path = string.Concat(ConfigurtionOptions.FtpConnectionString, filePath);
@@ -40,7 +46,7 @@ namespace Business.Manager
             return (FtpWebResponse)request.GetResponse();
         }
 
-        public FtpWebResponse MakeDirectory(string folder)
+        public bool MakeDirectory(string folder)
         {
             string path = string.Concat(ConfigurtionOptions.FtpConnectionString, folder);
 
@@ -48,10 +54,10 @@ namespace Business.Manager
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.MakeDirectory;
 
-            return (FtpWebResponse)request.GetResponse();
+            return request.GetResponse() != null;
         }
 
-        public FtpWebResponse DeleteFile(string fileName)
+        public bool DeleteFile(string fileName)
         {
             string path = string.Concat(ConfigurtionOptions.FtpConnectionString, fileName);
 
@@ -59,7 +65,7 @@ namespace Business.Manager
             request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
             request.Method = WebRequestMethods.Ftp.DeleteFile;
 
-            return (FtpWebResponse)request.GetResponse();
+            return request.GetResponse() != null;
         }
 
         public bool DirectoryExists(string folder)
