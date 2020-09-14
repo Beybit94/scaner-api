@@ -75,7 +75,7 @@ SELECT Id,
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
 and (BoxId = 0 or BoxId is null)
-order by Id", new { @TaskId = _query.TaskId });
+order by Id desc", new { @TaskId = _query.TaskId });
             return entity.ToList();
         }
 
@@ -96,7 +96,7 @@ SELECT Id,
 FROM Scaner_Goods
 WHERE WmsTaskId = @TaskId 
 and BoxId = @BoxId
-order by Id", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
+order by Id desc", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             return entity.ToList();
         }
 
