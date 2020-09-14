@@ -245,6 +245,7 @@ update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { CountQty = _
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
+delete from Scaner_Goods where BoxId = @Id
 delete from Scaner_Goods where Id = @Id", new { Id = _query.Id });
         }
     }
