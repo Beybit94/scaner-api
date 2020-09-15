@@ -11,7 +11,7 @@ namespace Business.Manager
 {
     public class FileManager
     {
-        public void UploadFile(byte[] fileContents,string fileName)
+        public string UploadFile(byte[] fileContents,string fileName)
         {
             try
             {
@@ -33,6 +33,8 @@ namespace Business.Manager
                     requestStream.Write(fileContents, 0, fileContents.Length);
                     requestStream.Flush();
                 }
+
+                return path;
             }
             catch (WebException e)
             {
