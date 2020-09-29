@@ -1,10 +1,8 @@
 ﻿using Business.Manager;
-using Business.QueryModels.Good;
 using Business.QueryModels.Task;
+using ScanerApi.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -102,15 +100,19 @@ namespace ScanerApi.Controllers
 
             try
             {
-                var provider = new MultipartMemoryStreamProvider();
+                var provider = new InMemoryMultipartFormDataStreamProvider();
+
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                foreach (var file in provider.Contents)
+                foreach (var file in provider.Files)
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
                     _fileManager.UploadFile(fileArray,filename);
                 }
+
+                var query = provider.FormDataToQuery();
+                _taskManager.SaveAct(query);
 
                 return Ok(new { success = true });
             }

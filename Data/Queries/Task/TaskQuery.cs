@@ -15,5 +15,7 @@ namespace Data.Queries.Task
         public int DivisionId { get; set; }
 
         public int TaskId { get; set; }
+        public int BoxId { get; set; }
+        public string Path { get; set; }
     }
 }

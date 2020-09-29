@@ -73,5 +73,13 @@ namespace Business.Manager
             var entity = _taskRepository.Differences(query);
             return _mapper.Map<List<DifferencesModel>>(entity);
         }
+
+        public void SaveAct(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<TaskQuery>(queryModel);
+
+            _taskRepository.SaveAct(query);
+        }
     }
 }

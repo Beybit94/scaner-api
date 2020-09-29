@@ -155,5 +155,16 @@ left join [WebProject].[dbo].[Scaner_1cDocData] cd (nolock) on cd.PlanNum = @Pla
 WHERE [WmsTaskId] = @id	", new { Id = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
             return entity;
         }
+
+        public void SaveAct(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            UnitOfWork.Session.Execute(@"
+INSERT INTO Scaner_Act VALUES (@TaskId, @BoxId, @Path)", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId, @Path = _query.Path });
+        }
     }
 }
