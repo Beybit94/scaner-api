@@ -108,11 +108,14 @@ namespace ScanerApi.Controllers
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    _fileManager.UploadFile(fileArray,filename);
+                    var path = _fileManager.UploadFile(fileArray,filename);
+
+                    var query = provider.FormDataToQuery();
+                    query.Path = path;
+                    _taskManager.SaveAct(query);
                 }
 
-                var query = provider.FormDataToQuery();
-                _taskManager.SaveAct(query);
+                
 
                 return Ok(new { success = true });
             }
