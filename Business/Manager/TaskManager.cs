@@ -39,6 +39,14 @@ namespace Business.Manager
             _taskRepository.UnloadTask(query);
         }
 
+        public void SaveDataFrom1c(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<TaskQuery>(queryModel);
+
+            _taskRepository.SaveDataFrom1c(query);
+        }
+
         public TasksModel GetActiveTask(TaskQueryModel queryModel)
         {
             if(queryModel == null) throw new ArgumentNullException(nameof(queryModel));

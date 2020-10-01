@@ -108,14 +108,20 @@ order by Id desc", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var Id = UnitOfWork.Session.QueryFirstOrDefault<int?>(@"
+DECLARE @ID INT = (SELECT G.GOODID
+                    FROM GOODS G 
+                    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+                    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
+                    WHERE  BC.BARCODE = @GoodBarCode)
+
 IF (ISNULL(@BoxId,0)=0)
 BEGIN
-    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND BARCODE = @GoodBarCode AND BOXID IS NULL
+    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND GoodId = @ID AND BOXID IS NULL
 END
 ELSE
 BEGIN
-    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND BARCODE = @GoodBarCode AND BOXID = @BoxId
-END", new { @WmsTaskId = _query.TaskId, @BoxId = _query.BoxId, @GoodBarCode = _query.BarCode });
+    SELECT TOP 1 ID FROM SCANER_GOODS WHERE WMSTASKID= @WmsTaskId AND GoodId = @ID AND BOXID = @BoxId
+END", new {  @WmsTaskId = _query.TaskId, @BoxId = _query.BoxId, @GoodBarCode = _query.BarCode });
 
             return UnitOfWork.Session.QueryFirstOrDefault<int>(@"
 IF NOT EXISTS (select cor._Fld44670 from [KAZ-1CBASE5].[ARENAS].[dbo].[_Document44667] cor where cor._Fld44670 = @GoodBarCode)

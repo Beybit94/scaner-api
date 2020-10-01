@@ -4,6 +4,7 @@ using ScanerApi.Utils;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -32,6 +33,31 @@ namespace ScanerApi.Controllers
                 var res = _taskManager.GetPlanNum(model);
                 if (res == 0) throw new Exception("Документ с таким номером не найден");
 
+                using (var accept = new Accepting.WebСервис_Приемка_АРЕНА())
+                {
+                    var result = accept.LoadOrderToSuppliers(model.PlanNum);
+
+                    //if (result.Error.Length > 0) throw new Exception("Ошибка 1с сервисе");
+                    //if (result.Param.Length < 0) throw new Exception("Ошибка 1с сервисе");
+
+                    foreach (var m in result.Param)
+                    {
+                        model.Planguid = m.GUID_PlanWMSNumber;
+                        model.DateDoc = m.DateDoc;
+                        model.NumberDoc = m.NumberDoc;
+                        model.TypeDoc = m.TypeDoc;
+
+                        foreach (var t in m.OrderToSupplierGood)
+                        {
+                            model.Article = t.Article;
+                            model.Barcode = t.Barcode;
+                            model.Quantity = t.Quantity;
+
+                            _taskManager.SaveDataFrom1c(model);
+                        }
+                    }
+
+                }
                 _taskManager.UnloadTask(model);
 
                 return Ok(new { success = true });
@@ -108,14 +134,14 @@ namespace ScanerApi.Controllers
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    var path = _fileManager.UploadFile(fileArray,filename);
+                    var path = _fileManager.UploadFile(fileArray, filename);
 
                     var query = provider.FormDataToQuery();
                     query.Path = path;
                     _taskManager.SaveAct(query);
                 }
 
-                
+
 
                 return Ok(new { success = true });
             }

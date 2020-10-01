@@ -44,6 +44,37 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             UnitOfWork.Session.Execute("wms_CreateTaskSscaner", new { @PlanNum = _query.PlanNum, @userid = _query.UserId }, commandType: CommandType.StoredProcedure);
         }
 
+        public void SaveDataFrom1c(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            UnitOfWork.Session.Execute(@"
+insert into Scaner_1cDocData ([PlanNum], [DateDoc], [GUID_PlanWMSNumber],[NumberDoc],[TypeDoc],[Article],[Barcode],[Quantity],[UserId])
+values ( isnull(@PlanNum,0),
+         isnull(@DateDoc, '08.08.2020 0:00:00'),
+         isnull(@Planguid,'0'),
+         isnull(@NumberDoc,0),
+         isnull(@TypeDoc,0),
+         isnull(@Article,0),
+         isnull(@Barcode,0),
+         isnull(@Quantity,0),
+         isnull(@userid,0))",
+         new
+         {
+             @PlanNum = _query.PlanNum,
+             @userid = _query.UserId,
+             @DateDoc = _query?.DateDoc,
+             @Planguid = _query.Planguid,
+             @NumberDoc = _query.NumberDoc,
+             @TypeDoc = _query.TypeDoc,
+             @Article = _query.Article,
+             @Barcode = _query.Barcode,
+             @Quantity = _query.Quantity
+         });
+        }
         public Tasks GetActiveTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
