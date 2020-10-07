@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{7D4D2D5B-7EEC-4A19-91F6-880A66333698}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{40768A1D-5A16-487D-8674-BCC20A8433DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMigrations", "DatabaseMigrations\DatabaseMigrations.csproj", "{4882937B-8087-4CCA-9C2B-CC593866B412}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,16 @@ Global
 		{7D4D2D5B-7EEC-4A19-91F6-880A66333698}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D4D2D5B-7EEC-4A19-91F6-880A66333698}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D4D2D5B-7EEC-4A19-91F6-880A66333698}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40768A1D-5A16-487D-8674-BCC20A8433DA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4882937B-8087-4CCA-9C2B-CC593866B412}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4882937B-8087-4CCA-9C2B-CC593866B412}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4882937B-8087-4CCA-9C2B-CC593866B412}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4882937B-8087-4CCA-9C2B-CC593866B412}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

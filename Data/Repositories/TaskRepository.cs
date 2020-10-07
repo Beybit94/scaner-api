@@ -52,7 +52,7 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-insert into Scaner_1cDocData ([PlanNum], [DateDoc], [GUID_PlanWMSNumber],[NumberDoc],[TypeDoc],[Article],[Barcode],[Quantity],[UserId])
+insert into Scaner_Goods ([PlanNum], [DateDoc], [GUID_PlanWMSNumber],[NumberDoc],[TypeDoc],[Article],[Barcode],[Quantity],[UserId])
 values ( isnull(@PlanNum,0),
          isnull(@DateDoc, '08.08.2020 0:00:00'),
          isnull(@Planguid,'0'),
@@ -182,7 +182,7 @@ join WebProject.dbo.GoodGroups gg (nolock) on gg.GoodGroupId = g.GoodGroupId
 join [WebProject].[dbo].[wms_tasks] wt (nolock) on wt.Id = sg.WmsTaskId
 join WebProject.dbo.Users u (nolock) on u.UserId = wt.CreationUserId 
 left join [WebProject].[dbo].[wms_taskResult] wtr (nolock) on wtr.wms_taskId = sg.WmsTaskId and wtr.GoodArticle = sg.GoodArticle
-left join [WebProject].[dbo].[Scaner_1cDocData] cd (nolock) on cd.PlanNum = @PlanNum
+left join [WebProject].[dbo].[Scaner_Goods] cd (nolock) on cd.PlanNum = @PlanNum
 WHERE [WmsTaskId] = @id	", new { Id = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
             return entity;
         }
