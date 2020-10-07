@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[hFileType]
+(
+	[Id] INT NOT NULL PRIMARY KEY,
+	[Name] NVARCHAR(255) NOT NULL, 
+    [Code] NVARCHAR(250) NOT NULL
+)
