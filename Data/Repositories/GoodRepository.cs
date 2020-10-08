@@ -2,7 +2,7 @@
 using Data.Model;
 using Data.Queries.Good;
 using Data.Repositories.Base;
-using ScanerApi.Data.Access;
+using Data.Access;
 using ScanerApi.Data.Queries;
 using System;
 using System.Collections.Generic;

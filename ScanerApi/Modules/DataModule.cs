@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Common.Configuration;
+using Data.Access;
 using Data.Repositories;
-using ScanerApi.Data.Access;
 using System.Configuration;
 
 namespace ScanerApi.Modules
@@ -16,6 +16,13 @@ namespace ScanerApi.Modules
                    unitOfWork.Init();
                    return unitOfWork;
                }).As<IUnitOfWork>().SingleInstance();
+
+            builder.Register(ctx =>
+            {
+                var unitOfWork = new WebProjectUnitOfWork(ConfigurtionOptions.WebProjectConnectionString);
+                unitOfWork.Init();
+                return unitOfWork;
+            }).As<IUnitOfWork>().SingleInstance();
 
             builder.RegisterType<UserRepository>().InstancePerRequest();
             builder.RegisterType<TaskRepository>().InstancePerRequest();

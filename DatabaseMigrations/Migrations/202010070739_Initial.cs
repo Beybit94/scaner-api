@@ -12,7 +12,13 @@ namespace DatabaseMigrations.Migrations
     {
         public override void Down()
         {
-            throw new NotImplementedException();
+            Execute.Sql(@"
+drop table Tasks
+drop table Scaner_Goods
+drop table Scaner_File
+drop table Scaner_1cDocData
+drop table hTaskStatus
+drop table hFileType");
         }
 
         public override void Up()

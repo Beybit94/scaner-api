@@ -5,7 +5,7 @@ using Business.Manager;
 using Business.Mappers;
 using Data.Repositories;
 using ScanerApi.Areas.Web.App_Start;
-using ScanerApi.Data.Access;
+using Data.Access;
 using System.Configuration;
 using System.Reflection;
 using System.Web.Http;

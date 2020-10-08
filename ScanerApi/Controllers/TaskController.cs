@@ -33,31 +33,27 @@ namespace ScanerApi.Controllers
                 var res = _taskManager.GetPlanNum(model);
                 if (res == 0) throw new Exception("Документ с таким номером не найден");
 
-                using (var accept = new Accepting.WebСервис_Приемка_АРЕНА())
-                {
-                    var result = accept.LoadOrderToSuppliers(model.PlanNum);
+                //using (var accept = new Accepting.WebСервис_Приемка_АРЕНА())
+                //{
+                //    var result = accept.LoadOrderToSuppliers(model.PlanNum);
+                //    foreach (var m in result.Param)
+                //    {
+                //        model.Planguid = m.GUID_PlanWMSNumber;
+                //        model.DateDoc = m.DateDoc;
+                //        model.NumberDoc = m.NumberDoc;
+                //        model.TypeDoc = m.TypeDoc;
 
-                    //if (result.Error.Length > 0) throw new Exception("Ошибка 1с сервисе");
-                    //if (result.Param.Length < 0) throw new Exception("Ошибка 1с сервисе");
+                //        foreach (var t in m.OrderToSupplierGood)
+                //        {
+                //            model.Article = t.Article;
+                //            model.Barcode = t.Barcode;
+                //            model.Quantity = t.Quantity;
 
-                    foreach (var m in result.Param)
-                    {
-                        model.Planguid = m.GUID_PlanWMSNumber;
-                        model.DateDoc = m.DateDoc;
-                        model.NumberDoc = m.NumberDoc;
-                        model.TypeDoc = m.TypeDoc;
+                //            _taskManager.SaveDataFrom1c(model);
+                //        }
+                //    }
 
-                        foreach (var t in m.OrderToSupplierGood)
-                        {
-                            model.Article = t.Article;
-                            model.Barcode = t.Barcode;
-                            model.Quantity = t.Quantity;
-
-                            _taskManager.SaveDataFrom1c(model);
-                        }
-                    }
-
-                }
+                //}
                 _taskManager.UnloadTask(model);
 
                 return Ok(new { success = true });

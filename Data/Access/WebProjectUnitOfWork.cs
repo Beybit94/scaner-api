@@ -1,17 +1,22 @@
 ﻿using Data.Transaction;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Data.Access
 {
-    public class UnitOfWork : IUnitOfWork
+    public class WebProjectUnitOfWork : IUnitOfWork
     {
         private TransactionWrapper _transaction;
 
         public IDbConnection Session { get; private set; }
         public IDbTransaction Transaction => _transaction?.InternalTransaction;
 
-        public UnitOfWork(string connectionString)
+        public WebProjectUnitOfWork(string connectionString)
         {
             Session = new SqlConnection(connectionString);
         }

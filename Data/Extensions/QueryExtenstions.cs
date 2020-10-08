@@ -1,6 +1,6 @@
 ﻿using ScanerApi.Data.Queries;
 
-namespace ScanerApi.Data.Extensions
+namespace Data.Extensions
 {
     public static class QueryExtenstions
     {
