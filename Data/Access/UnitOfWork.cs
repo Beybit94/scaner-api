@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace Data.Access
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IMainUnitOfWork
     {
         private TransactionWrapper _transaction;
 

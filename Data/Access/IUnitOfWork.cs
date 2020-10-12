@@ -27,4 +27,7 @@ namespace Data.Access
         /// <returns>Транзакция</returns>
         IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
     }
+
+    public interface IMainUnitOfWork : IUnitOfWork { }
+    public interface IWebProjectUnitOfWork: IUnitOfWork { }
 }
