@@ -139,6 +139,9 @@
   <ItemGroup>
     <Compile Include="CustomConsoleAnnouncer.cs" />
     <Compile Include="Migrations\202010070739_Initial.cs" />
+    <Compile Include="Migrations\202010091438_SeedData.cs" />
+    <Compile Include="Migrations\202010121114_SeedDefectType.cs" />
+    <Compile Include="Migrations\202010121057_hDefectType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -146,8 +149,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Scripts\" />
+    <Content Include="Scripts\Empty.sql" />
+    <EmbeddedResource Include="Scripts\SeedhFileType.sql" />
+    <EmbeddedResource Include="Scripts\SeedhProcessType.sql" />
+    <EmbeddedResource Include="Scripts\SeedhTaskStatus.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets" Condition="Exists('..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets')" />

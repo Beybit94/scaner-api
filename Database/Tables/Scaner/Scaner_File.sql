@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Scaner_File]
 (
-	[Id] INT NOT NULL PRIMARY KEY, 
+	[Id] INT IDENTITY (1, 1) NOT NULL PRIMARY KEY, 
     [TaskId] INT NOT NULL, 
     [BoxId] INT NULL, 
     [Path] NVARCHAR(500) NOT NULL, 

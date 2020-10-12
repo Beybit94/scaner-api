@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Scaner_1cDocData]
 (
-	[Id] INT NOT NULL PRIMARY KEY, 
+	[Id] INT IDENTITY (1, 1) NOT NULL PRIMARY KEY, 
     [PlanNum] NVARCHAR(50) NULL, 
     [DateDoc] DATETIME NULL, 
     [GUID_PlanWMSNumber] UNIQUEIDENTIFIER NULL, 

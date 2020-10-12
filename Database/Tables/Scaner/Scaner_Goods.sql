@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Scaner_Goods]
 (
-	[Id] INT NOT NULL PRIMARY KEY,
+	[Id] INT IDENTITY (1, 1) NOT NULL PRIMARY KEY,
 	[TaskId] INT NOT NULL, 
     [GoodId] INT NULL, 
     [GoodArticle] NVARCHAR(50) NULL, 
@@ -8,8 +8,9 @@
     [CountQty] INT NULL, 
     [BarCode] NVARCHAR(50) NULL, 
     [BoxId] INT NULL, 
-    [IsDefect] BIT NULL, 
-    CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id])
+    [DefectTypeId] INT NULL, 
+    CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
+    CONSTRAINT [FK_Scaner_Goods_hDefectType_DefectTypeId] FOREIGN KEY ([DefectTypeId]) REFERENCES [hDefectType]([Id])
 )
 
 GO
@@ -94,4 +95,4 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
     @level1type = N'TABLE',
     @level1name = N'Scaner_Goods',
     @level2type = N'COLUMN',
-    @level2name = N'IsDefect'
+    @level2name = 'DefectTypeId'

@@ -26,23 +26,35 @@ drop table hFileType");
             Execute.Sql(@"
 GO
 CREATE TABLE [dbo].[hFileType] (
-    [Id]   INT            NOT NULL,
+    [Id]   INT            IDENTITY (1, 1) NOT NULL,
     [Name] NVARCHAR (255) NOT NULL,
     [Code] NVARCHAR (250) NOT NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC)
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    UNIQUE NONCLUSTERED ([Code] ASC)
+);
+
+
+GO
+CREATE TABLE [dbo].[hProcessType] (
+    [Id]   INT            IDENTITY (1, 1) NOT NULL,
+    [Name] NVARCHAR (255) NOT NULL,
+    [Code] NVARCHAR (250) NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    UNIQUE NONCLUSTERED ([Code] ASC)
 );
 
 GO
 CREATE TABLE [dbo].[hTaskStatus] (
-    [Id]   INT            NOT NULL,
+    [Id]   INT            IDENTITY (1, 1) NOT NULL,
     [Name] NVARCHAR (255) NOT NULL,
     [Code] NVARCHAR (250) NOT NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC)
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    UNIQUE NONCLUSTERED ([Code] ASC)
 );
 
 GO
 CREATE TABLE [dbo].[Scaner_1cDocData] (
-    [Id]                 INT              NOT NULL,
+    [Id]                 INT              IDENTITY (1, 1) NOT NULL,
     [PlanNum]            NVARCHAR (50)    NULL,
     [DateDoc]            DATETIME         NULL,
     [GUID_PlanWMSNumber] UNIQUEIDENTIFIER NULL,
@@ -57,7 +69,7 @@ CREATE TABLE [dbo].[Scaner_1cDocData] (
 
 GO
 CREATE TABLE [dbo].[Scaner_File] (
-    [Id]     INT            NOT NULL,
+    [Id]     INT            IDENTITY (1, 1) NOT NULL,
     [TaskId] INT            NOT NULL,
     [BoxId]  INT            NULL,
     [Path]   NVARCHAR (500) NOT NULL,
@@ -67,7 +79,7 @@ CREATE TABLE [dbo].[Scaner_File] (
 
 GO
 CREATE TABLE [dbo].[Scaner_Goods] (
-    [Id]          INT            NOT NULL,
+    [Id]          INT            IDENTITY (1, 1) NOT NULL,
     [TaskId]      INT            NOT NULL,
     [GoodId]      INT            NULL,
     [GoodArticle] NVARCHAR (50)  NULL,
