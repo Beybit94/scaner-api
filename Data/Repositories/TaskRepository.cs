@@ -75,6 +75,7 @@ values ( isnull(@PlanNum,0),
              @Quantity = _query.Quantity
          });
         }
+
         public Tasks GetActiveTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));

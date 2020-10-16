@@ -1,0 +1,4 @@
+﻿CREATE TABLE [dbo].[BarCodes]
+(
+	[Id] INT NOT NULL PRIMARY KEY
+)

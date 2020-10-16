@@ -8,9 +8,9 @@
     [CountQty] INT NULL, 
     [BarCode] NVARCHAR(50) NULL, 
     [BoxId] INT NULL, 
-    [DefectTypeId] INT NULL, 
+    [DamagePercentId] INT NULL, 
     CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
-    CONSTRAINT [FK_Scaner_Goods_hDefectType_DefectTypeId] FOREIGN KEY ([DefectTypeId]) REFERENCES [hDefectType]([Id])
+    CONSTRAINT [FK_Scaner_Goods_hDamagePercent_DamagePercentId] FOREIGN KEY ([DamagePercentId]) REFERENCES [hDamagePercent]([Id]) 
 )
 
 GO
@@ -88,11 +88,12 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
     @level2type = N'COLUMN',
     @level2name = N'BarCode'
 GO
+
 EXEC sp_addextendedproperty @name = N'MS_Description',
-    @value = N'Дефект',
+    @value = N'Процент повреждение',
     @level0type = N'SCHEMA',
     @level0name = N'dbo',
     @level1type = N'TABLE',
     @level1name = N'Scaner_Goods',
     @level2type = N'COLUMN',
-    @level2name = 'DefectTypeId'
+    @level2name = 'DamagePercentId'
