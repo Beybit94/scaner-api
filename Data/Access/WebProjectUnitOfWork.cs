@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data.Access
 {
-    public class WebProjectUnitOfWork : IUnitOfWork
+    public class WebProjectUnitOfWork : IWebProjectUnitOfWork
     {
         private TransactionWrapper _transaction;
 

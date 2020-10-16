@@ -15,23 +15,8 @@ namespace Data.Repositories
 {
     public class TaskRepository : Repository<Tasks>
     {
-        public TaskRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public TaskRepository(IMainUnitOfWork unitOfWork) : base(unitOfWork)
         {
-        }
-
-        public int GetPlanNum(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            var entity = UnitOfWork.Session.QueryFirstOrDefault<int>($@"
-SELECT count(pm.PlanNum)
-FROM ROT1c1 pm (nolock)
-join Inventory_Taskss it (nolock) on it.ROT = pm._Number
-WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
-            return entity;
         }
 
         public void UnloadTask(Query query)
@@ -75,6 +60,7 @@ values ( isnull(@PlanNum,0),
              @Quantity = _query.Quantity
          });
         }
+       
         public Tasks GetActiveTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -137,17 +123,6 @@ WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-INSERT INTO wms_taskResult 
-SELECT [WmsTaskId],
-       [GoodId],
-       [CountQty],
-       [BarCode],
-       [GoodArticle], 
-       '0',
-       [Favorite],
-       [PlanNum] 
-FROM Scaner_Goods where WmsTaskId = @TaskId
-
 UPDATE wms_tasks SET [WmsStatus] = 2, CloseDate = GETDATE()
 WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
         }
