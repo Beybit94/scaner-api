@@ -17,13 +17,6 @@ namespace ScanerApi.Modules
                    return unitOfWork;
                }).As<IUnitOfWork>().SingleInstance();
 
-            builder.Register(ctx =>
-            {
-                var unitOfWork = new WebProjectUnitOfWork(ConfigurtionOptions.WebProjectConnectionString);
-                unitOfWork.Init();
-                return unitOfWork;
-            }).As<IUnitOfWork>().SingleInstance();
-
             builder.RegisterType<UserRepository>().InstancePerRequest();
             builder.RegisterType<TaskRepository>().InstancePerRequest();
             builder.RegisterType<GoodRepository>().InstancePerRequest();
