@@ -22,19 +22,13 @@ namespace Business.Manager
             _mapper = mappper;
         }
 
-        public int GetPlanNum(TaskQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<TaskQuery>(queryModel);
-
-            var entity = _taskRepository.GetPlanNum(query);
-            return entity;
-        }
-
         public void UnloadTask(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
+
+            var res = _taskRepository.GetPlanNum(query);
+            if (res == 0) throw new Exception("Документ с таким номером не найден");
 
             _taskRepository.UnloadTask(query);
         }
