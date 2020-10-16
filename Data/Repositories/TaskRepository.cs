@@ -15,7 +15,7 @@ namespace Data.Repositories
 {
     public class TaskRepository : Repository<Tasks>
     {
-        public TaskRepository(IMainUnitOfWork unitOfWork) : base(unitOfWork)
+        public TaskRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
 
@@ -75,7 +75,6 @@ values ( isnull(@PlanNum,0),
              @Quantity = _query.Quantity
          });
         }
-       
         public Tasks GetActiveTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));

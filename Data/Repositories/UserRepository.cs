@@ -14,7 +14,7 @@ namespace Data.Repositories
 {
     public class UserRepository : Repository<Users>
     {
-        public UserRepository(IWebProjectUnitOfWork unitOfWork) : base(unitOfWork)
+        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
 
@@ -36,5 +36,9 @@ FROM Users u WHERE u.UserName = @Login and u.UserPassword = @Password", new { _q
             
              return entity;
         }
+
+        public override void Insert(Users entity) => throw new NotImplementedException();
+        public override void Update(Users entity) => throw new NotImplementedException();
+        public override void Delete(long id) => throw new NotImplementedException();
     }
 }

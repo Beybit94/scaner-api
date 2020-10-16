@@ -15,7 +15,7 @@ namespace Data.Repositories
 {
     public class GoodRepository : Repository<Goods>
     {
-        public GoodRepository(IMainUnitOfWork unitOfWork) : base(unitOfWork)
+        public GoodRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
 

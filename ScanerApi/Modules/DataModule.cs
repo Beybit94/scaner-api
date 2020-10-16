@@ -15,14 +15,14 @@ namespace ScanerApi.Modules
                    var unitOfWork = new UnitOfWork(ConfigurtionOptions.MainConnectionString);
                    unitOfWork.Init();
                    return unitOfWork;
-               }).As<IMainUnitOfWork>().SingleInstance();
+               }).As<IUnitOfWork>().SingleInstance();
 
             builder.Register(ctx =>
             {
                 var unitOfWork = new WebProjectUnitOfWork(ConfigurtionOptions.WebProjectConnectionString);
                 unitOfWork.Init();
                 return unitOfWork;
-            }).As<IWebProjectUnitOfWork>().SingleInstance();
+            }).As<IUnitOfWork>().SingleInstance();
 
             builder.RegisterType<UserRepository>().InstancePerRequest();
             builder.RegisterType<TaskRepository>().InstancePerRequest();

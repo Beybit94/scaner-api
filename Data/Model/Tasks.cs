@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Data.Model
 {
-    [Table("Tasks")]
+    [Table("wms_tasks")]
     public class Tasks: Entity
     {
         public string Id { get; set; }
