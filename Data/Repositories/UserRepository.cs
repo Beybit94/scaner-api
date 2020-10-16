@@ -36,24 +36,5 @@ FROM Users u WHERE u.UserName = @Login and u.UserPassword = @Password", new { _q
             
              return entity;
         }
-
-        public int? GetGoodId(string barcode)
-        {
-            return UnitOfWork.Session.QueryFirstOrDefault<int?>(@"
-SELECT G.GOODID
-FROM GOODS G 
-JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
-JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
-WHERE  BC.BARCODE = @GoodBarCode");
-        }
-
-        public int GetPlanNum(string PlanNum)
-        {
-            return UnitOfWork.Session.QueryFirstOrDefault<int>($@"
-SELECT count(pm.PlanNum)
-FROM ROT1c1 pm (nolock)
-join Inventory_Taskss it (nolock) on it.ROT = pm._Number
-WHERE pm.[PlanNum] = @PlanNum ", new { PlanNum });
-        }
     }
 }
