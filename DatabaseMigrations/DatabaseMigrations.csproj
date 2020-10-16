@@ -147,6 +147,7 @@
     <Compile Include="Migrations\202010161321_WebProject.cs" />
     <Compile Include="Migrations\202010161342_ROT1c1.cs" />
     <Compile Include="Migrations\202010161349_AddDefinitions.cs" />
+    <Compile Include="Migrations\202010161721_Boxes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

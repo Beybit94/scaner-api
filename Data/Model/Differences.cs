@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace Data.Model
 {
-    [Table("Scaner_1cDocData")]
     public class Differences : Entity
     {
         public string NumberDoc { get; set; }

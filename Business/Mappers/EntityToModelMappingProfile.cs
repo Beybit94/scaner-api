@@ -12,6 +12,7 @@ namespace Business.Mappers
             CreateMap<Tasks, TasksModel>();
             CreateMap<Goods, GoodsModel>();
             CreateMap<Differences, DifferencesModel>();
+            CreateMap<ScanerFile,ScanerFileModel>();
         }
 
         public override string ProfileName => "EntityToModelMappingProfile";

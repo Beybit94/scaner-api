@@ -41,39 +41,22 @@ WHERE pm.[PlanNum] = @PlanNum ", new { _query.PlanNum });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute("wms_CreateTaskSscaner", new { @PlanNum = _query.PlanNum, @userid = _query.UserId }, commandType: CommandType.StoredProcedure);
-        }
-
-        public void SaveDataFrom1c(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
             UnitOfWork.Session.Execute(@"
-insert into Scaner_Goods ([PlanNum], [DateDoc], [GUID_PlanWMSNumber],[NumberDoc],[TypeDoc],[Article],[Barcode],[Quantity],[UserId])
-values ( isnull(@PlanNum,0),
-         isnull(@DateDoc, '08.08.2020 0:00:00'),
-         isnull(@Planguid,'0'),
-         isnull(@NumberDoc,0),
-         isnull(@TypeDoc,0),
-         isnull(@Article,0),
-         isnull(@Barcode,0),
-         isnull(@Quantity,0),
-         isnull(@userid,0))",
-         new
-         {
-             @PlanNum = _query.PlanNum,
-             @userid = _query.UserId,
-             @DateDoc = _query?.DateDoc,
-             @Planguid = _query.Planguid,
-             @NumberDoc = _query.NumberDoc,
-             @TypeDoc = _query.TypeDoc,
-             @Article = _query.Article,
-             @Barcode = _query.Barcode,
-             @Quantity = _query.Quantity
-         });
+IF NOT EXISTS (SELECT Id FROM Tasks WHERE PlanNum = @PlanNum)
+BEGIN
+	INSERT INTO Tasks (StatusId, 
+                UserId, 
+                DivisionId, 
+                CreateDateTime, 
+                PlanNum, 
+                BarCode)
+    VALUES((select Id from hTaskStatus where Code='Start'),
+            @UserId,
+            @DivisionId,
+            GETDATE(),
+            @PlanNum)	
+END", new { @PlanNum = _query.PlanNum, @UserId = _query.UserId, @DivisionId = _query.DivisionId });
+
         }
 
         public Tasks GetActiveTask(Query query)
@@ -86,27 +69,17 @@ values ( isnull(@PlanNum,0),
             var entity = UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
 IF @UserId = 0
 BEGIN
-	SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId 
-    FROM wms_tasks t
-	WHERE t.DivisionId = @DivisionId AND t.WmsStatus = 1
+	SELECT TOP 1 t.* 
+    FROM Tasks t
+    join hTaskStatus ht on ht.Id = t.StatusId and ht.Code = 'Start'
+	WHERE t.DivisionId = @DivisionId
 END
 ELSE
 BEGIN
-	IF (SELECT COUNT(*) FROM wms_tasks WHERE UserId = @UserId AND WmsStatus = 1) > 0
-	BEGIN
-		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId
-		FROM wms_tasks t
-		WHERE t.UserId = @UserId AND t.WmsStatus = 1
-		order by 1 desc
-			
-	END
-	ELSE
-	BEGIN
-		SELECT TOP 1 Id,PlanNum,BoxNum,TaskTypeId
-        FROM wms_tasks t
-		WHERE t.DivisionId = @DivisionId AND t.WmsStatus = 1
-		order by 1 desc
-	END
+	SELECT TOP 1 t.*
+	FROM Tasks t
+    join hTaskStatus ht on ht.Id = t.StatusId and ht.Code = 'Start'
+    WHERE t.UserId = @UserId
 END", new { UserId = _query.UserId, DivisionId = _query.DivisionId });
 
             return entity;
@@ -121,12 +94,9 @@ END", new { UserId = _query.UserId, DivisionId = _query.DivisionId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
-select Id,
-       PlanNum,
-       BoxNum,
-       TaskTypeId
-from wms_tasks t 		  
-WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
+select * from Tasks t 		
+join hTaskStatus ht on ht.Id = t.StatusId and ht.Code = 'Start'
+WHERE t.Id = @TaskId", new { @TaskId = _query.TaskId });
             return entity;
         }
 
@@ -138,42 +108,9 @@ WHERE t.Id = @taskid and t.WmsStatus = 1", new { @taskid = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-INSERT INTO wms_taskResult 
-SELECT [WmsTaskId],
-       [GoodId],
-       [CountQty],
-       [BarCode],
-       [GoodArticle], 
-       '0',
-       [Favorite],
-       [PlanNum] 
-FROM Scaner_Goods where WmsTaskId = @TaskId
-
-UPDATE wms_tasks SET [WmsStatus] = 2, CloseDate = GETDATE()
+UPDATE Tasks SET StatusId = (select Id from hTaskStatus where Code='End'), 
+                      EndDateTime = GETDATE()
 WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
-        }
-
-        public List<Differences> Differences(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            var entity = UnitOfWork.Session.Query<Differences>(@"
-SELECT g.Id,
-       g.GoodId,
-       g.GoodName,
-       g.GoodArticle,
-       g.CountQty,
-       g.ExcessQty,
-       dd.NumberDoc,
-       dd.Quantity
-from Scaner_Goods g
-join wms_tasks wt (nolock) on wt.Id = g.WmsTaskId
-join Scaner_1cDocDataNew dd (nolock) on dd.PlanNum = wt.PlanNum
-where g.WmsTaskId = @Id", new { Id = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
-            return entity;
         }
 
         public void SaveAct(Query query)
@@ -184,7 +121,8 @@ where g.WmsTaskId = @Id", new { Id = _query.TaskId, @PlanNum = _query.PlanNum })
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-INSERT INTO Scaner_Act VALUES (@TaskId, @BoxId, @Path)", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId, @Path = _query.Path });
+INSERT INTO Scaner_File
+VALUES (@TaskId, @BoxId, @Path,(select Id hFileType from where Code='Act_Photo'))", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId, @Path = _query.Path });
         }
     }
 }

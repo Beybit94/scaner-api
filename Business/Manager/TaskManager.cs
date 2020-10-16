@@ -33,14 +33,6 @@ namespace Business.Manager
             _taskRepository.UnloadTask(query);
         }
 
-        public void SaveDataFrom1c(TaskQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<TaskQuery>(queryModel);
-
-            _taskRepository.SaveDataFrom1c(query);
-        }
-
         public TasksModel GetActiveTask(TaskQueryModel queryModel)
         {
             if(queryModel == null) throw new ArgumentNullException(nameof(queryModel));
@@ -65,15 +57,6 @@ namespace Business.Manager
             var query = _mapper.Map<TaskQuery>(queryModel);
 
             _taskRepository.EndTask(query);
-        }
-
-        public List<DifferencesModel> Differences(TaskQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<TaskQuery>(queryModel);
-
-            var entity = _taskRepository.Differences(query);
-            return _mapper.Map<List<DifferencesModel>>(entity);
         }
 
         public void SaveAct(TaskQueryModel queryModel)

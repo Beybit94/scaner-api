@@ -1,4 +1,5 @@
 ﻿using Business.Manager;
+using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using PdfSharp;
 using PdfSharp.Pdf;
@@ -10,10 +11,11 @@ namespace ScanerApi.Areas.Web.Controllers
 {
     public class PdfController : Controller
     {
-        private readonly TaskManager _taskManager;
-        public PdfController(TaskManager taskManager)
+        private readonly Data1cManager _data1CManager;
+
+        public PdfController(Data1cManager data1CManager)
         {
-            _taskManager = taskManager;
+            _data1CManager = data1CManager;
         }
 
         public ActionResult Disqus()
@@ -35,9 +37,9 @@ namespace ScanerApi.Areas.Web.Controllers
             }
         }
 
-        public FileResult Index(TaskQueryModel model)
+        public FileResult Index(Data1cQueryModel model)
         {
-            var goods = _taskManager.Differences(model);
+            var goods = _data1CManager.Differences(model);
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", goods);
             

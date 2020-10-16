@@ -1,4 +1,5 @@
 ﻿using Business.Manager;
+using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using ScanerApi.Utils;
 using System;
@@ -14,12 +15,12 @@ namespace ScanerApi.Controllers
     public class TaskController : ApiController
     {
         private readonly TaskManager _taskManager;
-        private readonly GoodManager _goodManager;
+        private readonly Data1cManager _data1CManager;
         private readonly FileManager _fileManager;
-        public TaskController(TaskManager taskManager, GoodManager goodManager, FileManager fileManager)
+        public TaskController(TaskManager taskManager, Data1cManager data1CManager, FileManager fileManager)
         {
             _taskManager = taskManager;
-            _goodManager = goodManager;
+            _data1CManager = data1CManager;
             _fileManager = fileManager;
         }
 
@@ -95,11 +96,11 @@ namespace ScanerApi.Controllers
         [HttpPost]
         [ActionName("Differences")]
         [Route("Differences")]
-        public IHttpActionResult Differences([FromBody] TaskQueryModel model)
+        public IHttpActionResult Differences([FromBody] Data1cQueryModel model)
         {
             try
             {
-                return Ok(new { success = true, data = _taskManager.Differences(model) });
+                return Ok(new { success = true, data = _data1CManager.Differences(model) });
             }
             catch (Exception ex)
             {
