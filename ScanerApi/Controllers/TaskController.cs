@@ -30,6 +30,9 @@ namespace ScanerApi.Controllers
         {
             try
             {
+                var res = _taskManager.GetPlanNum(model);
+                if (res == 0) throw new Exception("Документ с таким номером не найден");
+
                 //using (var accept = new Accepting.WebСервис_Приемка_АРЕНА())
                 //{
                 //    var result = accept.LoadOrderToSuppliers(model.PlanNum);
