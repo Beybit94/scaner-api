@@ -129,30 +129,18 @@ WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-select sg.Id
-	   , cd.NumberDoc
-	   ,sg.[GoodId]
-	   ,cd.Article as GoodArticle
-	   ,g.GoodName
-		, cd.Quantity as Quantity
-		,[CountQty]
-		,[ExcessQty]
-		,WmsTaskId as TaskId
-		, gg.GoodGroupName
-		, wtr.Favorite
-		, sg.Img
-		, wt.Text1
-		, (u.UserFirstName + ' ' + u.UserSecondName) as UserName 
-		, wt.CreationDate
-		, wt.WmsStatus as Status
-from [Scaner_Goods]  sg
-join WebProject.dbo.Goods g (nolock) on g.GoodId = sg.GoodId
-join WebProject.dbo.GoodGroups gg (nolock) on gg.GoodGroupId = g.GoodGroupId
-join [WebProject].[dbo].[wms_tasks] wt (nolock) on wt.Id = sg.WmsTaskId
-join WebProject.dbo.Users u (nolock) on u.UserId = wt.CreationUserId 
-left join [WebProject].[dbo].[wms_taskResult] wtr (nolock) on wtr.wms_taskId = sg.WmsTaskId and wtr.GoodArticle = sg.GoodArticle
-left join [WebProject].[dbo].[Scaner_1cDocData] cd (nolock) on cd.PlanNum = @PlanNum
-WHERE [WmsTaskId] = @id	", new { Id = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
+SELECT g.Id,  
+       g.GoodId,
+       g.GoodName,
+       g.GoodArticle,
+       g.CountQty,
+       g.ExcessQty,
+       dd.NumberDoc,
+       dd.Quantity
+from Scaner_Goods g
+join wms_tasks wt (nolock) on wt.Id = g.WmsTaskId
+join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum
+where g.WmsTaskId = @Id", new { Id = _query.TaskId }).ToList();
             return entity;
         }
 
