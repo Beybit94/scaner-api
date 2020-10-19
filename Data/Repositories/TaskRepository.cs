@@ -129,7 +129,18 @@ WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-SELECT g.Id,  
+SELECT g.WmsTaskId,  
+       g.GoodId,
+       g.GoodName,
+       g.GoodArticle,
+       g.CountQty,
+       g.ExcessQty,
+       ISNULL(dd.Quantity,0) as Quantity
+from Scaner_Goods g
+join wms_tasks wt on wt.Id = g.WmsTaskId
+left join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum and dd.Article = g.GoodArticle
+where g.WmsTaskId = 139645
+group by g.WmsTaskId,  
        g.GoodId,
        g.GoodName,
        g.GoodArticle,
@@ -137,10 +148,7 @@ SELECT g.Id,
        g.ExcessQty,
        dd.NumberDoc,
        dd.Quantity
-from Scaner_Goods g
-join wms_tasks wt (nolock) on wt.Id = g.WmsTaskId
-join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum
-where g.WmsTaskId = @Id", new { Id = _query.TaskId }).ToList();
+order BY WmsTaskId", new { Id = _query.TaskId }).ToList();
             return entity;
         }
 
