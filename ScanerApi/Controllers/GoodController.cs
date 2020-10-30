@@ -64,8 +64,8 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
-        [ActionName("GetActiveTask")]
-        [Route("GetActiveTask")]
+        [ActionName("GetGoodsByFilter")]
+        [Route("GetGoodsByFilter")]
         public IHttpActionResult GetGoodsByFilter([FromBody] GoodQueryModel model)
         {
             try
