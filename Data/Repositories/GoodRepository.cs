@@ -110,7 +110,8 @@ order by Id desc", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             var entity = UnitOfWork.Session.Query<Goods>(@"
 SELECT  G.GOODID AS GOODID, 
         G.GOODARTICLE,
-        G.GOODNAME
+        G.GOODNAME,
+        BC.BARCODE
 FROM GOODS G 
 JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
 JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
