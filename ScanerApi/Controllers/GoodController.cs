@@ -64,6 +64,21 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
+        [ActionName("GetActiveTask")]
+        [Route("GetActiveTask")]
+        public IHttpActionResult GetGoodsByFilter([FromBody] GoodQueryModel model)
+        {
+            try
+            {
+                return Ok(new { success = true, data = _goodManager.GetGoodsByFilter(model) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
         [ActionName("Create")]
         [Route("Create")]
         public IHttpActionResult Create([FromBody] GoodQueryModel model)

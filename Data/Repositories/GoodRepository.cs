@@ -100,6 +100,25 @@ order by Id desc", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             return entity.ToList();
         }
 
+        public List<Goods> GetGoodsByFilter(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Goods>(@"
+SELECT  G.GOODID AS GOODID, 
+        G.GOODARTICLE,
+        G.GOODNAME
+FROM GOODS G 
+JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
+WHERE G.GOODARTICLE LIKE @GoodArticle
+GROUP BY G.GOODID AS GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%"+_query.GoodArticle });
+    return entity.ToList();
+        }
+
         public int Save(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
