@@ -183,6 +183,7 @@ BEGIN
 	    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
 	    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
 	    WHERE  BC.BARCODE = @GoodBarCode
+        AND (@GoodArticle IS NULL OR G.GOODARTICLE=@GoodArticle)
         
         SELECT SCOPE_IDENTITY();
     END
@@ -243,6 +244,7 @@ new
     @BoxId = _query.BoxId,
     @PlanNum = _query.PlanNum,
     @GoodBarCode = _query.BarCode,
+    @GoodArticle = _query.GoodArticle
 });
         }
 
