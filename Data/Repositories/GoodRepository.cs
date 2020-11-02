@@ -121,7 +121,7 @@ FROM (
     JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
     JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
     WHERE G.GoodName LIKE @GoodArticle) G
-GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%"+_query.GoodArticle });
+GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%"+_query.GoodArticle+"%" });
     return entity.ToList();
         }
 
