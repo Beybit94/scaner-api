@@ -74,6 +74,22 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
+        [ActionName("CloseTask")]
+        [Route("CloseTask")]
+        public IHttpActionResult CloseTask([FromBody] TaskQueryModel model)
+        {
+            try
+            {
+                _taskManager.CloseTask(model);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
         [ActionName("Differences")]
         [Route("Differences")]
         public IHttpActionResult Differences([FromBody] TaskQueryModel model)

@@ -121,6 +121,18 @@ UPDATE wms_tasks SET [WmsStatus] = 2, CloseDate = GETDATE()
 WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
         }
 
+        public void CloseTask(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            UnitOfWork.Session.Execute(@"
+DELETE FROM Scaner_Goods WHERE WmsTaskId = @TaskId 
+DELETE FROM wms_tasks WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
+        }
+
         public List<Differences> Differences(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
