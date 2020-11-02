@@ -108,15 +108,20 @@ order by Id desc", new { @TaskId = _query.TaskId, @BoxId = _query.BoxId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Goods>(@"
-SELECT  G.GOODID AS GOODID, 
-        G.GOODARTICLE,
-        G.GOODNAME,
-        BC.BARCODE
-FROM GOODS G 
-JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
-JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
-WHERE G.GOODARTICLE LIKE @GoodArticle
-GROUP BY G.GOODID AS GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%"+_query.GoodArticle });
+SELECT G.GOODID AS GOODID, G.GOODARTICLE, G.GOODNAME
+FROM (
+    SELECT  G.GOODID AS GOODID, G.GOODARTICLE, G.GOODNAME
+    FROM GOODS G 
+    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
+    WHERE G.GOODARTICLE LIKE @GoodArticle
+    UNION
+    SELECT G.GOODID AS GOODID, G.GOODARTICLE,G.GOODNAME
+    FROM GOODS G 
+    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
+    WHERE G.GoodName LIKE @GoodArticle) G
+GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%"+_query.GoodArticle });
     return entity.ToList();
         }
 
