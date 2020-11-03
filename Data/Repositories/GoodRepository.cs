@@ -147,6 +147,15 @@ IF NOT EXISTS (select cor._Fld44670 from [KAZ-1CBASE5].[ARENAS].[dbo].[_Document
 BEGIN
     IF (ISNULL(@Id,0) = 0)
     BEGIN
+        IF NOT EXISTS (SELECT G.GOODID 
+                        FROM GOODS G 
+	                    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+	                    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
+	                    WHERE  BC.BARCODE = @GoodBarCode)
+        BEGIN
+            RAISERROR('Продукт не найден', 16, 1)
+        END;
+
         INSERT INTO SCANER_GOODS (
             [WMSTASKID], 
             [BOXID], 
@@ -188,7 +197,6 @@ BEGIN
 	    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
 	    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
 	    WHERE  BC.BARCODE = @GoodBarCode
-        AND (@GoodArticle IS NULL OR G.GOODARTICLE=@GoodArticle)
         
         SELECT SCOPE_IDENTITY();
     END
@@ -202,6 +210,12 @@ BEGIN
 END
 ELSE
 BEGIN
+    IF NOT EXISTS (SELECT COR._FLD44670 
+                    FROM [KAZ-1CBASE5].[ARENAS].[DBO].[_DOCUMENT44667] COR
+                    WHERE COR._FLD44670 = @GoodBarCode)
+    BEGIN
+        RAISERROR('Продукт не найден', 16, 1)
+    END;
     INSERT INTO SCANER_GOODS (     
         [WMSTASKID],
         [CONUMBER],
