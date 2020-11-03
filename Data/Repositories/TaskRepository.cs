@@ -151,7 +151,7 @@ SELECT g.WmsTaskId,
 from Scaner_Goods g
 join wms_tasks wt on wt.Id = g.WmsTaskId
 left join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum and dd.Article = g.GoodArticle
-where g.WmsTaskId = 139645
+where g.WmsTaskId = @Id
 and g.CountQty <> ISNULL(dd.Quantity,0)
 group by g.WmsTaskId,  
        g.GoodId,
