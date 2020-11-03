@@ -178,7 +178,7 @@ BEGIN
         SELECT  @WmsTaskId,
                 @BoxId,
                 '1' AS CONUMBER, 
-                G.GOODID AS GOODID, 
+                G.GOODID, 
                 G.GOODARTICLE,
                 1 AS ORDERQTY,
                 1 AS COUNTQTY ,
@@ -193,10 +193,17 @@ BEGIN
                 G.GOODNAME, 
                 @GoodBarCode, 
                 '0'
-	    FROM GOODS G 
-	    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
-	    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
-	    WHERE  BC.BARCODE = @GoodBarCode
+        FROM (
+            SELECT  G.GOODID AS GOODID, G.GOODARTICLE,G.GOODNAME
+            FROM GOODS G 	
+            WHERE G.GOODARTICLE = @GoodArticle
+            UNION
+            SELECT  G.GOODID AS GOODID, G.GOODARTICLE,G.GOODNAME
+            FROM GOODS G 
+            JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+            JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
+            WHERE  BC.BARCODE = @GoodBarCode
+        ) G 
         
         SELECT SCOPE_IDENTITY();
     END
