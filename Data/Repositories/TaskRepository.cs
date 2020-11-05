@@ -128,9 +128,12 @@ WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
+            var jsonString = $"TaskId:{_query.TaskId}";
             UnitOfWork.Session.Execute(@"
-DELETE FROM Scaner_Goods (NOLOCK) WHERE WmsTaskId = @TaskId 
-DELETE FROM wms_tasks (NOLOCK) WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
+DELETE FROM Scaner_Goods WHERE WmsTaskId = @TaskId 
+DELETE FROM wms_tasks WHERE Id = @TaskId
+
+INSERT INTO Scanner_Log (Method,Params) VALUES ('CloseTask', @TaskId)", new { @TaskId = _query.TaskId, @params = jsonString });
         }
 
         public List<Differences> Differences(Query query)
