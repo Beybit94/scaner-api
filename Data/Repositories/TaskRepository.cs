@@ -129,8 +129,8 @@ WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-DELETE FROM Scaner_Goods WHERE WmsTaskId = @TaskId 
-DELETE FROM wms_tasks WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
+DELETE FROM Scaner_Goods (NOLOCK) WHERE WmsTaskId = @TaskId 
+DELETE FROM wms_tasks (NOLOCK) WHERE Id = @TaskId", new { @TaskId = _query.TaskId });
         }
 
         public List<Differences> Differences(Query query)

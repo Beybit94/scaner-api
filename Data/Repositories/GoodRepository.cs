@@ -151,7 +151,8 @@ BEGIN
                         FROM GOODS G 
 	                    JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
 	                    JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID		
-	                    WHERE  BC.BARCODE = @GoodBarCode)
+	                    WHERE (trim(@GoodArticle)='' OR G.GOODARTICLE = @GoodArticle)
+                        AND (trim(@GoodBarCode)=''OR BC.BARCODE = @GoodBarCode))
         BEGIN
             RAISERROR('Продукт не найден', 16, 1)
         END;
@@ -193,17 +194,11 @@ BEGIN
                 G.GOODNAME, 
                 @GoodBarCode, 
                 '0'
-        FROM (
-            SELECT  G.GOODID AS GOODID, G.GOODARTICLE,G.GOODNAME
-            FROM GOODS G 	
-            WHERE G.GOODARTICLE = @GoodArticle
-            UNION
-            SELECT  G.GOODID AS GOODID, G.GOODARTICLE,G.GOODNAME
-            FROM GOODS G 
-            JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
-            JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
-            WHERE  BC.BARCODE = @GoodBarCode
-        ) G 
+        FROM GOODS G 
+        JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.GOODID
+        JOIN  BARCODES BC (NOLOCK) ON BC.BARCODEID = GB.BARCODEID	
+        WHERE (trim(@GoodArticle)='' OR G.GOODARTICLE = @GoodArticle)
+        AND (trim(@GoodBarCode)=''OR BC.BARCODE = @GoodBarCode)
         
         SELECT SCOPE_IDENTITY();
     END
@@ -269,7 +264,7 @@ new
     @WmsTaskId = _query.TaskId,
     @BoxId = _query.BoxId,
     @PlanNum = _query.PlanNum,
-    @GoodBarCode = _query.BarCode,
+    @GoodBarCode = _query.BarCode.Trim(),
     @GoodArticle = _query.GoodArticle
 });
         }
