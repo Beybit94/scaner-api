@@ -144,27 +144,23 @@ INSERT INTO Scanner_Log (Method,Params) VALUES ('CloseTask', @TaskId)", new { @T
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-SELECT g.WmsTaskId,  
+SELECT wt.Id,  
        g.GoodId,
        g.GoodName,
        g.GoodArticle,
-       g.CountQty,
-       g.ExcessQty,
+       ISNULL(sg.CountQty,0) as CountQty,
        ISNULL(dd.Quantity,0) as Quantity
-from Scaner_Goods g
-join wms_tasks wt on wt.Id = g.WmsTaskId
-left join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum and dd.Article = g.GoodArticle
-where g.WmsTaskId = @Id
-and g.CountQty <> ISNULL(dd.Quantity,0)
-group by g.WmsTaskId,  
+from wms_tasks wt
+left join Scaner_Goods sg (nolock) on sg.WmsTaskId = wt.Id
+left join Scaner_1cDocDataNew dd (nolock)  on dd.PlanNum = wt.PlanNum
+left join Goods g on g.GoodArticle = ISNULL(sg.GoodArticle,dd.Article) and ISNULL(sg.CountQty,0) <> ISNULL(dd.Quantity,0)
+where wt.Id = @Id
+group by wt.Id,  
        g.GoodId,
        g.GoodName,
        g.GoodArticle,
-       g.CountQty,
-       g.ExcessQty,
-       dd.NumberDoc,
-       dd.Quantity
-order BY WmsTaskId", new { Id = _query.TaskId }).ToList();
+       sg.CountQty,
+       dd.Quantity", new { Id = _query.TaskId }).ToList();
             return entity;
         }
 
