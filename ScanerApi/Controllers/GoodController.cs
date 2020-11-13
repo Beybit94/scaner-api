@@ -18,20 +18,6 @@ namespace ScanerApi.Controllers
             _goodManager = goodManager;
         }
 
-        [HttpPost]
-        [ActionName("GetGoodByCode")]
-        [Route("GetGoodByCode")]
-        public IHttpActionResult GetGoodByCode([FromBody] GoodQueryModel model)
-        {
-            try
-            {
-                return Ok(new { success = true, data = _goodManager.GetGoodByCode(model) });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { error = ex.Message, success = false });
-            }
-        }
 
         [HttpPost]
         [ActionName("GetGoodsByTask")]
@@ -85,7 +71,7 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                var id = _goodManager.Save(model);
+                _goodManager.Save(model);
                 return Ok(new { success = true });
             }
             catch (Exception ex)

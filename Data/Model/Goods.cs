@@ -16,5 +16,6 @@ namespace Data.Model
         public string GoodName { get; set; }
         public string GoodArticle { get; set; }
         public string BarCode { get; set; }
+        public int? BoxId { get; set; }
     }
 }

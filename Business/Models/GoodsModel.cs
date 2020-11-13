@@ -16,6 +16,8 @@ namespace Business.Models
         public string GoodArticle { get; set; }
         public string BarCode { get; set; }
 
+        public int? BoxId { get; set; }
+
         public bool IsBox
         {
             get
