@@ -15,15 +15,15 @@ namespace Business.Models.Base
         /// <summary>
         /// Идентификатор
         /// </summary>
-        public long ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Строковое представление идентификатора
         /// </summary>
         public string StrID
         {
-            get { return ID.ToString(); }
-            set { ID = string.IsNullOrEmpty(value) ? 0 : Convert.ToInt64(value); }
+            get { return Id.ToString(); }
+            set { Id = string.IsNullOrEmpty(value) ? 0 : Convert.ToInt32(value); }
         }
 
         /// <summary>

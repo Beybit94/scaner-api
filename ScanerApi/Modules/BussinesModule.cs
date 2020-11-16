@@ -15,7 +15,6 @@ namespace ScanerApi.Modules
             builder.RegisterType<TaskManager>().InstancePerRequest();
             builder.RegisterType<GoodManager>().InstancePerRequest();
             builder.RegisterType<FileManager>().InstancePerRequest();
-            builder.RegisterType<Data1cManager>().InstancePerRequest();
         }
     }
 }

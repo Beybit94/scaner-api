@@ -22,24 +22,6 @@ namespace Business.Manager
             _mapper = mappper;
         }
 
-        public GoodsModel GetGoodById(GoodQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<GoodQuery>(queryModel);
-
-            var entity = _goodRepository.GetGoodById(query);
-            return _mapper.Map<GoodsModel>(entity);
-        }
-
-        public GoodsModel GetGoodByCode(GoodQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<GoodQuery>(queryModel);
-
-            var entity = _goodRepository.GetGoodByCode(query);
-            return _mapper.Map<GoodsModel>(entity);
-        }
-
         public List<GoodsModel> GetGoodsByTask(GoodQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
@@ -58,12 +40,31 @@ namespace Business.Manager
             return _mapper.Map<List<GoodsModel>>(entity);
         }
 
-        public int Save(GoodQueryModel queryModel)
+        public List<GoodsModel> GetGoodsByFilter(GoodQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<GoodQuery>(queryModel);
 
-            return _goodRepository.Save(query);
+            var entity = _goodRepository.GetGoodsByFilter(query);
+            return _mapper.Map<List<GoodsModel>>(entity);
+        }
+
+        public void Save(GoodQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<GoodQuery>(queryModel);
+
+            //Проверка товара на количество
+            var goods = _goodRepository.ExistGood(query);
+            if (goods.Count() > 1) throw new Exception("Несколько товаров по штрихкоду");
+            if (goods.Count() == 0) throw new Exception("Товар не найден");
+
+            var saveQuery = query;
+            saveQuery.GoodId = goods.FirstOrDefault().GoodId;
+            saveQuery.GoodName = goods.FirstOrDefault().GoodName;
+            saveQuery.GoodArticle = goods.FirstOrDefault().GoodArticle;
+            saveQuery.CountQty = 1;
+            _goodRepository.Save(saveQuery);
         }
 
         public void Update(GoodQueryModel queryModel)

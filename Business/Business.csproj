@@ -48,7 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Manager\Data1cManager.cs" />
+    <Compile Include="Factory\ConnectionFactory.cs" />
+    <Compile Include="Manager\CacheDictionaryManager.cs" />
+    <Compile Include="Manager\DictionaryManager.cs" />
     <Compile Include="Manager\FileManager.cs" />
     <Compile Include="Manager\GoodManager.cs" />
     <Compile Include="Manager\TaskManager.cs" />
@@ -60,6 +62,8 @@
     <Compile Include="Models\Base\IModel.cs" />
     <Compile Include="Models\Base\ListModel.cs" />
     <Compile Include="Models\Base\Model.cs" />
+    <Compile Include="Models\Dictionary\BaseDictionary.cs" />
+    <Compile Include="Models\Dictionary\StandartDictionaries.cs" />
     <Compile Include="Models\DifferencesModel.cs" />
     <Compile Include="Models\GoodsModel.cs" />
     <Compile Include="Models\ScanerFileModel.cs" />

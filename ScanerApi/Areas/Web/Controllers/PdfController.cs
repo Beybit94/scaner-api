@@ -11,11 +11,11 @@ namespace ScanerApi.Areas.Web.Controllers
 {
     public class PdfController : Controller
     {
-        private readonly Data1cManager _data1CManager;
+        private readonly TaskManager _taskManager;
 
-        public PdfController(Data1cManager data1CManager)
+        public PdfController(TaskManager taskManager)
         {
-            _data1CManager = data1CManager;
+            _taskManager = taskManager;
         }
 
         public ActionResult Disqus()
@@ -37,9 +37,9 @@ namespace ScanerApi.Areas.Web.Controllers
             }
         }
 
-        public FileResult Index(Data1cQueryModel model)
+        public FileResult Index(TaskQueryModel model)
         {
-            var goods = _data1CManager.Differences(model);
+            var goods = _taskManager.Differences(model);
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", goods);
             

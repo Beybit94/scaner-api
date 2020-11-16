@@ -15,12 +15,10 @@ namespace ScanerApi.Controllers
     public class TaskController : ApiController
     {
         private readonly TaskManager _taskManager;
-        private readonly Data1cManager _data1CManager;
         private readonly FileManager _fileManager;
-        public TaskController(TaskManager taskManager, Data1cManager data1CManager, FileManager fileManager)
+        public TaskController(TaskManager taskManager, FileManager fileManager)
         {
             _taskManager = taskManager;
-            _data1CManager = data1CManager;
             _fileManager = fileManager;
         }
 
@@ -31,27 +29,6 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                //using (var accept = new Accepting.WebСервис_Приемка_АРЕНА())
-                //{
-                //    var result = accept.LoadOrderToSuppliers(model.PlanNum);
-                //    foreach (var m in result.Param)
-                //    {
-                //        model.Planguid = m.GUID_PlanWMSNumber;
-                //        model.DateDoc = m.DateDoc;
-                //        model.NumberDoc = m.NumberDoc;
-                //        model.TypeDoc = m.TypeDoc;
-
-                //        foreach (var t in m.OrderToSupplierGood)
-                //        {
-                //            model.Article = t.Article;
-                //            model.Barcode = t.Barcode;
-                //            model.Quantity = t.Quantity;
-
-                //            _taskManager.SaveDataFrom1c(model);
-                //        }
-                //    }
-
-                //}
                 _taskManager.UnloadTask(model);
 
                 return Ok(new { success = true });
@@ -94,13 +71,29 @@ namespace ScanerApi.Controllers
         }
 
         [HttpPost]
-        [ActionName("Differences")]
-        [Route("Differences")]
-        public IHttpActionResult Differences([FromBody] Data1cQueryModel model)
+        [ActionName("CloseTask")]
+        [Route("CloseTask")]
+        public IHttpActionResult CloseTask([FromBody] TaskQueryModel model)
         {
             try
             {
-                return Ok(new { success = true, data = _data1CManager.Differences(model) });
+                _taskManager.CloseTask(model);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Differences")]
+        [Route("Differences")]
+        public IHttpActionResult Differences([FromBody] TaskQueryModel model)
+        {
+            try
+            {
+                return Ok(new { success = true, data = _taskManager.Differences(model) });
             }
             catch (Exception ex)
             {

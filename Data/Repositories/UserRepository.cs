@@ -26,7 +26,7 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirst<Users>($@"
-SELECT u.UserId, 
+SELECT u.Id, 
        u.UserFirstName, 
        u.UserSecondName, 
        u.UserDivisionId, 

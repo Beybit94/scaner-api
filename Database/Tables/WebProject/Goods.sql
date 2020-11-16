@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Goods]
 (
-	[Id] INT IDENTITY (1, 1) NOT NULL PRIMARY KEY,
+	[Id] INT NOT NULL ,
 	[GoodName] [nvarchar](100) NULL,
 	[GoodGroupId] [int] NULL,
 	[GoodBrandId] [int] NULL,
@@ -33,5 +33,6 @@
 	[CennikStarDate] [datetime] NULL,
 	[CennikEndDate] [datetime] NULL,
 	[SellersDirectionId] [int] NULL,
-	[_Version] [timestamp] NULL,
+	[_Version] [timestamp] NULL, 
+    CONSTRAINT [PK_Goods] PRIMARY KEY ([Id]),
 )

@@ -26,18 +26,30 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-SELECT g.Id,
-       g.GoodId,
+SELECT g.GoodId,
        g.GoodName,
        g.GoodArticle,
        g.CountQty,
-       g.ExcessQty,
-       dd.NumberDoc,
-       dd.Quantity
-from Scaner_Goods g
-join Tasks t (nolock) on t.Id = g.WmsTaskId
-join Scaner_1cDocData dd (nolock) on dd.PlanNum = wt.PlanNum
-where g.WmsTaskId = @TaskId", new { @TaskId = _query.TaskId, @PlanNum = _query.PlanNum }).ToList();
+       g.Quantity
+from Tasks wt
+CROSS APPLY(
+    select  g.Id as GoodId,
+        g.GoodName,
+        g.GoodArticle, 
+        ISNULL(sg.CountQty,0) as CountQty,
+        ISNULL(dd.Quantity,0) as Quantity
+    from Goods g
+    left join Scaner_Goods sg on sg.GoodArticle = g.GoodArticle and sg.TaskId = wt.Id 
+    left join Scaner_1cDocData dd on dd.Article = g.GoodArticle and dd.PlanNum = wt.PlanNum
+) g
+where wt.Id = @TaskId
+and g.CountQty <> g.Quantity
+group by    g.GoodId,
+            g.GoodName,
+            g.GoodArticle,
+            g.CountQty,
+            g.Quantity
+order by g.GoodId", new { _query.TaskId }).ToList();
             return entity;
         }
 

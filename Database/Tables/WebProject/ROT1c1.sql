@@ -8,5 +8,5 @@
 	[DivisionIDRRef] [binary](16) NULL,
 	[LocationIDRRef] [binary](16) NULL,
 	[Volume] [numeric](12, 4) NULL,
-	[PlanNum] [nvarchar](50) NULL
-)
+	[PlanNum] [nvarchar](50) NULL, 
+) ON [PRIMARY]

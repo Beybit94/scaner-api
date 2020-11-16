@@ -15,4 +15,4 @@
 	[LocationTO1cc] [binary](50) NULL,
 	[ROT] [nvarchar](50) NULL,
 	[PlanNum] [nvarchar](50) NULL
-)
+) ON [PRIMARY]

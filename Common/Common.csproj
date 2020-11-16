@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheItem.cs" />
+    <Compile Include="CacheManager.cs" />
     <Compile Include="Configuration\ConfigurtionOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

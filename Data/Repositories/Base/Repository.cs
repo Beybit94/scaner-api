@@ -36,11 +36,11 @@ namespace Data.Repositories.Base
             {
                 var tableName = typeof(T).TableName();
                 var props = entity.GetType().GetProperties();
-                var columns = props.Where(p => !p.NotMapped()).Select(p => p.Name).Where(s => s != "ID").ToArray();
+                var columns = props.Where(p => !p.NotMapped()).Select(p => p.Name).Where(s => s != "Id").ToArray();
 
                 if (string.IsNullOrEmpty(tableName)) throw new ArgumentNullException(nameof(tableName));
 
-                entity.ID = UnitOfWork.Session.QuerySingleOrDefault<long>($@"
+                entity.Id = UnitOfWork.Session.QuerySingleOrDefault<int>($@"
 INSERT INTO {tableName} ({string.Join(",", columns)})
 VALUES (@{string.Join(",@", columns)})
 SELECT SCOPE_IDENTITY()", entity, UnitOfWork.Transaction);
@@ -55,14 +55,14 @@ SELECT SCOPE_IDENTITY()", entity, UnitOfWork.Transaction);
             {
                 var tableName = typeof(T).TableName();
                 var props = entity.GetType().GetProperties();
-                var columns = props.Where(p => !p.NotMapped()).Select(p => p.Name).Where(s => s != "ID").ToArray();
+                var columns = props.Where(p => !p.NotMapped()).Select(p => p.Name).Where(s => s != "Id").ToArray();
 
                 if (string.IsNullOrEmpty(tableName)) throw new ArgumentNullException(nameof(tableName));
 
                 UnitOfWork.Session.Execute($@"
 UPDATE {tableName} WITH(ROWLOCK)
 SET {string.Join(",", columns.Select(name => name + "=@" + name))}
-WHERE ID = @ID", entity, UnitOfWork.Transaction);
+WHERE Id = @Id", entity, UnitOfWork.Transaction);
 
                 transaction.Commit();
             }
@@ -76,7 +76,7 @@ WHERE ID = @ID", entity, UnitOfWork.Transaction);
 
                 if (string.IsNullOrEmpty(tableName)) throw new ArgumentNullException(nameof(tableName));
 
-                UnitOfWork.Session.Execute($"DELETE FROM {tableName} WHERE ID = @id", new { id }, UnitOfWork.Transaction);
+                UnitOfWork.Session.Execute($"DELETE FROM {tableName} WHERE Id = @id", new { id }, UnitOfWork.Transaction);
 
                 transaction.Commit();
             }
@@ -92,7 +92,7 @@ WHERE ID = @ID", entity, UnitOfWork.Transaction);
 
             using (var transaction = UnitOfWork.BeginTransaction())
             {
-                return UnitOfWork.Session.QuerySingleOrDefault<T>($"SELECT * FROM {tableName} WHERE ID = @id", new { id }, UnitOfWork.Transaction);
+                return UnitOfWork.Session.QuerySingleOrDefault<T>($"SELECT * FROM {tableName} WHERE Id = @id", new { id }, UnitOfWork.Transaction);
             }
         }
 
@@ -109,7 +109,7 @@ WHERE ID = @ID", entity, UnitOfWork.Transaction);
 
             if (string.IsNullOrEmpty(tableName)) throw new ArgumentNullException(nameof(tableName));
 
-            var order = "ORDER BY ID DESC";
+            var order = "ORDER BY Id DESC";
 
             var page = listQuery.Page();
 

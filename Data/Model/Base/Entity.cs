@@ -14,6 +14,6 @@ namespace Data.Model.Base
         /// <summary>
         /// Идентификатор
         /// </summary>
-        public long ID { get; set; }
+        public int Id { get; set; }
     }
 }

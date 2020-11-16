@@ -9,6 +9,7 @@
     [BarCode] NVARCHAR(50) NULL, 
     [BoxId] INT NULL, 
     [DamagePercentId] INT NULL, 
+    [Created] DATETIME NOT NULL DEFAULT getdate(), 
     CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
     CONSTRAINT [FK_Scaner_Goods_hDamagePercent_DamagePercentId] FOREIGN KEY ([DamagePercentId]) REFERENCES [hDamagePercent]([Id]) 
 )
