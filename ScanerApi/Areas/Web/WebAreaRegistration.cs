@@ -45,6 +45,7 @@ namespace ScanerApi.Areas.Web
                 return unitOfWork;
             }).As<IUnitOfWork>().SingleInstance();
             builder.RegisterType<TaskRepository>().InstancePerRequest();
+            builder.RegisterType<Data1cRepository>().InstancePerRequest();
             builder.RegisterType<TaskManager>().InstancePerRequest();
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
 
