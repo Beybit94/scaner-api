@@ -29,7 +29,7 @@ namespace Data.Repositories
             var entity = UnitOfWork.Session.Query<Goods>(@"
 SELECT Id,
        GoodId,
-       [CountQty] as Count,
+       [CountQty],
        [GoodName],
        [GoodArticle],
        BarCode
@@ -50,7 +50,7 @@ order by Created desc", new { @TaskId = _query.TaskId });
             var entity = UnitOfWork.Session.Query<Goods>(@"
 SELECT Id,
        GoodId,
-       [CountQty] as Count,
+       [CountQty],
        [GoodName],
        [GoodArticle],
        BarCode

@@ -11,7 +11,7 @@ namespace Business.Models
     public class GoodsModel:Model
     {
         public int GoodId { get; set; }
-        public int Count { get; set; }
+        public int CountQty { get; set; }
         public string GoodName { get; set; }
         public string GoodArticle { get; set; }
         public string BarCode { get; set; }
