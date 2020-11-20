@@ -151,6 +151,7 @@
     <Compile Include="Migrations\202010201133_GoodsBarcodesDropFK.cs" />
     <Compile Include="Migrations\202011161017_ScannerGoodsCreated.cs" />
     <Compile Include="Migrations\202011161745_GoodsBarcodes.cs" />
+    <Compile Include="Migrations\202011201116_SendTo1C.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

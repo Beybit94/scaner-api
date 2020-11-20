@@ -67,6 +67,7 @@
     <Compile Include="Models\DifferencesModel.cs" />
     <Compile Include="Models\GoodsModel.cs" />
     <Compile Include="Models\ScanerFileModel.cs" />
+    <Compile Include="Models\Scaner_1cDocDataModel.cs" />
     <Compile Include="Models\TasksModel.cs" />
     <Compile Include="Models\UsersModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
