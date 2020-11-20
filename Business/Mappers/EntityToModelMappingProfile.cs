@@ -13,6 +13,7 @@ namespace Business.Mappers
             CreateMap<Goods, GoodsModel>();
             CreateMap<Differences, DifferencesModel>();
             CreateMap<ScanerFile,ScanerFileModel>();
+            CreateMap<Scaner_1cDocData, Scaner_1cDocDataModel>();
         }
 
         public override string ProfileName => "EntityToModelMappingProfile";

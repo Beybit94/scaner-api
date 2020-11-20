@@ -9,7 +9,8 @@
     [Article] NVARCHAR(50) NULL, 
     [Barcode] NVARCHAR(50) NULL, 
     [Quantity] INT NULL, 
-    [UserId] INT NULL
+    [UserId] INT NULL, 
+    [LocationGuid] NVARCHAR(50) NULL
 )
 
 GO

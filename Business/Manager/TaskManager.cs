@@ -89,5 +89,31 @@ namespace Business.Manager
 
             _taskRepository.SaveAct(query);
         }
+
+        public List<Scaner_1cDocDataModel> GetDataTo1c(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<Data1cQuery>(queryModel);
+
+            var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SendTo1C");
+            query.ProcessTypeId = hProcessType.Id;
+
+            var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
+            query.StatusId = hTaskStatus.Id;
+
+            var entity = _data1CRepository.GetDataTo1c(query);
+            return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);
+        }
+
+        public void SetDataTo1c(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<Data1cQuery>(queryModel);
+
+            var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SendTo1C");
+            query.ProcessTypeId = hProcessType.Id;
+
+            _data1CRepository.SetDataTo1c(query);
+        }
     }
 }

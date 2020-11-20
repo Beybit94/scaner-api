@@ -53,7 +53,44 @@ order by g.GoodId", new { _query.TaskId }).ToList();
             return entity;
         }
 
-        public void SaveDataFrom1c(Query query)
+        public List<Scaner_1cDocData> GetDataTo1c(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as Data1cQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Scaner_1cDocData>(@"
+select *
+from
+(
+    select  t.Id as TaskId,
+            dd.NumberDoc,
+            dd.DateDoc, 
+            dd.Barcode,
+            dd.LocationGuid,
+            isnull(dd.Quantity,0) as OrderQty,
+            g.GoodArticle,
+            g.CountQty
+    from Tasks t
+    join Scaner_Goods g (nolock) on g.TaskId = t.Id
+    join Scaner_1cDocData dd (nolock) on dd.PlanNum = t.PlanNum and g.GoodArticle = dd.Article
+    where t.StatusId = @StatusId 
+    and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)
+) c
+group by c.TaskId,
+         c.NumberDoc,
+         c.DateDoc, 
+         c.Barcode,
+         c.LocationGuid,
+         c.OrderQty,
+         c.GoodArticle,
+         c.CountQty", new { _query.StatusId, _query.ProcessTypeId });
+
+            return entity.ToList();
+        }
+
+        public void SetDataTo1c(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
@@ -61,28 +98,7 @@ order by g.GoodId", new { _query.TaskId }).ToList();
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-insert into Scaner_Goods ([PlanNum], [DateDoc], [GUID_PlanWMSNumber],[NumberDoc],[TypeDoc],[Article],[Barcode],[Quantity],[UserId])
-values ( isnull(@PlanNum,0),
-         isnull(@DateDoc, '08.08.2020 0:00:00'),
-         isnull(@Planguid,'0'),
-         isnull(@NumberDoc,0),
-         isnull(@TypeDoc,0),
-         isnull(@Article,0),
-         isnull(@Barcode,0),
-         isnull(@Quantity,0),
-         isnull(@userid,0))",
-         new
-         {
-             @PlanNum = _query.PlanNum,
-             @userid = _query.UserId,
-             @DateDoc = _query?.DateDoc,
-             @Planguid = _query.Planguid,
-             @NumberDoc = _query.NumberDoc,
-             @TypeDoc = _query.TypeDoc,
-             @Article = _query.Article,
-             @Barcode = _query.Barcode,
-             @Quantity = _query.Quantity
-         });
+INSERT INTO Logs (TaskId, ProcessTypeId) VALUES ()",new { _query.TaskId, _query.ProcessTypeId });
         }
     }
 }
