@@ -28,8 +28,7 @@ namespace Data.Repositories
 
             var entity = UnitOfWork.Session.QueryFirstOrDefault<int>($@"
 SELECT count(pm.PlanNum)
-FROM ROT1c1 pm (nolock)
-join Inventory_Tasks it (nolock) on it.ROT = pm._Number
+FROM Scaner_1cDocData pm (nolock)
 WHERE pm.[PlanNum] = @PlanNum", new { _query.PlanNum });
             return entity;
         }

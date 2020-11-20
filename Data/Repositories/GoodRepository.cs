@@ -131,8 +131,8 @@ BEGIN
                     0 as GOODID, 
                     '' as GOODARTICLE,
                     @GoodName as GoodName
-            FROM [KAZ-1CBASE5].[ARENAS].[DBO].[_DOCUMENT44667] COR
-            WHERE COR._FLD44670 = @BarCode) AS Source
+            FROM BOXES B
+            WHERE B.BarCode = @BarCode) AS Source
     ON (Target.TaskId = Source.TaskId 
         AND Target.BarCode = Source.BarCode)
     WHEN NOT MATCHED BY TARGET THEN

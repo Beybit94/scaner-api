@@ -33,7 +33,7 @@ namespace ScanerApi.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { error = ex.Message, success = true });
+                return Json(new { error = ex.Message, success = false });
             }
         }
     }
