@@ -19,17 +19,17 @@ namespace Data.Repositories
         {
         }
 
-        public int GetPlanNum(Query query)
+        public Scaner_1cDocData GetPlanNum(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirstOrDefault<int>($@"
-SELECT count(pm.PlanNum)
-FROM Scaner_1cDocData pm (nolock)
-WHERE pm.[PlanNum] = @PlanNum", new { _query.PlanNum });
+            var entity = UnitOfWork.Session.QueryFirstOrDefault<Scaner_1cDocData>($@"
+SELECT NumberDoc, PlanNum, DateDoc
+FROM Scaner_1cDocData
+WHERE PlanNum = @PlanNum", new { _query.PlanNum });
             return entity;
         }
 

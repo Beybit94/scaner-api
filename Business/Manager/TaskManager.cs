@@ -26,13 +26,22 @@ namespace Business.Manager
             _mapper = mappper;
         }
 
+        public Scaner_1cDocDataModel GetPlanNum(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<TaskQuery>(queryModel);
+
+            var entity = _taskRepository.GetPlanNum(query);
+            return _mapper.Map<Scaner_1cDocDataModel>(entity);
+        }
+
         public void UnloadTask(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
             var res = _taskRepository.GetPlanNum(query);
-            if (res == 0) throw new Exception("Документ с таким номером не найден");
+            if (res == null || res.Id == 0) throw new Exception("Документ с таким номером не найден");
 
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
             query.StatusId = hTaskStatus.Id;

@@ -17,7 +17,7 @@ namespace SendTaskTo1C
             builder.Register(ctx => new MapperConfiguration(cfg => AutoMapperConfiguration.Configure(cfg)))
                    .AsSelf().SingleInstance();
             builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper(c.Resolve))
-                   .As<IMapper>().InstancePerLifetimeScope();
+                   .As<IMapper>();
 
             builder.Register(ctx =>
             {
@@ -25,9 +25,9 @@ namespace SendTaskTo1C
                 unitOfWork.Init();
                 return unitOfWork;
             }).As<IUnitOfWork>().SingleInstance();
-            builder.RegisterType<TaskRepository>().InstancePerRequest();
-            builder.RegisterType<Data1cRepository>().InstancePerRequest();
-            builder.RegisterType<TaskManager>().InstancePerRequest();
+            builder.RegisterType<TaskRepository>();
+            builder.RegisterType<Data1cRepository>();
+            builder.RegisterType<TaskManager>();
 
 
             return builder.Build();

@@ -28,16 +28,21 @@ namespace SendTaskTo1C
 
                 foreach (var item in items.GroupBy(m=>m.NumberDoc))
                 {
+                    query.PlanNum = item.FirstOrDefault().PlanNum;
+                    var docData = taskManager.GetPlanNum(query);
+                    var DateDoc = item.FirstOrDefault().DateDoc.HasValue ? item.FirstOrDefault().DateDoc.Value : docData.DateDoc.Value;
+                    var NumberDoc = string.IsNullOrEmpty(item.FirstOrDefault().NumberDoc) ? docData.NumberDoc : item.FirstOrDefault().NumberDoc;
+
                     var res = new WebReference.Receipt();
                     res.GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A";
                     res.DateBeginLoad = DateTime.Now;
-                    res.DateDoc = item.FirstOrDefault().DateDoc;
+                    res.DateDoc = DateDoc;
                     res.DateEndLoad = DateTime.Now;
                     res.DateReceipt = DateTime.Now;
-                    res.GUID_Location = item.FirstOrDefault().LocationGuid;
+                    res.GUID_Location = "10c95cb1-29c2-11e0-8806-001b78e2224a";
                     res.GUID_WEB = item.FirstOrDefault().TaskId.ToString();
                     res.Rowpictures = "0";
-                    res.NumberDoc = item.FirstOrDefault().NumberDoc;
+                    res.NumberDoc = NumberDoc;
                     res.TypeDoc = "РасходныйОрдерНаТовары";
 
                     foreach(var g in item)
@@ -54,7 +59,7 @@ namespace SendTaskTo1C
                 }
 
                 List<string> errors = new List<string>();
-                var resultSend = acceptSend.LoadReceipts(data.ToArray());
+                var resultSend = acceptSend.LoadReceipts_new(data.ToArray());
                 foreach (var r in resultSend)
                 {
                     foreach (var m in r.Messages)
@@ -63,11 +68,8 @@ namespace SendTaskTo1C
                     }
                 }
 
-                if (!errors.Any())
-                {
-                    query.TaskId = items.FirstOrDefault().TaskId;
-                    taskManager.SetDataTo1c(query);
-                }
+                query.TaskId = items.FirstOrDefault().TaskId;
+                taskManager.SetDataTo1c(query);
             }
         }
     }

@@ -10,7 +10,7 @@ namespace Data.Model
     public class Scaner_1cDocData:Entity
     {
         public string PlanNum { get; set; }
-        public DateTime DateDoc { get; set; }
+        public DateTime? DateDoc { get; set; }
         public string GUID_PlanWMSNumber { get; set; }
         public string NumberDoc { get; set; }
         public string TypeDoc { get; set; }

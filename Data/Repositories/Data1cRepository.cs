@@ -65,6 +65,7 @@ select *
 from
 (
     select  t.Id as TaskId,
+            t.PlanNum,
             dd.NumberDoc,
             dd.DateDoc, 
             dd.Barcode,
@@ -74,11 +75,12 @@ from
             g.CountQty
     from Tasks t
     join Scaner_Goods g (nolock) on g.TaskId = t.Id
-    join Scaner_1cDocData dd (nolock) on dd.PlanNum = t.PlanNum and g.GoodArticle = dd.Article
+    left join Scaner_1cDocData dd (nolock) on dd.PlanNum = t.PlanNum and g.GoodArticle = dd.Article
     where t.StatusId = @StatusId 
     and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)
 ) c
 group by c.TaskId,
+         c.PlanNum,
          c.NumberDoc,
          c.DateDoc, 
          c.Barcode,
@@ -98,7 +100,7 @@ group by c.TaskId,
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
-INSERT INTO Logs (TaskId, ProcessTypeId) VALUES ()",new { _query.TaskId, _query.ProcessTypeId });
+INSERT INTO Logs (TaskId, ProcessTypeId) VALUES (@TaskId,@ProcessTypeId)",new { _query.TaskId, _query.ProcessTypeId });
         }
     }
 }
