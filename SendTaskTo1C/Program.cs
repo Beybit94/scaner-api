@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Business.Manager;
 using Business.QueryModels.Task;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,38 +19,32 @@ namespace SendTaskTo1C
             var taskManager = Container.Resolve<TaskManager>();
 
             var query = new TaskQueryModel();
-            var items = taskManager.GetDataTo1c(query);
+            var items = taskManager.PrepareDataTo1c(query);
 
             using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
             {
                 List<WebReference.Receipt> data = new List<WebReference.Receipt>();
-                List<WebReference.ReceiptGood> goods = new List<WebReference.ReceiptGood>();
-                List<WebReference.Receipt> datanew = new List<WebReference.Receipt>();
 
-                foreach (var item in items.GroupBy(m=>m.NumberDoc))
+                foreach (var item in items)
                 {
-                    query.PlanNum = item.FirstOrDefault().PlanNum;
-                    var docData = taskManager.GetPlanNum(query);
-                    var DateDoc = item.FirstOrDefault().DateDoc.HasValue ? item.FirstOrDefault().DateDoc.Value : docData.DateDoc.Value;
-                    var NumberDoc = string.IsNullOrEmpty(item.FirstOrDefault().NumberDoc) ? docData.NumberDoc : item.FirstOrDefault().NumberDoc;
-
                     var res = new WebReference.Receipt();
                     res.GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A";
                     res.DateBeginLoad = DateTime.Now;
-                    res.DateDoc = DateDoc;
+                    res.DateDoc = item.DateDoc.Value;
                     res.DateEndLoad = DateTime.Now;
                     res.DateReceipt = DateTime.Now;
                     res.GUID_Location = "10c95cb1-29c2-11e0-8806-001b78e2224a";
-                    res.GUID_WEB = item.FirstOrDefault().TaskId.ToString();
+                    res.GUID_WEB = item.TaskId.ToString();
                     res.Rowpictures = "0";
-                    res.NumberDoc = NumberDoc;
+                    res.NumberDoc = item.NumberDoc;
                     res.TypeDoc = "РасходныйОрдерНаТовары";
 
-                    foreach(var g in item)
+                    var goods = new List<WebReference.ReceiptGood>();
+                    foreach (var g in item.ReceiptGoods)
                     {
                         var good = new WebReference.ReceiptGood();
-                        good.Article = g.GoodArticle;
-                        good.Quantity = g.CountQty;
+                        good.Article = g.Article;
+                        good.Quantity = g.Quantity;
                         good.Barcode = g.Barcode;
                         goods.Add(good);
                     }
@@ -69,7 +64,8 @@ namespace SendTaskTo1C
                 }
 
                 query.TaskId = items.FirstOrDefault().TaskId;
-                taskManager.SetDataTo1c(query);
+                query.Message = JsonConvert.SerializeObject(resultSend);
+                taskManager.Set1cStatus(query);
             }
         }
     }

@@ -85,6 +85,7 @@
     <Compile Include="Models\Dictionary\StandartDictionaries.cs" />
     <Compile Include="Models\DifferencesModel.cs" />
     <Compile Include="Models\GoodsModel.cs" />
+    <Compile Include="Models\ReceiptModel.cs" />
     <Compile Include="Models\ScanerFileModel.cs" />
     <Compile Include="Models\Scaner_1cDocDataModel.cs" />
     <Compile Include="Models\TasksModel.cs" />

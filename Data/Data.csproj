@@ -73,6 +73,7 @@
     <Compile Include="Model\Base\IEntity.cs" />
     <Compile Include="Model\Differences.cs" />
     <Compile Include="Model\Goods.cs" />
+    <Compile Include="Model\Receipt.cs" />
     <Compile Include="Model\Scaner_1cDocData.cs" />
     <Compile Include="Model\Scaner_File.cs" />
     <Compile Include="Model\Tasks.cs" />

@@ -173,6 +173,7 @@
     <Compile Include="Migrations\202011161017_ScannerGoodsCreated.cs" />
     <Compile Include="Migrations\202011161745_GoodsBarcodes.cs" />
     <Compile Include="Migrations\202011201116_SendTo1C.cs" />
+    <Compile Include="Migrations\202011231452_LogMessage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

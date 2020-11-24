@@ -14,5 +14,7 @@ namespace Data.Queries.Data1c
         public int TaskId { get; set; }
         public int StatusId { get; set; }
         public int ProcessTypeId { get; set; }
+        public string NumberDoc { get; set; }
+        public string Message { get; set; }
     }
 }

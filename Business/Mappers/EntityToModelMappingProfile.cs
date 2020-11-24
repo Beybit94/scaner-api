@@ -14,6 +14,8 @@ namespace Business.Mappers
             CreateMap<Differences, DifferencesModel>();
             CreateMap<ScanerFile,ScanerFileModel>();
             CreateMap<Scaner_1cDocData, Scaner_1cDocDataModel>();
+            CreateMap<Receipt, ReceiptModel>();
+            CreateMap<ReceiptGood, ReceiptGoodModel>();
         }
 
         public override string ProfileName => "EntityToModelMappingProfile";

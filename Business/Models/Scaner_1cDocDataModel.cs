@@ -21,8 +21,6 @@ namespace Business.Models
         public int UserId { get; set; }
         public int TaskId { get; set; }
         public string LocationGuid { get; set; }
-        public string GoodArticle { get; set; }
-        public int CountQty { get; set; }
 
         public override ModelValidationResult Validate()
         {

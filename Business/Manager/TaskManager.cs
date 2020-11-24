@@ -99,7 +99,7 @@ namespace Business.Manager
             _taskRepository.SaveAct(query);
         }
 
-        public List<Scaner_1cDocDataModel> GetDataTo1c(TaskQueryModel queryModel)
+        public List<ReceiptModel> PrepareDataTo1c(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<Data1cQuery>(queryModel);
@@ -110,11 +110,16 @@ namespace Business.Manager
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
             query.StatusId = hTaskStatus.Id;
 
-            var entity = _data1CRepository.GetDataTo1c(query);
-            return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);
+            var receipts = _data1CRepository.GetNumberDocs(query);
+            foreach(var item in receipts)
+            {
+                query.NumberDoc = item.NumberDoc;
+                item.ReceiptGoods = _data1CRepository.GetDataByNumberDoc(query);
+            }
+            return _mapper.Map<List<ReceiptModel>>(receipts);
         }
 
-        public void SetDataTo1c(TaskQueryModel queryModel)
+        public void Set1cStatus(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<Data1cQuery>(queryModel);
