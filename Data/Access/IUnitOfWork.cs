@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace ScanerApi.Data.Access
+namespace Data.Access
 {
     /// <summary>
     /// Единица работы

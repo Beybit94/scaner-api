@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Data.Model.Base;
-using ScanerApi.Data.Access;
-using ScanerApi.Data.Extensions;
+using Data.Access;
+using Data.Extensions;
 using ScanerApi.Data.Queries;
 using System;
 using System.Collections.Generic;

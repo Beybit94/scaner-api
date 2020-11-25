@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace Data.Model
 {
-    [Table("wms_tasks")]
+    [Table("Tasks")]
     public class Tasks: Entity
     {
-        public string Id { get; set; }
-        public int DivisionId { get; set; }
         public int UserId { get; set; }
-        public int TaskTypeId { get; set; }
+        public int DivisionId { get; set; }
+        public int StatusId { get; set; }
         public string PlanNum { get; set; }
-        public string BoxNum { get; set; }
+        public string BarCode { get; set; }
+        public int? ParentId { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime? EndDateTime { get; set; }
     }
 }

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="82e36a09-7a25-49bd-b194-365f14fccddd" ChangeDateTime="10/07/2020 04:07:02">
+    <Property Name="ElementName" Value="[dbo].[hTaskStatus].[NameRU]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[hTaskStatus]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Name" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1335a66f-d367-43de-9506-e99f38fd7864" ChangeDateTime="10/07/2020 04:08:26">
+    <Property Name="ElementName" Value="[dbo].[Tasks].[Status]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Tasks]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="TaskStatusId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="28f5c228-e48f-4cce-87ac-5e6aa7315d50" ChangeDateTime="10/07/2020 04:09:18">
+    <Property Name="ElementName" Value="[dbo].[Tasks].[TaskStatusId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Tasks]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="StatusId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1d021d86-fcf5-4435-8fa1-1e7db03946df" ChangeDateTime="10/07/2020 04:13:59">
+    <Property Name="ElementName" Value="[dbo].[Scaner_Goods].[WmsTaskId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Scaner_Goods]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="TaskId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f6cf0bc9-3be5-4196-b02e-654071dcd645" ChangeDateTime="10/12/2020 04:59:01">
+    <Property Name="ElementName" Value="[dbo].[Scaner_Goods].[IsDefect]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Scaner_Goods]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DefectTypeId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="35166f1f-b466-464d-bd9b-fa55171f5bf1" ChangeDateTime="10/16/2020 06:06:52">
+    <Property Name="ElementName" Value="[dbo].[Scaner_Goods].[Dama]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Scaner_Goods]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DamagePercent" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="46bc6156-0c85-4877-8816-b227cb22a7c5" ChangeDateTime="10/16/2020 06:07:44">
+    <Property Name="ElementName" Value="[dbo].[Scaner_Goods].[DamagePercent]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Scaner_Goods]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DamagePercentId" />
+  </Operation>
+</Operations>

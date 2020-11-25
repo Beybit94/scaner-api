@@ -1,8 +1,8 @@
-﻿using ScanerApi.Data.Transaction;
+﻿using Data.Transaction;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace ScanerApi.Data.Access
+namespace Data.Access
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -10,10 +10,6 @@ namespace ScanerApi.Data.Access
 
         public IDbConnection Session { get; private set; }
         public IDbTransaction Transaction => _transaction?.InternalTransaction;
-
-        //IDbConnection IUnitOfWork.Session => throw new NotImplementedException();
-
-        //IDbTransaction IUnitOfWork.Transaction => throw new NotImplementedException();
 
         public UnitOfWork(string connectionString)
         {

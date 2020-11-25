@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:xsd1="http://localhost/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd2="http://www.Receipts" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:tns="http://localhost/" name="WebСервис_Приемка_АРЕНА" targetNamespace="http://localhost/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xs:schema xmlns:tns="http://www.Receipts" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.Receipts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="Error">
+        <xs:sequence>
+          <xs:element maxOccurs="999" name="Messages" type="tns:Message" />
+          <xs:element name="GUID_WEB" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Message">
+        <xs:sequence>
+          <xs:element name="Code" type="xs:integer" />
+          <xs:element name="Message" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OrderToSupplier">
+        <xs:sequence>
+          <xs:element name="GUID_PlanWMSNumber" nillable="true" type="xs:string" />
+          <xs:element name="TypeDoc" nillable="true" type="xs:string" />
+          <xs:element name="DateDoc" nillable="true" type="xs:dateTime" />
+          <xs:element name="NumberDoc" nillable="true" type="xs:string" />
+          <xs:element maxOccurs="10000" name="OrderToSupplierGood" nillable="true" type="tns:OrderToSupplierGood" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OrderToSupplierGood">
+        <xs:sequence>
+          <xs:element name="Article" nillable="true" type="xs:string" />
+          <xs:element name="Quantity" nillable="true" type="xs:decimal" />
+          <xs:element name="Barcode" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Receipt">
+        <xs:sequence>
+          <xs:element name="GUID_WEB" type="xs:string" />
+          <xs:element name="TypeDoc" type="xs:string" />
+          <xs:element name="DateDoc" type="xs:dateTime" />
+          <xs:element name="NumberDoc" type="xs:string" />
+          <xs:element name="GUID_Location" type="xs:string" />
+          <xs:element name="GUID_Division" type="xs:string" />
+          <xs:element maxOccurs="10000" name="ReceiptGood" type="tns:ReceiptGood" />
+          <xs:element name="DateReceipt" type="xs:dateTime" />
+          <xs:element name="DateBeginLoad" type="xs:dateTime" />
+          <xs:element name="DateEndLoad" type="xs:dateTime" />
+          <xs:element name="Rowpictures" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ReceiptGood">
+        <xs:sequence>
+          <xs:element name="Article" type="xs:string" />
+          <xs:element name="Quantity" type="xs:decimal" />
+          <xs:element name="Barcode" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Receipts">
+        <xs:sequence>
+          <xs:element maxOccurs="999" name="Param" type="tns:Receipt" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Result">
+        <xs:sequence>
+          <xs:element maxOccurs="999" name="Param" type="tns:Error" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ResultOrderToSupplier">
+        <xs:sequence>
+          <xs:element maxOccurs="999" name="Param" nillable="true" type="tns:OrderToSupplier" />
+          <xs:element maxOccurs="999" name="Error" nillable="true" type="tns:Error" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+    <xs:schema xmlns:xs2="http://localhost/" xmlns:xs1="http://www.Receipts" elementFormDefault="qualified" targetNamespace="http://localhost/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://www.Receipts" />
+      <xs:element name="LoadReceipts">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Receipts" type="xs1:Receipts" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LoadReceiptsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs1:Result" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LoadReceipts_new">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Receipts" type="xs1:Receipts" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LoadReceipts_newResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs1:Result" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LoadOrderToSuppliers">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="PlanWMSNumber" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LoadOrderToSuppliersResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs1:ResultOrderToSupplier" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </types>
+  <message name="LoadReceiptsRequestMessage">
+    <part name="parameters" element="tns:LoadReceipts" />
+  </message>
+  <message name="LoadReceiptsResponseMessage">
+    <part name="parameters" element="tns:LoadReceiptsResponse" />
+  </message>
+  <message name="LoadReceipts_newRequestMessage">
+    <part name="parameters" element="tns:LoadReceipts_new" />
+  </message>
+  <message name="LoadReceipts_newResponseMessage">
+    <part name="parameters" element="tns:LoadReceipts_newResponse" />
+  </message>
+  <message name="LoadOrderToSuppliersRequestMessage">
+    <part name="parameters" element="tns:LoadOrderToSuppliers" />
+  </message>
+  <message name="LoadOrderToSuppliersResponseMessage">
+    <part name="parameters" element="tns:LoadOrderToSuppliersResponse" />
+  </message>
+  <portType name="WebСервис_Приемка_АРЕНАPortType">
+    <operation name="LoadReceipts">
+      <input message="tns:LoadReceiptsRequestMessage" />
+      <output message="tns:LoadReceiptsResponseMessage" />
+    </operation>
+    <operation name="LoadReceipts_new">
+      <input message="tns:LoadReceipts_newRequestMessage" />
+      <output message="tns:LoadReceipts_newResponseMessage" />
+    </operation>
+    <operation name="LoadOrderToSuppliers">
+      <input message="tns:LoadOrderToSuppliersRequestMessage" />
+      <output message="tns:LoadOrderToSuppliersResponseMessage" />
+    </operation>
+  </portType>
+  <binding name="WebСервис_Приемка_АРЕНАSoapBinding" type="tns:WebСервис_Приемка_АРЕНАPortType">
+    <soapbind:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="LoadReceipts">
+      <soapbind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadReceipts" style="document" />
+      <input>
+        <soapbind:body use="literal" />
+      </input>
+      <output>
+        <soapbind:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoadReceipts_new">
+      <soapbind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadReceipts_new" style="document" />
+      <input>
+        <soapbind:body use="literal" />
+      </input>
+      <output>
+        <soapbind:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoadOrderToSuppliers">
+      <soapbind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadOrderToSuppliers" style="document" />
+      <input>
+        <soapbind:body use="literal" />
+      </input>
+      <output>
+        <soapbind:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <binding name="WebСервис_Приемка_АРЕНАSoap12Binding" type="tns:WebСервис_Приемка_АРЕНАPortType">
+    <soap12bind:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="LoadReceipts">
+      <soap12bind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadReceipts" style="document" />
+      <input>
+        <soap12bind:body use="literal" />
+      </input>
+      <output>
+        <soap12bind:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoadReceipts_new">
+      <soap12bind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadReceipts_new" style="document" />
+      <input>
+        <soap12bind:body use="literal" />
+      </input>
+      <output>
+        <soap12bind:body use="literal" />
+      </output>
+    </operation>
+    <operation name="LoadOrderToSuppliers">
+      <soap12bind:operation soapAction="http://localhost/#WebСервис_Приемка_АРЕНА:LoadOrderToSuppliers" style="document" />
+      <input>
+        <soap12bind:body use="literal" />
+      </input>
+      <output>
+        <soap12bind:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <service name="WebСервис_Приемка_АРЕНА">
+    <port name="WebСервис_Приемка_АРЕНАSoap" binding="tns:WebСервис_Приемка_АРЕНАSoapBinding">
+      <documentation>
+        <wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" conformsTo="http://ws-i.org/profiles/basic/1.1" />
+      </documentation>
+      <soapbind:address location="http://10.20.100.26/1cws/Accepting.1cws" />
+    </port>
+    <port name="WebСервис_Приемка_АРЕНАSoap12" binding="tns:WebСервис_Приемка_АРЕНАSoap12Binding">
+      <soap12bind:address location="http://10.20.100.26/1cws/Accepting.1cws" />
+    </port>
+  </service>
+</definitions>

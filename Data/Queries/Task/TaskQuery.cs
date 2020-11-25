@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Data.Queries.Task
 {
-    public class TaskQuery: Query
+    public class TaskQuery : Query
     {
         public string PlanNum { get; set; }
         public int UserId { get; set; }
-
         public int DivisionId { get; set; }
-
         public int TaskId { get; set; }
         public int BoxId { get; set; }
         public string Path { get; set; }
+        public int StatusId { get; set; }
+        public int TypeId { get; set; }
     }
 }

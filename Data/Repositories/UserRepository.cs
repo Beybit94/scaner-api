@@ -2,7 +2,7 @@
 using Data.Model;
 using Data.Queries.Users;
 using Data.Repositories.Base;
-using ScanerApi.Data.Access;
+using Data.Access;
 using ScanerApi.Data.Queries;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirst<Users>($@"
-SELECT u.UserId, 
+SELECT u.Id, 
        u.UserFirstName, 
        u.UserSecondName, 
        u.UserDivisionId, 

@@ -1,9 +1,11 @@
 ﻿using Business.Manager;
+using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using ScanerApi.Utils;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -13,12 +15,10 @@ namespace ScanerApi.Controllers
     public class TaskController : ApiController
     {
         private readonly TaskManager _taskManager;
-        private readonly GoodManager _goodManager;
         private readonly FileManager _fileManager;
-        public TaskController(TaskManager taskManager, GoodManager goodManager, FileManager fileManager)
+        public TaskController(TaskManager taskManager, FileManager fileManager)
         {
             _taskManager = taskManager;
-            _goodManager = goodManager;
             _fileManager = fileManager;
         }
 
@@ -29,9 +29,6 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                var res = _taskManager.GetPlanNum(model);
-                if (res == 0) throw new Exception("Документ с таким номером не найден");
-
                 _taskManager.UnloadTask(model);
 
                 return Ok(new { success = true });
@@ -124,14 +121,14 @@ namespace ScanerApi.Controllers
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    var path = _fileManager.UploadFile(fileArray,filename);
+                    var path = _fileManager.UploadFile(fileArray, filename);
 
                     var query = provider.FormDataToQuery();
                     query.Path = path;
                     _taskManager.SaveAct(query);
                 }
 
-                
+
 
                 return Ok(new { success = true });
             }

@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[Boxes]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[BarCode] NVARCHAR(50) NULL
+)

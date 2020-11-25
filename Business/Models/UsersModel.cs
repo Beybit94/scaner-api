@@ -7,9 +7,6 @@ namespace Business.Models
 {
     public class UsersModel : Model
     {
-        [RequiredObject]
-        public int UserId { get; set; }
-
         public int UserDivisionId { get; set; }
         public string UserFirstName { get; set; }
         public string UserSecondName { get; set; }

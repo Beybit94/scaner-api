@@ -1,4 +1,5 @@
 ﻿using Business.Manager;
+using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using PdfSharp;
 using PdfSharp.Pdf;
@@ -11,6 +12,7 @@ namespace ScanerApi.Areas.Web.Controllers
     public class PdfController : Controller
     {
         private readonly TaskManager _taskManager;
+
         public PdfController(TaskManager taskManager)
         {
             _taskManager = taskManager;

@@ -16,6 +16,10 @@ namespace Business.QueryModels.Task
         public int TaskId { get; set; }
         public int BoxId { get; set; }
         public string Path { get; set; }
+        public int StatusId { get; set; }
+        public int TypeId { get; set; }
+        public string NumberDoc { get; set; }
+        public string Message { get; set; }
 
         public override ModelValidationResult Validate()
         {

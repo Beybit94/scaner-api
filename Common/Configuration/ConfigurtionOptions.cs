@@ -9,7 +9,7 @@ namespace Common.Configuration
 {
     public class ConfigurtionOptions
     {
-        #region MainConnectionString
+        #region Main ConnectionString
 
         private static string _mainConnectionString;
         public static string MainConnectionString
@@ -17,6 +17,19 @@ namespace Common.Configuration
             get
             {
                 return _mainConnectionString ?? (_mainConnectionString = ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString);
+            }
+        }
+
+        #endregion
+
+        #region WebProject ConnectionString
+
+        private static string _webProjectConnectionString;
+        public static string WebProjectConnectionString
+        {
+            get
+            {
+                return _webProjectConnectionString ?? (_webProjectConnectionString = ConfigurationManager.ConnectionStrings["WebProjectConnectionString"].ConnectionString);
             }
         }
 

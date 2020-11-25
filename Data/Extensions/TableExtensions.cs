@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text;
 
-namespace ScanerApi.Data.Extensions
+namespace Data.Extensions
 {
     public static class TableExtensions
     {

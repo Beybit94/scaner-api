@@ -10,19 +10,14 @@ namespace Business.Models
 {
     public class TasksModel : Model
     {
-        public int Id { get; set; }
-        public int DivisionId { get; set; }
         public int UserId { get; set; }
-        public int TaskTypeId { get; set; }
+        public int DivisionId { get; set; }
+        public int StatusId { get; set; }
         public string PlanNum { get; set; }
-        public string BoxNum { get; set; }
-        public string PlanNumName
-        {
-            get
-            {
-                return string.IsNullOrEmpty(BoxNum) ? PlanNum : string.Concat(PlanNum, "-К№", BoxNum);
-            }
-        }
+        public string BarCode { get; set; }
+        public int? ParentId { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime? EndDateTime { get; set; }
 
         public override ModelValidationResult Validate()
         {
