@@ -67,6 +67,8 @@ END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.StatusId })
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
+INSERT INTO Scanner_Log (Method,Params) VALUES ('GetActiveTask', 'UserId:{_query.UserId}')
+
 IF @UserId = 0
 BEGIN
 	SELECT TOP 1 t.* 

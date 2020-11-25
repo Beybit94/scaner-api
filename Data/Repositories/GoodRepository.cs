@@ -51,11 +51,10 @@ order by Created desc", new { _query.TaskId });
             var entity = UnitOfWork.Session.Query<Goods>(@"
 SELECT Id,
        GoodId,
-       CountQty,
-       GoodName,
-       GoodArticle,
-       BarCode,
-       DamagePercentId 
+       [CountQty] as Count,
+       [GoodName],
+       [GoodArticle],
+       BarCode
 FROM Scaner_Goods
 WHERE TaskId = @TaskId 
 and BoxId = @BoxId
