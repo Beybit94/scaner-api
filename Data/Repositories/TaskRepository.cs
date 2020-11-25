@@ -27,6 +27,8 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.QueryFirstOrDefault<Scaner_1cDocData>($@"
+INSERT INTO Logs (ProcessTypeId, Message) VALUES (1,'${_query.PlanNum}')
+
 SELECT NumberDoc, PlanNum, DateDoc
 FROM Scaner_1cDocData
 WHERE PlanNum = @PlanNum", new { _query.PlanNum });

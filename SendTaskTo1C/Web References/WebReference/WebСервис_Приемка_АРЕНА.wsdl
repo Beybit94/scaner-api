@@ -51,6 +51,7 @@
           <xs:element name="Article" type="xs:string" />
           <xs:element name="Quantity" type="xs:decimal" />
           <xs:element name="Barcode" nillable="true" type="xs:string" />
+          <xs:element name="GoodBarcode" nillable="true" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="Receipts">

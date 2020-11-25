@@ -1,4 +1,5 @@
-﻿using Business.Validation;
+﻿using Business.Models;
+using Business.Validation;
 using ScanerApi.Business.QueryModels;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Business.QueryModels.Data1c
         public string NumberDoc { get; set; }
         public string Message { get; set; }
 
+        public List<Scaner_1cDocDataModel> docDatas = new List<Scaner_1cDocDataModel>();
         public override ModelValidationResult Validate()
         {
             var result = new ModelValidator<Data1cQueryModel>().Validate(this);

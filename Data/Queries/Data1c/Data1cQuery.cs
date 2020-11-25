@@ -1,4 +1,5 @@
-﻿using ScanerApi.Data.Queries;
+﻿using Data.Model;
+using ScanerApi.Data.Queries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace Data.Queries.Data1c
         public int ProcessTypeId { get; set; }
         public string NumberDoc { get; set; }
         public string Message { get; set; }
+
+        public List<Scaner_1cDocData> docDatas = new List<Scaner_1cDocData>();
     }
 }

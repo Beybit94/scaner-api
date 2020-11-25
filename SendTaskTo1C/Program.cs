@@ -29,11 +29,11 @@ namespace SendTaskTo1C
                 {
                     var res = new WebReference.Receipt();
                     res.GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A";
-                    res.DateBeginLoad = DateTime.Now;
-                    res.DateDoc = item.DateDoc.Value;
-                    res.DateEndLoad = DateTime.Now;
-                    res.DateReceipt = DateTime.Now;
-                    res.GUID_Location = "10c95cb1-29c2-11e0-8806-001b78e2224a";
+                    res.DateBeginLoad = item.DateBeginLoad;
+                    res.DateDoc = item.DateDoc;
+                    res.DateEndLoad = item.DateEndLoad;
+                    res.DateReceipt = item.DateReceipt;
+                    res.GUID_Location = !string.IsNullOrEmpty(item.Location) ? item.Location : "10c95cb1-29c2-11e0-8806-001b78e2224a";
                     res.GUID_WEB = item.TaskId.ToString();
                     res.Rowpictures = "0";
                     res.NumberDoc = item.NumberDoc;
@@ -46,6 +46,7 @@ namespace SendTaskTo1C
                         good.Article = g.Article;
                         good.Quantity = g.Quantity;
                         good.Barcode = g.Barcode;
+                        good.GoodBarcode = g.GoodBarcode;
                         goods.Add(good);
                     }
 

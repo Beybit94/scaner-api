@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Logs]
 (
 	[Id] INT IDENTITY(1,1) NOT NULL, 
-    [TaskId] INT NOT NULL, 
+    [TaskId] INT NULL, 
     [ProcessTypeId] INT NOT NULL,
     [Created] DATETIME NOT NULL DEFAULT getdate(), 
     [Message] NVARCHAR(MAX) NULL, 
