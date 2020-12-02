@@ -26,36 +26,28 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Differences>(@"
-SELECT g.GoodId,
-       g.GoodName,
-       g.GoodArticle,
-       g.CountQty,
-       g.Quantity
-from Tasks wt
-CROSS APPLY(
-    select  g.Id as GoodId,
-            g.GoodName,
-            g.GoodArticle, 
-            ISNULL(sg.CountQty,0) as CountQty,
-            ISNULL(dd.Quantity,0) as Quantity
-    from Goods g
-    right join Scaner_Goods sg on sg.GoodId = g.Id and sg.TaskId = wt.Id 
-    right join Scaner_1cDocData dd on dd.Article = g.GoodArticle and dd.PlanNum = wt.PlanNum
-    where sg.CountQty <> dd.Quantity
-    group by    g.Id,
-                g.GoodName,
-                g.GoodArticle,
-                sg.CountQty,
-                dd.Quantity
+select g.GoodName,g.GoodArticle, g.Quantity
+from (
+    select  g.GoodName,g.GoodArticle,(ISNULL(sg.CountQty,0) - ISNULL(dd.Quantity,0)) as Quantity
+    from Scaner_Goods sg
+    join Goods g on g.GoodArticle = sg.GoodArticle
+    outer apply(select dd.Quantity 
+                from Scaner_1cDocData 
+                dd where dd.Article = sg.GoodArticle 
+                and dd.PlanNum = @PlanNum) dd
+    where sg.TaskId = @TaskId
+    UNION
+    select g.GoodName,g.GoodArticle, (ISNULL(sg.CountQty,0) - ISNULL(dd.Quantity,0)) as Quantity
+    from Scaner_1cDocData dd
+    join Goods g on g.GoodArticle = dd.Article
+    outer apply(select sg.CountQty 
+                from Scaner_Goods sg 
+                where sg.GoodArticle = dd.Article 
+                and sg.TaskId = @TaskId) sg 
+    where dd.PlanNum = @PlanNum
 ) g
-where wt.Id = @TaskId
-and g.CountQty <> g.Quantity
-group by    g.GoodId,
-            g.GoodName,
-            g.GoodArticle,
-            g.CountQty,
-            g.Quantity
-order by g.GoodId", new { _query.TaskId }).ToList();
+where g.Cnt <> 0
+group by g.GoodName,g.GoodArticle, g.Quantity", new { _query.TaskId }).ToList();
             return entity;
         }
 
