@@ -175,6 +175,7 @@
     <Compile Include="Migrations\202011201116_SendTo1C.cs" />
     <Compile Include="Migrations\202011231452_LogMessage.cs" />
     <Compile Include="Migrations\202011241524_Getfrom1c.cs" />
+    <Compile Include="Migrations\202030110950_LogRequest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

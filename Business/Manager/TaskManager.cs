@@ -31,8 +31,7 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var res = _taskRepository.GetPlanNum(query);
-            if (res == null || string.IsNullOrEmpty(res.PlanNum)) throw new Exception("Документ с таким номером не найден");
+            _taskRepository.GetPlanNum(query);
 
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
             query.StatusId = hTaskStatus.Id;
@@ -41,9 +40,9 @@ namespace Business.Manager
 
         public TasksModel GetActiveTask(TaskQueryModel queryModel)
         {
-            if(queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
-            
+
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
             query.StatusId = hTaskStatus.Id;
 
@@ -73,9 +72,13 @@ namespace Business.Manager
         public List<DifferencesModel> Differences(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<Data1cQuery>(queryModel);
 
-            var entity = _data1CRepository.Differences(query);
+            var query = _mapper.Map<TaskQuery>(queryModel);
+            var task = _taskRepository.GetTaskById(query);
+
+            query.PlanNum = task.PlanNum;
+
+            var entity = _taskRepository.Differences(query);
             return _mapper.Map<List<DifferencesModel>>(entity);
         }
 
@@ -93,21 +96,27 @@ namespace Business.Manager
         public List<ReceiptModel> PrepareDataTo1c(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<Data1cQuery>(queryModel);
-
-            var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SendTo1C");
-            query.ProcessTypeId = hProcessType.Id;
+            var query = _mapper.Map<TaskQuery>(queryModel);
 
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
-            query.StatusId = hTaskStatus.Id;
+            var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SendTo1C");
 
-            var receipts = _data1CRepository.GetNumberDocs(query);
-            foreach(var item in receipts)
+            query.StatusId = hTaskStatus.Id;
+            query.ProcessTypeId = hProcessType.Id;
+
+            var tasks = _taskRepository.GetTasksByStatus(query);
+
+            var data1cQuery = new Data1cQuery { };
+            var receipts = new List<ReceiptModel>();
+            foreach (var item in tasks)
             {
-                query.NumberDoc = item.NumberDoc;
-                item.ReceiptGoods = _data1CRepository.GetDataByNumberDoc(query);
+                data1cQuery.TaskId = item.Id;
+                data1cQuery.PlanNum = item.PlanNum.Replace("\n", "").Replace("\r", "");
+                var receipt = _data1CRepository.GetNumberDocs(data1cQuery);
+                receipts.Add(_mapper.Map<ReceiptModel>(receipt));
             }
-            return _mapper.Map<List<ReceiptModel>>(receipts);
+
+            return receipts;
         }
 
         public void Set1cStatus(TaskQueryModel queryModel)
