@@ -19,7 +19,7 @@ namespace DatabaseMigrations.Migrations
         {
             Execute.Sql(@"
 GO
-ALTER TABLE [dbo].[Logs] DROP CONSTRAINT [DF__Logs__Created__4BAC3F29];
+ALTER TABLE [dbo].[Logs] DROP CONSTRAINT [DF__Logs__Created__7A672E12];
 ALTER TABLE [dbo].[Logs] DROP CONSTRAINT [FK_Logs_Tasks_TaskId];
 ALTER TABLE [dbo].[Logs] DROP CONSTRAINT [FK_Logs_hProcessType_ProcessTypeId];
 
