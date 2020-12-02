@@ -113,7 +113,7 @@ namespace Business.Manager
                 data1cQuery.TaskId = item.Id;
                 data1cQuery.PlanNum = item.PlanNum.Replace("\n", "").Replace("\r", "");
                 var receipt = _data1CRepository.GetNumberDocs(data1cQuery);
-                receipts.Add(_mapper.Map<ReceiptModel>(receipt));
+                receipts.AddRange(_mapper.Map<List<ReceiptModel>>(receipt));
             }
 
             return receipts;

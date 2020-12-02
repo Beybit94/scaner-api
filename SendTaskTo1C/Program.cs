@@ -54,8 +54,9 @@ namespace SendTaskTo1C
                     res.ReceiptGood = goods.ToArray();
                     data.Add(res);
                 }
-                query.Request = JsonConvert.SerializeObject(data.ToArray());
+
                 List<string> errors = new List<string>();
+                query.Request = JsonConvert.SerializeObject(data.ToArray());
                 var resultSend = acceptSend.LoadReceipts_new(data.ToArray());
                 foreach (var r in resultSend)
                 {
@@ -64,11 +65,21 @@ namespace SendTaskTo1C
                         errors.Add("CODE: " + m.Code + "; Message: " + m.Message1);
                     }
                 }
-
                 query.TaskId = items.FirstOrDefault().TaskId;
                 query.Message = JsonConvert.SerializeObject(resultSend);
                 query.Request = JsonConvert.SerializeObject(data.ToArray());
                 taskManager.Set1cStatus(query);
+
+                try
+                {
+                    
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
+
+               
             }
         }
     }
