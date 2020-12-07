@@ -70,14 +70,6 @@ namespace Business.Manager
             _taskRepository.CloseTask(query);
         }
 
-        public void CloseTask(TaskQueryModel queryModel)
-        {
-            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
-            var query = _mapper.Map<TaskQuery>(queryModel);
-
-            _taskRepository.CloseTask(query);
-        }
-
         public List<DifferencesModel> Differences(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
