@@ -98,12 +98,10 @@
     <Build Include="Tables\Dictionaries\hFileType.sql" />
     <Build Include="Tables\Dictionaries\hProcessType.sql" />
     <Build Include="Tables\Dictionaries\hDefectType.sql" />
-    <Build Include="Tables\WebProject\Inventory_Tasks.sql" />
     <Build Include="Tables\WebProject\Goods.sql" />
     <Build Include="Tables\WebProject\GoodsBarcodes.sql" />
     <Build Include="Tables\WebProject\BarCodes.sql" />
     <Build Include="Tables\Dictionaries\hDamagePercent.sql" />
-    <Build Include="Tables\WebProject\ROT1c1.sql" />
     <Build Include="Tables\WebProject\Users.sql" />
     <Build Include="Tables\WebProject\Boxes.sql" />
     <Build Include="Tables\Logs.sql" />

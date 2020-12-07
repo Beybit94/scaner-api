@@ -20,6 +20,7 @@ namespace Business.QueryModels.Task
         public int TypeId { get; set; }
         public string NumberDoc { get; set; }
         public string Message { get; set; }
+        public string Request { get; set; }
 
         public override ModelValidationResult Validate()
         {

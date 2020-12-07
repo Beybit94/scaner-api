@@ -20,27 +20,28 @@ namespace SendTaskTo1C
 
             var query = new TaskQueryModel();
             var items = taskManager.PrepareDataTo1c(query);
+            if (!items.Any()) return;
 
             using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
             {
                 List<WebReference.Receipt> data = new List<WebReference.Receipt>();
 
-                foreach (var item in items)
+                foreach (var item in items.GroupBy(m=>m.NumberDoc))
                 {
                     var res = new WebReference.Receipt();
                     res.GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A";
-                    res.DateBeginLoad = item.DateBeginLoad;
-                    res.DateDoc = item.DateDoc;
-                    res.DateEndLoad = item.DateEndLoad;
-                    res.DateReceipt = item.DateReceipt;
-                    res.GUID_Location = !string.IsNullOrEmpty(item.Location) ? item.Location : "10c95cb1-29c2-11e0-8806-001b78e2224a";
-                    res.GUID_WEB = item.TaskId.ToString();
+                    res.DateBeginLoad = item.FirstOrDefault().DateBeginLoad;
+                    res.DateDoc = item.FirstOrDefault().DateDoc;
+                    res.DateEndLoad = item.FirstOrDefault().DateEndLoad;
+                    res.DateReceipt = item.FirstOrDefault().DateReceipt;
+                    res.GUID_Location = item.FirstOrDefault().Location;
+                    res.GUID_WEB = item.FirstOrDefault().TaskId.ToString();
                     res.Rowpictures = "0";
-                    res.NumberDoc = item.NumberDoc;
+                    res.NumberDoc = item.FirstOrDefault().NumberDoc;
                     res.TypeDoc = "РасходныйОрдерНаТовары";
 
                     var goods = new List<WebReference.ReceiptGood>();
-                    foreach (var g in item.ReceiptGoods)
+                    foreach (var g in item)
                     {
                         var good = new WebReference.ReceiptGood();
                         good.Article = g.Article;
@@ -55,6 +56,7 @@ namespace SendTaskTo1C
                 }
 
                 List<string> errors = new List<string>();
+                query.Request = JsonConvert.SerializeObject(data.ToArray());
                 var resultSend = acceptSend.LoadReceipts_new(data.ToArray());
                 foreach (var r in resultSend)
                 {
@@ -63,10 +65,21 @@ namespace SendTaskTo1C
                         errors.Add("CODE: " + m.Code + "; Message: " + m.Message1);
                     }
                 }
-
                 query.TaskId = items.FirstOrDefault().TaskId;
                 query.Message = JsonConvert.SerializeObject(resultSend);
+                query.Request = JsonConvert.SerializeObject(data.ToArray());
                 taskManager.Set1cStatus(query);
+
+                try
+                {
+                    
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
+
+               
             }
         }
     }

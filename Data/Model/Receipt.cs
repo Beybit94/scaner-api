@@ -21,7 +21,10 @@ namespace Data.Model
 
         public DateTime DateReceipt = DateTime.Now;
 
-        public List<ReceiptGood> ReceiptGoods = new List<ReceiptGood>();
+        public string Article { get; set; }
+        public string Barcode { get; set; }
+        public int Quantity { get; set; }
+        public string GoodBarcode { get; set; }
     }
     public class ReceiptGood
     {

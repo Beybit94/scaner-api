@@ -19,20 +19,48 @@ namespace Data.Repositories
         {
         }
 
-        public Scaner_1cDocData GetPlanNum(Query query)
+        public List<Tasks> GetTasksByStatus(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirstOrDefault<Scaner_1cDocData>($@"
-INSERT INTO Logs (ProcessTypeId, Message) VALUES (1,'${_query.PlanNum}')
+            var entity = UnitOfWork.Session.Query<Tasks>(@"
+select t.* 
+from Tasks t
+where t.StatusId = @StatusId
+and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.StatusId, _query.ProcessTypeId });
+            return entity.ToList();
+        }
+        
+        public Tasks GetTaskById(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
 
-SELECT NumberDoc, PlanNum, DateDoc
-FROM Scaner_1cDocData
-WHERE PlanNum = @PlanNum", new { _query.PlanNum });
-            return entity;
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            return UnitOfWork.Session.QueryFirstOrDefault<Tasks>(@"select * from Tasks where Id = @TaskId", new { _query.TaskId });
+        }
+
+        public void GetPlanNum(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            UnitOfWork.Session.Execute($@"
+IF EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
+BEGIN
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,@PlanNum)
+END
+ELSE
+BEGIN
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,'Документ с номером'+@PlanNum+'не найден')
+    RAISERROR ( 'Документ с таким номером не найден',1,1)
+END", new { _query.PlanNum });
         }
 
         public void UnloadTask(Query query)
@@ -119,6 +147,39 @@ DELETE FROM Tasks WHERE Id = @TaskId", new { _query.TaskId });
             UnitOfWork.Session.Execute(@"
 INSERT INTO Scaner_File
 VALUES (@TaskId, @BoxId, @Path,@TypeId)", new { _query.TaskId, _query.BoxId, _query.Path, _query.TypeId });
+        }
+
+        public List<Differences> Differences(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as TaskQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Differences>($@"
+select g.GoodName,g.GoodArticle,g.Quantity,g.CountQty
+from (
+    select  g.GoodName,
+            g.GoodArticle, 
+            dd.Quantity,
+            ISNULL(sg.CountQty,0) as CountQty
+    from Scaner_1cDocData dd
+    join Goods g on g.GoodArticle = dd.Article
+    outer apply(select sg.CountQty as CountQty from Scaner_Goods sg where sg.GoodArticle = dd.Article and sg.TaskId = @TaskId) sg
+    where dd.PlanNum = '{_query.PlanNum.Trim()}'
+    union
+    select  g.GoodName,
+            g.GoodArticle, 
+            ISNULL(dd.Quantity,0) as Quantity,
+            sg.CountQty
+    from Scaner_Goods sg
+    join Goods g on g.Id = sg.GoodId
+    outer apply(select dd.Quantity from Scaner_1cDocData dd where sg.GoodArticle = dd.Article and dd.PlanNum = '{_query.PlanNum.Trim()}') dd
+    where sg.TaskId = @TaskId
+) g
+where g.Quantity <> g.CountQty
+group by g.GoodName,g.GoodArticle,g.Quantity,g.CountQty", new { _query.TaskId, _query.PlanNum }).ToList();
+            return entity;
         }
     }
 }

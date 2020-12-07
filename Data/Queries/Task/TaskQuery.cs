@@ -16,6 +16,7 @@ namespace Data.Queries.Task
         public int BoxId { get; set; }
         public string Path { get; set; }
         public int StatusId { get; set; }
+        public int ProcessTypeId { get; set; }
         public int TypeId { get; set; }
     }
 }
