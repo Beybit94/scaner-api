@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DatabaseMigrations.Migrations
 {
     [Migration(202012021158)]
-    public class Scaner_Goods_Triger : Migration
+    class Scaner_Goods_Triger : Migration
     {
         public override void Down()
         {
@@ -62,9 +62,9 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
         ELSE
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode, @DamagePercentId = DamagePercentId 
-            FROM INSERTED
-            JOIN DELETED ON DELETED.Id = INSERTED.Id
+            SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DamagePercentId = I.DamagePercentId 
+            FROM INSERTED I
+            JOIN DELETED ON DELETED.Id = I.Id
 
             IF ISNULL(@DamagePercentId,0) <> 0
             BEGIN

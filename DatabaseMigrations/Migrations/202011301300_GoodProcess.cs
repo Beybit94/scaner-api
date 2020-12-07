@@ -18,7 +18,7 @@ namespace DatabaseMigrations.Migrations
         public override void Up()
         {
             Execute.Sql(@"
-INSERT INTO hProcessType (Name, Code) VALUES (N'Не начато', N'NotStarted')
+INSERT INTO hTaskStatus (Name, Code) VALUES (N'Не начато', N'NotStarted')
 
 INSERT INTO hProcessType (Name, Code) VALUES (N'Добавление товара/короба', N'CreateGood')
 INSERT INTO hProcessType (Name, Code) VALUES (N'Удаление товара/короба', N'DeleteGood')

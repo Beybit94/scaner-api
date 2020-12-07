@@ -53,7 +53,6 @@ namespace Business.Manager
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<GoodQuery>(queryModel);
-            query.BarCode = string.IsNullOrEmpty(queryModel.BarCode) ? queryModel.BarCode : queryModel.BarCode.Substring(1);
 
             //Проверка товара на количество
             var goods = _goodRepository.ExistGood(query);
