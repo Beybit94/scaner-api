@@ -46,36 +46,30 @@ cross apply(
             sg.CountQty as Quantity,
             b.Barcode,   
             sg.GoodArticle as Article,        
-            ISNULL(dd.NumberDoc,(select TOP 1 dd.NumberDoc from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum }')) as NumberDoc,
-            ISNULL(dd.DateDoc,(select TOP 1 dd.DateDoc from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum }')) as DateDoc,
-            ISNULL(dd.LocationGuid,(select TOP 1 dd.LocationGuid from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum }')) as LocationGuid
+            ISNULL(dd.NumberDoc,(select TOP 1 dd.NumberDoc from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum}')) as NumberDoc,
+            ISNULL(dd.DateDoc,(select TOP 1 dd.DateDoc from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum}')) as DateDoc,
+            ISNULL(dd.LocationGuid,(select TOP 1 dd.LocationGuid from Scaner_1cDocData dd where dd.PlanNum = '{_query.PlanNum}')) as LocationGuid
     from Scaner_Goods sg
-    join Goods g on g.GoodArticle = sg.GoodArticle
+    left join Scaner_1cDocData dd on dd.Article = sg.GoodArticle and dd.PlanNum = '{_query.PlanNum}'
     outer apply(select b.BarCode from Scaner_Goods (nolock) b where b.Id = sg.BoxId)b
-    outer apply(select  dd.NumberDoc, 
-                        dd.DateDoc, 
-                        dd.LocationGuid 
-                from Scaner_1cDocData dd 
-                where dd.Article = sg.GoodArticle 
-                and dd.PlanNum = '{_query.PlanNum }') dd
     where sg.TaskId = t.Id
+    group by sg.TaskId,sg.Barcode,sg.CountQty,b.Barcode,sg.GoodArticle,dd.NumberDoc,dd.DateDoc,dd.LocationGuid
     UNION
     select  t.Id as TaskId,
-            sg.GoodBarcode,
+            sg.Barcode as GoodBarcode,
             ISNULL(sg.CountQty,0) as Quantity,
-            sg.Barcode, 
+            b.Barcode, 
             dd.Article,
             dd.NumberDoc,
             dd.DateDoc,
             dd.LocationGuid
     from Scaner_1cDocData dd 
-    outer apply(select sg.CountQty,sg.Barcode as GoodBarcode,b.BarCode 
-                from Scaner_Goods (nolock) sg
-                outer apply(select b.BarCode from Scaner_Goods (nolock) b where b.Id = sg.BoxId)b 
-                where sg.TaskId = t.Id and sg.GoodName = dd.Article)sg
-    where dd.PlanNum = '{_query.PlanNum }'
+    left join Scaner_Goods sg on sg.GoodArticle = dd.Article and sg.TaskId = t.Id
+    outer apply(select b.BarCode from Scaner_Goods (nolock) b where b.Id = sg.BoxId)b
+    where dd.PlanNum = '{_query.PlanNum}'
+    group by sg.TaskId,sg.Barcode,sg.CountQty,b.Barcode,dd.Article,dd.NumberDoc,dd.DateDoc,dd.LocationGuid
 ) g
-where t.Id = @TaskId 
+where t.Id = @TaskId
 and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)
 group by    t.PlanNum,
             t.Id,
@@ -89,6 +83,27 @@ group by    t.PlanNum,
             g.Quantity,
             g.GoodBarcode",
             new { _query.TaskId, _query.PlanNum, _query.ProcessTypeId });
+
+            return entity.ToList();
+        }
+
+        public List<Scaner_1cDocData> DocDataByPlanNum(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as Data1cQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Scaner_1cDocData>($@"
+select  dd.PlanNum,
+        dd.NumberDoc,
+        dd.DateDoc,
+        dd.LocationGuid,
+        dd.Article,
+        dd.Quantity,
+        dd.Barcode
+from Scaner_1cDocData dd 
+where dd.PlanNum = '{_query.PlanNum}'");
 
             return entity.ToList();
         }

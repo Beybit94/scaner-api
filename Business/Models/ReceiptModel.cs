@@ -26,11 +26,4 @@ namespace Business.Models
         public int Quantity { get; set; }
         public string GoodBarcode { get; set; }
     }
-    public class ReceiptGoodModel
-    {
-        public string Article { get; set; }
-        public string Barcode { get; set; }
-        public int Quantity { get; set; }
-        public string GoodBarcode { get; set; }
-    }
 }

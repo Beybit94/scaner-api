@@ -19,6 +19,26 @@ namespace Data.Repositories
         {
         }
 
+        public List<Goods> GetGoods(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Goods>($@"
+SELECT g.Id,
+       g.CountQty,
+       g.GoodId,
+       g.GoodName,
+       g.GoodArticle,
+       g.BarCode,
+       g.BoxId
+FROM Scaner_Goods g
+WHERE TaskId = @TaskId", new { _query.TaskId, _query.PlanNum });
+            return entity.ToList();
+        }
+
         public List<Goods> GetGoodsByTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -51,10 +71,11 @@ order by Created desc", new { _query.TaskId });
             var entity = UnitOfWork.Session.Query<Goods>(@"
 SELECT Id,
        GoodId,
-       [CountQty] as Count,
-       [GoodName],
-       [GoodArticle],
-       BarCode
+       CountQty,
+       GoodName,
+       GoodArticle,
+       BarCode,
+       DamagePercentId 
 FROM Scaner_Goods
 WHERE TaskId = @TaskId 
 and BoxId = @BoxId

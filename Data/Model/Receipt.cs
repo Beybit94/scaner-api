@@ -26,11 +26,4 @@ namespace Data.Model
         public int Quantity { get; set; }
         public string GoodBarcode { get; set; }
     }
-    public class ReceiptGood
-    {
-        public string Article { get; set; }
-        public string Barcode { get; set; }
-        public int Quantity { get; set; }
-        public string GoodBarcode { get; set; }
-    }
 }
