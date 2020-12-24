@@ -123,7 +123,7 @@ namespace ScanerApi.Controllers
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
                     var path = _fileManager.UploadFile(fileArray, filename);
 
-                    var query = provider.FormDataToQuery();
+                    var query = provider.FormDataToTaskQuery();
                     query.Path = path;
                     _taskManager.SaveAct(query);
                 }

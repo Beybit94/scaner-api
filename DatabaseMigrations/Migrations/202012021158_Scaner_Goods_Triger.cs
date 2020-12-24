@@ -37,7 +37,7 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
             SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
 
             DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
-            INSERT INTO Logs (TaskId, ProcessTypeId, Message) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
         END
         ELSE IF EXISTS(SELECT * FROM INSERTED)
         BEGIN
@@ -57,18 +57,18 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
                 FROM Tasks T WHERE T.Id = @TaskId;
             END
             
-            INSERT INTO Logs (TaskId, ProcessTypeId, Message) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
         END
         ELSE
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode, @DamagePercentId = DamagePercentId 
-            FROM INSERTED
-            JOIN DELETED ON DELETED.Id = INSERTED.Id
+            SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DamagePercentId = I.DamagePercentId 
+            FROM INSERTED I
+            JOIN DELETED ON DELETED.Id = I.Id
 
             IF ISNULL(@DamagePercentId,0) <> 0
             BEGIN
-                INSERT INTO Logs (TaskId, ProcessTypeId, Message) 
+                INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
                 VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),'Артикуль:'+@Article);
 
                 IF EXISTS(SELECT * FROM Boxes WHERE BarCode = @Barcode) AND 
@@ -89,11 +89,11 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
             BEGIN
                 DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
 
-                INSERT INTO Logs (TaskId, ProcessTypeId, Message) 
+                INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
                 VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article);
             END
 
-            INSERT INTO Logs (TaskId, ProcessTypeId, Message) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
         END
 
     END

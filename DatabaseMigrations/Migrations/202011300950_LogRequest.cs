@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DatabaseMigrations.Migrations
 {
-    [Migration(202030110950)]
+    [Migration(202011300950)]
     public class LogRequest : Migration
     {
         public override void Down()
@@ -19,8 +19,7 @@ namespace DatabaseMigrations.Migrations
         {
             Execute.Sql(@"
 GO
-ALTER TABLE [dbo].[Logs] ADD [Request] NVARCHAR (MAX) NULL;
-EXECUTE sp_rename @objname = N'[dbo].[Logs].[Message]', @newname = N'Response', @objtype = N'COLUMN';");
+ALTER TABLE [dbo].[Logs] ADD [Request] NVARCHAR (MAX) NULL;");
         }
     }
 }

@@ -7,8 +7,6 @@ using Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Business.Models.Dictionary.StandartDictionaries;
 
 namespace Business.Manager

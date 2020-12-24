@@ -156,7 +156,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="SendTaskTo1C_TemporaryKey.pfx" />
     <None Include="Web References\WebReference\Error.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

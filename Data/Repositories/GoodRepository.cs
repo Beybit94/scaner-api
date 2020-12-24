@@ -195,5 +195,25 @@ update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.Count
 delete from Scaner_Goods where BoxId = @Id
 delete from Scaner_Goods where Id = @Id", new { _query.Id });
         }
+
+        public void SaveDefect(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            if(_query.DamagePercentId == 0)
+            {
+                UnitOfWork.Session.Execute(@"
+update Scaner_Goods SET DamagePercentId = NULL where Id = @Id", new { _query.Id });
+            }
+            else
+            {
+                UnitOfWork.Session.Execute(@"
+update Scaner_Goods SET DamagePercentId = @DamagePercentId where Id = @Id", new { _query.DamagePercentId, _query.Id });
+            }
+           
+        }
     }
 }

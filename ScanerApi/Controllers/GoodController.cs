@@ -1,10 +1,12 @@
 ﻿using Business.Manager;
 using Business.QueryModels.Good;
+using ScanerApi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace ScanerApi.Controllers
@@ -13,9 +15,11 @@ namespace ScanerApi.Controllers
     public class GoodController : ApiController
     {
         private readonly GoodManager _goodManager;
-        public GoodController(GoodManager goodManager)
+        private readonly FileManager _fileManager;
+        public GoodController(GoodManager goodManager, FileManager fileManager)
         {
             _goodManager = goodManager;
+            _fileManager = fileManager;
         }
 
         [HttpPost]
@@ -103,6 +107,43 @@ namespace ScanerApi.Controllers
             try
             {
                 _goodManager.Delete(model);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message, success = false });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Defect")]
+        [Route("Defect")]
+        public async Task<IHttpActionResult> Defect()
+        {
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new Exception(BadRequest().ToString());
+            }
+
+            try
+            {
+                var provider = new InMemoryMultipartFormDataStreamProvider();
+
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                foreach (var file in provider.Files)
+                {
+                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                    byte[] fileArray = await file.ReadAsByteArrayAsync();
+                    var path = _fileManager.UploadFile(fileArray, filename);
+
+                    var query = provider.FormDataToGoodQuery();
+                    query.Path = path;
+                    _goodManager.Defect(query);
+                }
+
+
+
                 return Ok(new { success = true });
             }
             catch (Exception ex)
