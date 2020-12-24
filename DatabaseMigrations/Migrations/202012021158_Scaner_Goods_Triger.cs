@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DatabaseMigrations.Migrations
 {
     [Migration(202012021158)]
-    public class Scaner_Goods_Triger : Migration
+    class Scaner_Goods_Triger : Migration
     {
         public override void Down()
         {
