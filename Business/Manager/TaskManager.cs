@@ -87,7 +87,7 @@ namespace Business.Manager
             var docdatas = _data1CRepository.DocDataByPlanNum(data1cQuery);
 
             //Товары в коробе
-            foreach (var good in goods.Where(m=>!string.IsNullOrEmpty(m.GoodArticle))
+            foreach (var good in goods.Where(m => !string.IsNullOrEmpty(m.GoodArticle))
                                       .Where(m => m.BoxId.HasValue && m.BoxId.Value != 0))
             {
                 var box = goods.FirstOrDefault(m => m.Id == good.BoxId);
@@ -110,7 +110,7 @@ namespace Business.Manager
                     GoodName = good.GoodName,
                     GoodArticle = good.GoodArticle,
                     CountQty = good.CountQty,
-                    Quantity = _docData.Quantity,
+                    Quantity = length <= 0 ? 0 : _docData.Quantity,
                 };
                 result.Add(diff);
             }
@@ -138,7 +138,7 @@ namespace Business.Manager
                     GoodName = good.GoodName,
                     GoodArticle = good.GoodArticle,
                     CountQty = good.CountQty,
-                    Quantity = _docData.Quantity,
+                    Quantity = length <= 0 ? 0 : _docData.Quantity,
                 };
                 result.Add(diff);
             }

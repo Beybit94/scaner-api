@@ -21,8 +21,8 @@ namespace SendTaskTo1C
             var query = new TaskQueryModel();
             var items = taskManager.PrepareDataTo1c(query);
 
-            var difference = taskManager.Differences(query);
-            query.Request = JsonConvert.SerializeObject(difference);
+            //var difference = taskManager.Differences(query);
+            //query.Request = JsonConvert.SerializeObject(difference);
 
             if (!items.Any()) return;
 
