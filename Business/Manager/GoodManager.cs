@@ -92,11 +92,13 @@ namespace Business.Manager
 
             _goodRepository.SaveDefect(query);
 
-            var taskQuery = new TaskQuery { TaskId = query.TaskId, Path = query.Path, BoxId = query.BoxId ?? 0 };
-            var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Defect_Photo");
-            taskQuery.TypeId = hFileType.Id;
-            _taskRepository.SaveAct(taskQuery);
-
+            if (!string.IsNullOrEmpty(query.Path))
+            {
+                var taskQuery = new TaskQuery { TaskId = query.TaskId, Path = query.Path, BoxId = query.BoxId };
+                var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Defect_Photo");
+                taskQuery.TypeId = hFileType.Id;
+                _taskRepository.SaveAct(taskQuery);
+            }
         }
     }
 }

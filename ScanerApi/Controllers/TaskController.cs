@@ -117,18 +117,17 @@ namespace ScanerApi.Controllers
 
                 await Request.Content.ReadAsMultipartAsync(provider);
 
+                var path = "";
                 foreach (var file in provider.Files)
                 {
                     var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                     byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    var path = _fileManager.UploadFile(fileArray, filename);
-
-                    var query = provider.FormDataToTaskQuery();
-                    query.Path = path;
-                    _taskManager.SaveAct(query);
+                    string.Concat(path, "," + _fileManager.UploadFile(fileArray, filename));
                 }
 
-
+                var query = provider.FormDataToTaskQuery();
+                query.Path = path;
+                _taskManager.SaveAct(query);
 
                 return Ok(new { success = true });
             }

@@ -206,7 +206,8 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
             if(_query.DamagePercentId == 0)
             {
                 UnitOfWork.Session.Execute(@"
-update Scaner_Goods SET DamagePercentId = NULL where Id = @Id", new { _query.Id });
+delete from Scaner_Goods where BoxId = @Id
+update Scaner_Goods SET DamagePercentId = NULL where Id = @Id", new { _query.Id, _query.TaskId });
             }
             else
             {
