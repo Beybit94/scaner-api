@@ -21,6 +21,8 @@ namespace Business.Models
 
         public DateTime DateReceipt = DateTime.Now;
 
+        public string GoodName { get; set; }
+        public int CountQty { get; set; }
         public string Article { get; set; }
         public string Barcode { get; set; }
         public int Quantity { get; set; }

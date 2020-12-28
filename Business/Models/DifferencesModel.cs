@@ -17,6 +17,7 @@ namespace Business.Models
         public int Quantity { get; set; }
         public int CountQty { get; set; }
         public int ExcessQty { get; set; }
+        public string Box { get; set; }
 
         public override ModelValidationResult Validate()
         {

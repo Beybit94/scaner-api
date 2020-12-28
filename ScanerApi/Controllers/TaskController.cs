@@ -93,7 +93,7 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                return Ok(new { success = true, data = _taskManager.Differences(model) });
+                return Ok(new { success = true, data = _taskManager.Differences(model).Where(m=>m.CountQty != m.Quantity) });
             }
             catch (Exception ex)
             {
