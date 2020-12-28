@@ -18,6 +18,8 @@ namespace Business.Models
         public int TaskId { get; set; }
         public int? DamagePercentId { get; set; }
 
+        public int? BoxId { get; set; }
+
         public bool IsBox
         {
             get

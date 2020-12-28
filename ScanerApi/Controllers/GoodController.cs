@@ -22,6 +22,7 @@ namespace ScanerApi.Controllers
             _fileManager = fileManager;
         }
 
+
         [HttpPost]
         [ActionName("GetGoodsByTask")]
         [Route("GetGoodsByTask")]

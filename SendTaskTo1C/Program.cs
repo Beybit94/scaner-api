@@ -20,6 +20,10 @@ namespace SendTaskTo1C
 
             var query = new TaskQueryModel();
             var items = taskManager.PrepareDataTo1c(query);
+
+            //var difference = taskManager.Differences(query);
+            //query.Request = JsonConvert.SerializeObject(difference);
+
             if (!items.Any()) return;
 
             using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
