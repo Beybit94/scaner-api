@@ -18,6 +18,7 @@ namespace Business.Mappers
             CreateMap<TaskQueryModel, TaskQuery>();
             CreateMap<GoodQueryModel, GoodQuery>();
             CreateMap<TaskQueryModel, Data1cQuery>();
+            CreateMap<Data1cQueryModel, Data1cQuery>();
         }
         public override string ProfileName => "QueryToQueryMappingProfile";
     }

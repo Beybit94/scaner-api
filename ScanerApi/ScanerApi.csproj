@@ -227,6 +227,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\Site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
@@ -259,12 +260,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Web\Views\Shared\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Web\Views\web.config" />
     <Content Include="Areas\Web\Views\Pdf\Index.cshtml" />
     <Content Include="Areas\Web\Views\Pdf\Disqus.cshtml" />
+    <Content Include="Areas\Web\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Web\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\Web\Views\Pdf\DocData.cshtml" />
+    <Content Include="Areas\Web\Views\Pdf\Goods.cshtml" />
+    <Content Include="Areas\Web\Views\Pdf\ScanerGoods.cshtml" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

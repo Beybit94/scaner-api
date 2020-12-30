@@ -19,5 +19,6 @@ namespace Data.Model
         public int TaskId { get; set; }
         public int? BoxId { get; set; }
         public int? DamagePercentId { get; set; }
+        public DateTime Created { get; set; }
     }
 }

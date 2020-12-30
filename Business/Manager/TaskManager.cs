@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business.Models;
+using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using Data.Queries.Data1c;
 using Data.Queries.Good;
@@ -77,11 +78,10 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
 
             var query = _mapper.Map<TaskQuery>(queryModel);
-            var task = _taskRepository.GetTaskById(query);
 
             var result = new List<DifferencesModel>();
-            var goodQuery = new GoodQuery { TaskId = task.Id };
-            var data1cQuery = new Data1cQuery { PlanNum = task.PlanNum };
+            var goodQuery = new GoodQuery { PlanNum = queryModel.PlanNum };
+            var data1cQuery = new Data1cQuery { PlanNum = queryModel.PlanNum };
 
             var goods = _goodRepository.GetGoods(goodQuery);
             var docdatas = _data1CRepository.DocDataByPlanNum(data1cQuery);
@@ -417,6 +417,16 @@ namespace Business.Manager
             query.ProcessTypeId = hProcessType.Id;
 
             _data1CRepository.SetDataTo1c(query);
+        }
+
+        public List<Scaner_1cDocDataModel> DocDataModels(Data1cQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+
+            var query = _mapper.Map<Data1cQuery>(queryModel);
+            var entity = _data1CRepository.DocDataByPlanNum(query);
+
+            return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);        
         }
     }
 }

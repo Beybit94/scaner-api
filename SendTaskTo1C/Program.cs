@@ -19,6 +19,7 @@ namespace SendTaskTo1C
             var taskManager = Container.Resolve<TaskManager>();
 
             var query = new TaskQueryModel();
+            //query.PlanNum = "0000121838_1";
             var items = taskManager.PrepareDataTo1c(query);
 
             //var difference = taskManager.Differences(query);

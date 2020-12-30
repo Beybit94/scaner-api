@@ -1,8 +1,10 @@
 ﻿using Business.Manager;
 using Business.QueryModels.Data1c;
+using Business.QueryModels.Good;
 using Business.QueryModels.Task;
 using PdfSharp;
 using PdfSharp.Pdf;
+using System;
 using System.IO;
 using System.Web.Mvc;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
@@ -12,10 +14,12 @@ namespace ScanerApi.Areas.Web.Controllers
     public class PdfController : Controller
     {
         private readonly TaskManager _taskManager;
+        private readonly GoodManager _goodManager;
 
-        public PdfController(TaskManager taskManager)
+        public PdfController(TaskManager taskManager, GoodManager goodManager)
         {
             _taskManager = taskManager;
+            _goodManager = goodManager;
         }
 
         public ActionResult Disqus()
@@ -48,6 +52,24 @@ namespace ScanerApi.Areas.Web.Controllers
 
             //return Json(new { success = true, data = content }, JsonRequestBehavior.AllowGet);
             return File(stream.ToArray(), "application/pdf");
+        }
+
+        public ActionResult DocData(Data1cQueryModel model)
+        {
+            var data = _taskManager.DocDataModels(model);
+            return View("DocData", data);
+        }
+
+        public ActionResult Goods(GoodQueryModel model)
+        {
+            var data = _goodManager.GetGoodWithBarcode(model);
+            return View("Goods", data);
+        }
+
+        public ActionResult ScanerGoods(GoodQueryModel model)
+        {
+            var data = _goodManager.GetGoods(model);
+            return View("ScanerGoods", data);
         }
     }
 }
