@@ -53,7 +53,7 @@ SELECT Id,
        GoodName,
        GoodArticle,
        BarCode,
-       DamagePercentId 
+       DefectId 
 FROM Scaner_Goods
 WHERE TaskId = @TaskId 
 and (BoxId = 0 or BoxId is null)
@@ -75,7 +75,7 @@ SELECT Id,
        GoodName,
        GoodArticle,
        BarCode,
-       DamagePercentId 
+       DefectId 
 FROM Scaner_Goods
 WHERE TaskId = @TaskId 
 and BoxId = @BoxId
@@ -223,7 +223,7 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            if(_query.DamagePercentId == 0)
+            if (_query.DefectId == 0)
             {
                 UnitOfWork.Session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
@@ -231,10 +231,28 @@ update Scaner_Goods SET DamagePercentId = NULL where Id = @Id", new { _query.Id,
             }
             else
             {
-                UnitOfWork.Session.Execute(@"
-update Scaner_Goods SET DamagePercentId = @DamagePercentId where Id = @Id", new { _query.DamagePercentId, _query.Id });
+                using (var connection = UnitOfWork.Session)
+                {
+                    var transaction = connection.BeginTransaction();
+                    try
+                    {
+                        var DefectId = connection.Query<int>(@"
+INSERT INTO Defects (Damage, Description)
+VALUES (@Damage, @Description); 
+SELECT SCOPE_IDENTITY()");
+                        connection.Execute(@"
+update Scaner_Goods SET DefectId = @DefectId where Id = @Id", new { DefectId, _query.Id });
+                        transaction.Commit();
+                    }
+                    catch(Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+
             }
-           
+
         }
     }
 }

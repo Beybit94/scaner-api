@@ -193,6 +193,8 @@
     <Compile Include="Migrations\202011301300_GoodProcess.cs" />
     <Compile Include="Migrations\202012021158_Scaner_Goods_Triger.cs" />
     <Compile Include="Migrations\202011300950_LogRequest.cs" />
+    <Compile Include="Migrations\202012311618_Defect.cs" />
+    <Compile Include="Migrations\202012311619_AlterTrigger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

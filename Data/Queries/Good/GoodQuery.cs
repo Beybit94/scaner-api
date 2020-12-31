@@ -18,7 +18,10 @@ namespace Data.Queries.Good
         public string GoodName { get; set; }
         public string GoodArticle { get; set; }
         public int CountQty { get; set; }
-        public int DamagePercentId { get; set; }
+        public int DefectId { get; set; }
         public string Path { get; set; }
+
+        public int Damage { get; set; }
+        public string Description { get; set; }
     }
 }
