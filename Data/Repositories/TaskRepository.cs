@@ -131,8 +131,10 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute(@"
+DELETE FROM Logs WHERE TaskId = @TaskId
 DELETE FROM Scaner_File WHERE TaskId = @TaskId
 DELETE FROM Scaner_Goods WHERE TaskId = @TaskId 
+DELETE FROM Tasks WHERE ParentId = @TaskId
 DELETE FROM Tasks WHERE Id = @TaskId", new { _query.TaskId });
         }
 

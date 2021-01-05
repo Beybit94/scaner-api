@@ -225,31 +225,31 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
 
             if (_query.DefectId == 0)
             {
-                UnitOfWork.Session.Execute(@"
-delete from Scaner_Goods where BoxId = @Id
-update Scaner_Goods SET DamagePercentId = NULL where Id = @Id", new { _query.Id, _query.TaskId });
+                var transaction = UnitOfWork.Session.BeginTransaction();
+                try
+                {
+                    var DefectId = UnitOfWork.Session.Query<int>(@"
+INSERT INTO Defects (Damage, Description)
+VALUES (@Damage, @Description); 
+SELECT SCOPE_IDENTITY()", new { _query.Damage, _query.Description }, transaction);
+
+                    UnitOfWork.Session.Execute(@"
+update Scaner_Goods SET DefectId = @DefectId where Id = @Id", new { DefectId, _query.Id }, transaction);
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
             else
             {
-                using (var connection = UnitOfWork.Session)
-                {
-                    var transaction = connection.BeginTransaction();
-                    try
-                    {
-                        var DefectId = connection.Query<int>(@"
-INSERT INTO Defects (Damage, Description)
-VALUES (@Damage, @Description); 
-SELECT SCOPE_IDENTITY()");
-                        connection.Execute(@"
-update Scaner_Goods SET DefectId = @DefectId where Id = @Id", new { DefectId, _query.Id });
-                        transaction.Commit();
-                    }
-                    catch(Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
+                UnitOfWork.Session.Execute(@"
+delete from Scaner_Goods where BoxId = @Id
+update Scaner_Goods SET DefectId = NULL where Id = @Id
+delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
 
             }
 

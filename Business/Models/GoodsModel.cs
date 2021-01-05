@@ -16,10 +16,7 @@ namespace Business.Models
         public string GoodArticle { get; set; }
         public string BarCode { get; set; }
         public int TaskId { get; set; }
-        public int DefectId { get; set; }
-
-        public int Damage { get; set; }
-        public string Description { get; set; }
+        public int? DefectId { get; set; }
 
         public int? BoxId { get; set; }
 
