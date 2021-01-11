@@ -22,6 +22,7 @@ namespace Data.Queries.Good
         public string Path { get; set; }
 
         public int Damage { get; set; }
+        public string SerialNumber { get; set; }
         public string Description { get; set; }
     }
 }

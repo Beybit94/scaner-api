@@ -18,6 +18,7 @@ namespace Business.QueryModels.Good
         public string Path { get; set; }
 
         public int Damage { get; set; }
+        public string SerialNumber { get; set; }
         public string Description { get; set; }
 
         public override ModelValidationResult Validate()
