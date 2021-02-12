@@ -112,7 +112,7 @@ namespace ScanerApi.Utils
                 PropertyInfo pi = model.GetType().GetProperty(key, BindingFlags.Public | BindingFlags.Instance);
                 if (pi != null)
                 {
-                    object val = pi.PropertyType == typeof(int) ? (object)int.Parse(formData[key]) : (object)formData[key];
+                    object val = pi.PropertyType == typeof(int) ? (object)Convert.ToInt32(formData[key]) : (object)formData[key];
                     pi.SetValue(model, val, null);
                 }
             }

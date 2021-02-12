@@ -93,3 +93,11 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
     @level1name = N'Tasks',
     @level2type = N'COLUMN',
     @level2name = N'BarCode'
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [UX_Tasks_PlanNum_All]
+ON [Tasks] ([PlanNum])
+WHERE (StatusId in (1,2,3,4));
+
+GO
+CREATE INDEX [IX_Tasks_PlanNum] ON [dbo].[Tasks] ([PlanNum])

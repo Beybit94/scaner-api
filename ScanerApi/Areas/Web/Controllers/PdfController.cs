@@ -41,7 +41,7 @@ namespace ScanerApi.Areas.Web.Controllers
         {
             var goods = _taskManager.Differences(model);
             MemoryStream stream = new MemoryStream();
-            string content = RenderRazorViewToString("Index", goods);
+            string content = RenderRazorViewToString("Index", goods.receipts);
             
             PdfDocument pdf = PdfGenerator.GeneratePdf(content, PageSize.A4);
             pdf.Save(stream, false);

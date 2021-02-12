@@ -26,16 +26,16 @@ namespace Data.Repositories
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.Query<Goods>($@"
-SELECT g.Id,
-       g.CountQty,
-       g.GoodId,
-       g.GoodName,
-       g.GoodArticle,
-       g.BarCode,
-       g.BoxId
+            var entity = UnitOfWork.Session.Query<Goods,Defects,Goods>($@"
+SELECT g.*, d.*
 FROM Scaner_Goods g
-WHERE TaskId = @TaskId", new { _query.TaskId, _query.PlanNum });
+LEFT JOIN Defects d on d.Id = g.DefectId
+WHERE TaskId = @TaskId", (g, d) =>
+            {
+                g.Defect = d;
+                return g;
+            }, 
+            new { _query.TaskId, _query.PlanNum });
             return entity.ToList();
         }
 
@@ -56,7 +56,29 @@ SELECT Id,
        DefectId 
 FROM Scaner_Goods
 WHERE TaskId = @TaskId 
-and (BoxId = 0 or BoxId is null)
+order by Created desc", new { _query.TaskId });
+            return entity.ToList();
+        }
+
+        public List<Goods> GetBoxesByTask(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            var entity = UnitOfWork.Session.Query<Goods>(@"
+SELECT Id,
+       GoodId,
+       CountQty,
+       GoodName,
+       GoodArticle,
+       BarCode,
+       DefectId 
+FROM Scaner_Goods
+WHERE TaskId = @TaskId 
+and GoodId = 0
+and DefectId is null
 order by Created desc", new { _query.TaskId });
             return entity.ToList();
         }
@@ -100,8 +122,21 @@ FROM (
     SELECT G.ID as GOODID, G.GOODARTICLE,G.GOODNAME
     FROM GOODS G 	
     WHERE G.GoodName LIKE @GoodArticle) G
-GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%" + _query.GoodArticle + "%" });
+GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%" +_query.GoodArticle + "%" });
             return entity.ToList();
+        }
+
+        public Goods GetGoodsByArticle(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            return UnitOfWork.Session.QueryFirstOrDefault<Goods>(@"
+SELECT  G.ID as GoodId, G.GoodArticle, G.GoodName, 0 as CountQty,'' as BarCode
+FROM GOODS G 	
+WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
         }
 
         public List<Goods> ExistGood(Query query)
@@ -133,6 +168,24 @@ END", new { _query.BarCode, _query.GoodArticle });
             return entity.ToList();
         }
 
+        public int ExistBox(Query query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var _query = query as GoodQuery;
+            if (_query == null) throw new InvalidCastException(nameof(_query));
+
+            return UnitOfWork.Session.QueryFirst<int>(@"
+IF EXISTS (SELECT * FROM Scaner_Goods WHERE TaskId = @TaskId AND BarCode = @BarCode AND GoodId = 0)
+BEGIN
+    SELECT 1;
+END
+ELSE
+BEGIN
+    SELECT 0;
+END",new { _query.TaskId, _query.BarCode });
+        }
+
         public void Save(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -140,7 +193,10 @@ END", new { _query.BarCode, _query.GoodArticle });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute($@"
+            var transaction = UnitOfWork.Session.BeginTransaction();
+            try
+            {
+                UnitOfWork.Session.Execute($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
 BEGIN
     MERGE Scaner_Goods AS Target
@@ -157,7 +213,7 @@ BEGIN
         AND Target.BarCode = Source.BarCode)
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
-        VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);
+        VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);      
 END
 ELSE
 BEGIN
@@ -180,17 +236,23 @@ BEGIN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);
 END",
-           new
-           {
-               _query.TaskId,
-               _query.PlanNum,
-               _query.GoodId,
-               _query.GoodName,
-               _query.GoodArticle,
-               _query.CountQty,
-               _query.BarCode,
-               _query.BoxId,
-           });
+          new
+          {
+              _query.TaskId,
+              _query.PlanNum,
+              _query.GoodId,
+              _query.GoodName,
+              _query.GoodArticle,
+              _query.CountQty,
+              _query.BarCode,
+              _query.BoxId,
+          }, transaction);
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+            }
         }
 
         public void Update(Query query)
@@ -229,12 +291,12 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
                 try
                 {
                     var DefectId = UnitOfWork.Session.Query<int>(@"
-INSERT INTO Defects (Damage, Description)
-VALUES (@Damage, @Description); 
-SELECT SCOPE_IDENTITY()", new { _query.Damage, _query.Description }, transaction);
+INSERT INTO Defects (Damage, SerialNumber, Description)
+VALUES (@Damage, @SerialNumber, @Description); 
+SELECT SCOPE_IDENTITY()", new { _query.Damage, _query.SerialNumber, _query.Description }, transaction);
 
                     UnitOfWork.Session.Execute(@"
-update Scaner_Goods SET DefectId = @DefectId where Id = @Id", new { DefectId, _query.Id }, transaction);
+update Scaner_Goods SET DefectId = @DefectId, Created = getdate() where Id = @Id", new { DefectId, _query.Id }, transaction);
 
                     transaction.Commit();
                 }

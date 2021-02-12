@@ -34,8 +34,14 @@ namespace Business.Manager
 
             _taskRepository.GetPlanNum(query);
 
-            var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
-            query.StatusId = hTaskStatus.Id;
+            var InProcess = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
+            var Start = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
+            var End = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
+
+            query.Start = Start.Id;
+            query.InProcess = InProcess.Id;
+            query.End = End.Id;
+
             _taskRepository.UnloadTask(query);
         }
 
@@ -44,10 +50,22 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
-            query.StatusId = hTaskStatus.Id;
+            var hEndStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
+            var hInProcessStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
+
+            query.Start = hEndStatus.Id;
+            query.InProcess = hInProcessStatus.Id;
 
             var entity = _taskRepository.GetActiveTask(query);
+            return _mapper.Map<TasksModel>(entity);
+        }
+
+        public TasksModel GetTaskById(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<TaskQuery>(queryModel);
+
+            var entity = _taskRepository.GetTaskById(query);
             return _mapper.Map<TasksModel>(entity);
         }
 
@@ -56,10 +74,33 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
-            query.StatusId = hTaskStatus.Id;
+            var StartStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
+            var EndStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
+            var InProcessStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
 
-            _taskRepository.EndTask(query);
+            var task = _taskRepository.GetTaskById(query);
+            if(task.StatusId == StartStatus.Id)
+            {
+                var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
+                var files = _taskRepository.FilesByTask(query);
+
+                if(!files.Any(m => m.TypeId == hFileType.Id))
+                {
+                    var goods = _goodRepository.GetGoodsByTask(new GoodQuery { TaskId = task.Id });
+                    if (goods.Any(m => m.DefectId.HasValue)) throw new Exception("Фото акта не прикреплен");
+
+                    var difference = Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
+                    if(difference.receipts.Any(m=>m.CountQty != m.Quantity )) throw new Exception("Фото акта не прикреплен");
+                }
+
+                query.StatusId = InProcessStatus.Id;
+            }else if(task.StatusId == InProcessStatus.Id)
+            {
+                query.StatusId = EndStatus.Id;
+                query.EndDateTime = DateTime.Now;
+            }
+
+            _taskRepository.SetStaus(query);
         }
 
         public void CloseTask(TaskQueryModel queryModel)
@@ -67,27 +108,30 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
+            var Status = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Deleted");
+            query.StatusId = Status.Id;
+            _taskRepository.SetStaus(query);
             _taskRepository.CloseTask(query);
         }
 
-        public List<ReceiptModel> Differences(TaskQueryModel queryModel)
+        public DifferencesModel Differences(TaskQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
 
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            var result = new List<ReceiptModel>();
-            var goodQuery = new GoodQuery { TaskId = query.TaskId };
-            var data1cQuery = new Data1cQuery { PlanNum = query.PlanNum };
+            var StartStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
+            var task = _taskRepository.GetTaskById(query);
 
-            var goods = _goodRepository.GetGoods(goodQuery);
-            var docdatas = _data1CRepository.DocDataByPlanNum(data1cQuery);
+            var goods = _goodRepository.GetGoods(new GoodQuery { TaskId = query.TaskId });
+            var docdatas = _data1CRepository.DocDataByPlanNum(new Data1cQuery { PlanNum = query.PlanNum });
 
-            //Товары в коробе
-            foreach (var good in goods.Where(m => !string.IsNullOrEmpty(m.GoodArticle))
-                                      .Where(m => m.BoxId.HasValue && m.BoxId.Value != 0))
+            var diff = new DifferencesModel();
+
+            //Отсканированные товары/короб
+            foreach(var good in goods.Where(m=>m.GoodId != 0)) 
             {
-                var diff = new ReceiptModel
+                var receipt = new ReceiptModel
                 {
                     GoodName = good.GoodName,
                     Article = good.GoodArticle,
@@ -95,125 +139,140 @@ namespace Business.Manager
                     GoodBarcode = good.BarCode
                 };
 
-                var box = goods.FirstOrDefault(m => m.Id == good.BoxId);
-                diff.Barcode = box.BarCode;
-
-                var _docDatas = docdatas.Where(m => m.Article == good.GoodArticle &&
-                                                          m.PlanNum == data1cQuery.PlanNum &&
-                                                          m.Barcode == box.BarCode);
-
-                //Пропускаем где по одному Article несколько записей
-                var length = _docDatas.Count();
-                if (length > 1) continue;
-
-                //Если пусто выбираем любой РОТ
-                var _docData = _docDatas.FirstOrDefault();
-                if (_docData == null) _docData = docdatas.FirstOrDefault();
-
-                diff.NumberDoc = _docData.NumberDoc;
-                diff.DateDoc = _docData.DateDoc ?? DateTime.Now;
-                diff.Location = _docData.LocationGuid;
-                diff.Quantity = length <= 0 ? 0 : _docData.Quantity;
-
-                result.Add(diff);
-            }
-
-            //Товары вне короба
-            foreach (var good in goods.Where(m => !string.IsNullOrEmpty(m.GoodArticle))
-                                      .Where(m => !m.BoxId.HasValue || m.BoxId == 0))
-            {
-                var diff = new ReceiptModel
+                GoodsModel box = null;
+                if(good.BoxId.HasValue && good.BoxId != 0)
                 {
-                    GoodName = good.GoodName,
-                    Article = good.GoodArticle,
-                    CountQty = good.CountQty,
-                    GoodBarcode = good.BarCode,
-                    Barcode = "0"
-                };
+                    box = _mapper.Map<GoodsModel>(goods.FirstOrDefault(m => m.Id == good.BoxId));
+                    receipt.Barcode = box.BarCode;
+                }
+                else
+                {
+                    receipt.Barcode = "0";
+                }
 
                 var _docDatas = docdatas.Where(m => m.Article == good.GoodArticle &&
-                                                          m.PlanNum == data1cQuery.PlanNum &&
-                                                          m.Barcode == "0");
-
+                                                    m.Barcode == (box != null ? box.BarCode : "0"));
+                
                 //Пропускаем где по одному Article несколько записей
                 var length = _docDatas.Count();
                 if (length > 1) continue;
 
                 //Если пусто выбираем любой РОТ
-                var _docData = _docDatas.FirstOrDefault();
-                if (_docData == null) _docData = docdatas.FirstOrDefault();
+                var docData = length > 0 ? _docDatas.FirstOrDefault() : docdatas.FirstOrDefault();
 
-                diff.NumberDoc = _docData == null ? "" :_docData.NumberDoc;
-                diff.DateDoc = _docData == null || !_docData.DateDoc.HasValue ? DateTime.Now : _docData.DateDoc.Value;
-                diff.Location = _docData == null ? "" : _docData.LocationGuid;
-                diff.Quantity = length <= 0 ? 0 : _docData.Quantity;
+                if (docData == null)
+                {
+                    receipt.NumberDoc = "";
+                    receipt.DateDoc = DateTime.Now;
+                    receipt.Location = "";
+                    receipt.Quantity = 0;
+                }
+                else
+                {
+                    receipt.NumberDoc = docData.NumberDoc;
+                    receipt.DateDoc = docData.DateDoc ?? DateTime.Now;
+                    receipt.Location = docData.LocationGuid;
+                    receipt.Quantity = length <= 0 ? 0 : docData.Quantity;
+                }
 
-                result.Add(diff);
+                //if (receipt.CountQty == receipt.Quantity) continue;
+                diff.receipts.Add(receipt);
             }
 
             //Товар из 1с
-            foreach (var good in docdatas.Where(m => !result.Any(r => r.Article == m.Article && r.Barcode == m.Barcode))
-                                        .GroupBy(m => m.Article))
+            foreach (var good in docdatas.GroupBy(m => m.Article))
             {
-                if (good.Count() > 1) continue;
-
-                var _docData = good.FirstOrDefault();
-                var diff = new ReceiptModel
+                var docData = good.FirstOrDefault();
+                //По одному Article несколько записей
+                if (good.Count() > 1)
                 {
-                    NumberDoc = _docData.NumberDoc,
-                    DateDoc = _docData.DateDoc ?? DateTime.Now,
-                    Location = _docData.LocationGuid,
-                    CountQty = 0,
-                    Quantity = _docData.Quantity,
-                    Barcode = _docData.Barcode
-                };
-
-                goodQuery.GoodArticle = _docData.Article;
-                var _good = _goodRepository.GetGoodsByFilter(goodQuery).FirstOrDefault();
-
-                diff.GoodName = _good != null ? _good.GoodName : "";
-                diff.Article = _good != null ? _good.GoodArticle : "";
-
-                result.Add(diff);
-            }
-
-            //Несколько товаров по Article
-            foreach (var good in docdatas.GroupBy(m => m.Article).Where(m => m.Count() > 1))
-            {
-                var article = good.FirstOrDefault().Article;
-                var _good = goods.FirstOrDefault(m => m.GoodArticle == article);
-
-                var _docDatas = good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode });
-
-                var quantity = _good != null ? _good.CountQty : 0;
-                foreach (var _docData in _docDatas)
-                {
-                    var diff = new ReceiptModel
+                    var findGood = goods.FirstOrDefault(m => m.GoodArticle == docData.Article);
+                    if(findGood == null)
                     {
-                        NumberDoc = _docData.NumberDoc,
-                        DateDoc = _docData.DateDoc ?? DateTime.Now,
-                        Location = _docData.LocationGuid,
-                        Quantity = _docData.Quantity,
-                        Barcode = _docData.Barcode
+                        findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
+                    }
+
+                    var quantity = findGood.CountQty;
+                    foreach(var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
+                    {
+                        var receipt = new ReceiptModel
+                        {
+                            NumberDoc = item.NumberDoc,
+                            DateDoc = item.DateDoc ?? DateTime.Now,
+                            Location = item.LocationGuid,
+                            Quantity = item.Quantity,
+                            Barcode = item.Barcode,
+                            Article = item.Article,
+                            GoodBarcode = findGood.BarCode,
+                            GoodName = findGood.GoodName
+                        };
+
+                        if (quantity <= 0)
+                        {
+                            receipt.CountQty = 0;
+                        }
+                        else
+                        {
+                            receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
+                            quantity = quantity - item.Quantity;
+                        }
+
+                        //if (receipt.CountQty == receipt.Quantity) continue;
+                        diff.receipts.Add(receipt);
+                    }
+                }
+                else
+                {
+                    if (diff.receipts.Any(m => m.Article == docData.Article &&
+                                             m.Barcode == docData.Barcode &&
+                                             m.NumberDoc == docData.NumberDoc)) continue;
+
+                    var receipt = new ReceiptModel
+                    {
+                        NumberDoc = docData.NumberDoc,
+                        DateDoc = docData.DateDoc ?? DateTime.Now,
+                        Location = docData.LocationGuid,
+                        Quantity = docData.Quantity,
+                        Barcode = docData.Barcode,
+                        Article = docData.Article,
+                        GoodBarcode = "",
+                        CountQty = 0,
                     };
 
-                    diff.GoodName = _good != null ? _good.GoodName : "";
-                    diff.Article = _good != null ? _good.GoodArticle : "";
+                    var findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
+                    receipt.GoodName = findGood != null ? findGood.GoodName : "";
 
-                    if (quantity <= 0)
-                    {
-                        diff.CountQty = 0;
-                    }
-                    else
-                    {
-                        diff.CountQty = quantity >= _docData.Quantity ? _docData.Quantity : quantity;
-                        quantity = quantity - _docData.Quantity;
-                    }
-                    result.Add(diff);
+                    //if (receipt.CountQty == receipt.Quantity) continue;
+                    diff.receipts.Add(receipt);
                 }
             }
 
-            return result.ToList();
+            if (task.StatusId == StartStatus.Id)
+            {
+                diff.boxes = _mapper.Map<List<GoodsModel>>(goods.Where(m => m.GoodId == 0 && m.DefectId != null).ToList());
+                foreach(var item in docdatas.Where(m=>m.Barcode != "0").GroupBy(m=>m.Barcode))
+                {
+                    if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
+                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });
+                }
+                diff.receipts = diff.receipts.Where(m => m.Barcode == "0" || diff.boxes.Any(b => b.BarCode == m.Barcode))
+                                             .Where(m=>m.CountQty != m.Quantity).ToHashSet();
+                diff.receipts.Distinct();
+            }
+            else
+            {
+                diff.boxes = _mapper.Map<List<GoodsModel>>(goods.Where(m => m.GoodId == 0 && m.DefectId == null).ToList());
+                foreach (var item in docdatas.Where(m => m.Barcode != "0").GroupBy(m => m.Barcode))
+                {
+                    if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
+                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });
+                }
+                diff.receipts = diff.receipts.Where(m => diff.boxes.Any(b => b.BarCode == m.Barcode))
+                                             .Where(m => m.CountQty != m.Quantity).ToHashSet();
+                diff.receipts.Distinct();
+            }
+
+            return diff;
         }
 
         public void SaveAct(TaskQueryModel queryModel)
@@ -235,13 +294,12 @@ namespace Business.Manager
             var hTaskStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
             var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SendTo1C");
 
-            query.StatusId = hTaskStatus.Id;
+            query.End = hTaskStatus.Id;
             query.ProcessTypeId = hProcessType.Id;
 
             var tasks = _taskRepository.GetTasksByStatus(query);
+            var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Defect_Photo");
 
-            var goodQuery = new GoodQuery { };
-            var data1cQuery = new Data1cQuery { };
             var receipts = new List<ReceiptModel>();
 
             var boxReceipts = new List<ReceiptModel>();
@@ -253,12 +311,9 @@ namespace Business.Manager
             {
                 var _receipts = new List<ReceiptModel>();
 
-                goodQuery.TaskId = item.Id;
-                goodQuery.PlanNum = item.PlanNum.Replace("\n", "").Replace("\r", "");
-                var goods = _goodRepository.GetGoods(goodQuery);
-
-                data1cQuery.PlanNum = item.PlanNum.Replace("\n", "").Replace("\r", "");
-                var docdatas = _data1CRepository.DocDataByPlanNum(data1cQuery);
+                var files = _taskRepository.FilesByTask(new TaskQuery { TaskId = item.Id });
+                var goods = _goodRepository.GetGoods(new GoodQuery { TaskId = item.Id, PlanNum = item.PlanNum });
+                var docdatas = _data1CRepository.DocDataByPlanNum(new Data1cQuery { PlanNum = item.PlanNum.Trim() });
 
                 //Товары в коробе
                 foreach (var good in goods.Where(m => !string.IsNullOrEmpty(m.GoodArticle))
@@ -266,7 +321,7 @@ namespace Business.Manager
                 {
                     var box = goods.FirstOrDefault(m => m.Id == good.BoxId);
                     var _docDatas = docdatas.Where(m => m.Article == good.GoodArticle &&
-                                                              m.PlanNum == data1cQuery.PlanNum &&
+                                                              m.PlanNum == item.PlanNum &&
                                                               m.Barcode == box.BarCode);
 
                     //Пропускаем где по одному Article несколько записей
@@ -291,6 +346,16 @@ namespace Business.Manager
                         GoodBarcode = good.BarCode,
                         Barcode = box.BarCode,
                     };
+
+                    if (good.DefectId.HasValue)
+                    {
+                        _receipt.IsDefect = true;
+                        _receipt.DefectDate = good.Created;
+                        _receipt.Description = good.Defect.Description;
+                        _receipt.SerialNumber = good.Defect.SerialNumber;
+                        _receipt.DefectPercentage = good.Defect.Damage.ToString();
+                        _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == good.Id && m.TypeId == hFileType.Id).Path;
+                    }
                     boxReceipts.Add(_receipt);
                 }
                 _receipts.AddRange(boxReceipts);
@@ -300,7 +365,7 @@ namespace Business.Manager
                                           .Where(m => !m.BoxId.HasValue || m.BoxId == 0))
                 {
                     var _docDatas = docdatas.Where(m => m.Article == good.GoodArticle &&
-                                                              m.PlanNum == data1cQuery.PlanNum &&
+                                                              m.PlanNum == item.PlanNum &&
                                                               m.Barcode == "0");
 
                     //Пропускаем где по одному Article несколько записей
@@ -324,6 +389,17 @@ namespace Business.Manager
                         Quantity = good.CountQty,
                         GoodBarcode = good.BarCode,
                     };
+
+                    if (good.DefectId.HasValue)
+                    {
+                        _receipt.IsDefect = true;
+                        _receipt.DefectDate = good.Created;
+                        _receipt.Description = good.Defect.Description;
+                        _receipt.SerialNumber = good.Defect.SerialNumber;
+                        _receipt.DefectPercentage = good.Defect.Damage.ToString();
+                        _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == good.Id && m.TypeId == hFileType.Id).Path;
+                    }
+
                     notBoxReceipts.Add(_receipt);
                 }
                 _receipts.AddRange(notBoxReceipts);
@@ -395,6 +471,16 @@ namespace Business.Manager
                                 DateEndLoad = item.EndDateTime ?? DateTime.Now,
                                 Article = _docData.Article,
                             };
+
+                            if (_good.DefectId.HasValue)
+                            {
+                                _receipt.IsDefect = true;
+                                _receipt.DefectDate = _good.Created;
+                                _receipt.Description = _good.Defect.Description;
+                                _receipt.SerialNumber = _good.Defect.SerialNumber;
+                                _receipt.DefectPercentage = _good.Defect.Damage.ToString();
+                                _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == _good.Id && m.TypeId == hFileType.Id).Path;
+                            }
 
                             if (quantity <= 0)
                             {

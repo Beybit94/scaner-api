@@ -17,8 +17,9 @@ namespace Business.Models
         public string BarCode { get; set; }
         public int TaskId { get; set; }
         public int? DefectId { get; set; }
-
         public int? BoxId { get; set; }
+        public DateTime Created { get; set; }
+
 
         public bool IsBox
         {

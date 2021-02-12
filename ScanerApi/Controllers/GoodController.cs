@@ -129,20 +129,26 @@ namespace ScanerApi.Controllers
             try
             {
                 var provider = new InMemoryMultipartFormDataStreamProvider();
-
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                var path = "";
-                foreach (var file in provider.Files)
-                {
-                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
-                    byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    string.Concat(path, "," + _fileManager.UploadFile(fileArray, filename));
-                }
-
                 var query = provider.FormDataToGoodQuery();
-                query.Path = path;
-                _goodManager.Defect(query);
+                var path = "";
+                Task fileResult = Task.Run(async () =>
+                {
+                    foreach (var file in provider.Files)
+                    {
+                        var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                        byte[] fileArray = await file.ReadAsByteArrayAsync();
+                        path = _fileManager.UploadFile(fileArray, filename);
+                    }
+                });
+
+                await fileResult.ContinueWith(t =>
+                 {
+                     query.Path = path;
+                     _goodManager.Defect(query);
+                 });
+                fileResult.Wait();
 
                 return Ok(new { success = true });
             }

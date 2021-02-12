@@ -62,7 +62,7 @@ namespace ScanerApi.Controllers
             try
             {
                 _taskManager.EndTask(model);
-                return Ok(new { success = true });
+                return Ok(new { success = true, data = _taskManager.GetTaskById(model) });
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace ScanerApi.Controllers
         {
             try
             {
-                return Ok(new { success = true, data = _taskManager.Differences(model).Where(m=>m.CountQty != m.Quantity) });
+                return Ok(new { success = true, data = _taskManager.Differences(model) });
             }
             catch (Exception ex)
             {
@@ -114,20 +114,26 @@ namespace ScanerApi.Controllers
             try
             {
                 var provider = new InMemoryMultipartFormDataStreamProvider();
-
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                var path = "";
-                foreach (var file in provider.Files)
-                {
-                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
-                    byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    string.Concat(path, "," + _fileManager.UploadFile(fileArray, filename));
-                }
-
                 var query = provider.FormDataToTaskQuery();
-                query.Path = path;
-                _taskManager.SaveAct(query);
+                var path = "";
+                Task fileResult = Task.Run(async () =>
+                {
+                    foreach (var file in provider.Files)
+                    {
+                        var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                        byte[] fileArray = await file.ReadAsByteArrayAsync();
+                        path = _fileManager.UploadFile(fileArray, filename);
+                    }
+                });
+
+                await fileResult.ContinueWith(t =>
+                {
+                    query.Path = path;
+                    _taskManager.SaveAct(query);
+                });
+                fileResult.Wait();
 
                 return Ok(new { success = true });
             }

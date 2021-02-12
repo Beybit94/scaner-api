@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Business.Models.DifferencesModel>
+﻿@model HashSet<Business.Models.ReceiptModel>
 
 <div>
     <h3>АКТ ПРИЕМА ТОВАРА</h3>
@@ -109,7 +109,7 @@
             <td>Статус</td>
         </tr>
 
-        @foreach (var item in Model)
+        @foreach (var item in Model.ToList())
         {
             var i = 1;
             if (item.CountQty != item.Quantity)
@@ -117,7 +117,7 @@
                 <tr>
                     <td>@i</td>
                     <td>@item.NumberDoc</td>
-                    <td>@item.GoodArticle</td>
+                    <td>@item.Article</td>
                     <td>@item.GoodName</td>
                     <td>@item.Quantity</td>
                     <td>@item.CountQty</td>
