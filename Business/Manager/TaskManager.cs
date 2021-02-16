@@ -176,6 +176,15 @@ namespace Business.Manager
                 }
 
                 //if (receipt.CountQty == receipt.Quantity) continue;
+
+                if (good.DefectId.HasValue)
+                {
+                    receipt.IsDefect = true;
+                    receipt.DefectDate = good.Created;
+                    receipt.Description = good.Defect.Description;
+                    receipt.SerialNumber = good.Defect.SerialNumber;
+                    receipt.DefectPercentage = good.Defect.Damage.ToString();
+                }
                 diff.receipts.Add(receipt);
             }
 

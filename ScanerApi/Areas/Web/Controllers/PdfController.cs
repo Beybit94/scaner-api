@@ -3,6 +3,7 @@ using Business.QueryModels.Data1c;
 using Business.QueryModels.Task;
 using PdfSharp;
 using PdfSharp.Pdf;
+using System;
 using System.IO;
 using System.Web.Mvc;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
