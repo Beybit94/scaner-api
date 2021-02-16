@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Business.Models.DifferencesModel>
+﻿@model HashSet<Business.Models.ReceiptModel>
 
 <div>
     <h3>АКТ ПРИЕМА ТОВАРА</h3>
@@ -100,16 +100,17 @@
     <table style="width: 100%; border-collapse: collapse;" border="1">
         <tr>
             <td>№</td>
-            <td>№ накладной (инвойса)</td>
-            <td>н.н. / артикул товара</td>
+            <td>№ РОТ</td>
+            <td>Номер короба</td>
+            <td>Артикул</td>
             <td>Наименование модели товара</td>
-            <td>Количество по накладной</td>
-            <td>Фактическое количество</td>
-            <td>Количество расхождений</td>
+            <td>Кол-во план</td>
+            <td>Кол-во факт</td>
+            <td>Разница</td>
             <td>Статус</td>
         </tr>
 
-        @foreach (var item in Model)
+        @foreach (var item in Model.ToList())
         {
             var i = 1;
             if (item.CountQty != item.Quantity)
@@ -117,11 +118,13 @@
                 <tr>
                     <td>@i</td>
                     <td>@item.NumberDoc</td>
-                    <td>@item.GoodArticle</td>
+                    <td>@item.Barcode</td>
+                    <td>@item.Article</td>
                     <td>@item.GoodName</td>
                     <td>@item.Quantity</td>
                     <td>@item.CountQty</td>
                     <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
+                    <td>@(item.Quantity > item.CountQty ? "Излишек" : "Недостача")</td>
                 </tr>
 
                 i++;
@@ -139,13 +142,33 @@
     <table style="width: 100%; border-collapse: collapse;" border="1">
         <tr>
             <td>№</td>
-            <td>№ накладной (инвойса)</td>
-            <td>н.н. / артикул товара</td>
+            <td>№ РОТ</td>
+            <td>Номер короба</td>
+            <td>Артикул</td>
             <td>Наименование модели товара</td>
             <td>Серийный номер</td>
             <td>Описание повреждения</td>
             <td>% ущерба</td>
         </tr>
+        @foreach (var item in Model.ToList())
+        {
+            var i = 1;
+            if (item.CountQty != item.Quantity)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>@item.NumberDoc</td>
+                    <td>@item.Barcode</td>
+                    <td>@item.Article</td>
+                    <td>@item.GoodName</td>
+                    <td>@item.SerialNumber</td>
+                    <td>@item.Description</td>
+                    <td>@item.DefectPercentage</td>
+                </tr>
+
+                i++;
+            }
+        }
     </table>
     <ul style="list-style:none; margin:0px; padding:0px;">
         <li>Водитель (экспедитор)          /(ФИО)_____________подпись_______________________</li>

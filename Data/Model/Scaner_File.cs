@@ -12,7 +12,7 @@ namespace Data.Model
     public class ScanerFile:Entity
     {
         public int TaskId { get; set; }
-        public int? BoxId { get; set; }
+        public int? GoodId { get; set; }
         public string Path { get; set; }
         public int TypeId { get; set; }
     }

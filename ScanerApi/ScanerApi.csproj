@@ -202,6 +202,7 @@
     <Compile Include="Areas\Web\App_Start\WebPageConfig.cs" />
     <Compile Include="Areas\Web\Controllers\PdfController.cs" />
     <Compile Include="Areas\Web\WebAreaRegistration.cs" />
+    <Compile Include="Controllers\DictionaryController.cs" />
     <Compile Include="Controllers\GoodController.cs" />
     <Compile Include="Controllers\TaskController.cs" />
     <Compile Include="Controllers\UserController.cs" />

@@ -2,23 +2,26 @@
 using Business.Models;
 using Business.QueryModels.Good;
 using Data.Queries.Good;
+using Data.Queries.Task;
 using Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using static Business.Models.Dictionary.StandartDictionaries;
 
 namespace Business.Manager
 {
     public class GoodManager
     {
         private readonly GoodRepository _goodRepository;
-        private IMapper _mapper;
+        private readonly TaskRepository _taskRepository;
+        private readonly IMapper _mapper;
 
-        public GoodManager(GoodRepository goodRepository, IMapper mappper)
+        public GoodManager(GoodRepository goodRepository, TaskRepository taskRepository, IMapper mappper)
         {
             _goodRepository = goodRepository;
+            _taskRepository = taskRepository;
             _mapper = mappper;
         }
 
@@ -46,7 +49,11 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<GoodQuery>(queryModel);
 
-            var entity = _goodRepository.GetGoodsByTask(query);
+            var StartStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
+            var task = _taskRepository.GetTaskById(new TaskQuery { TaskId = query.TaskId });
+
+            var entity = task.StatusId == StartStatus.Id ? _goodRepository.GetGoodsByTask(query)
+                                                         : _goodRepository.GetBoxesByTask(query);
             return _mapper.Map<List<GoodsModel>>(entity);
         }
 
@@ -77,13 +84,14 @@ namespace Business.Manager
             var goods = _goodRepository.ExistGood(query);
             if (goods.Count() > 1) throw new Exception("Несколько товаров по штрихкоду");
             if (goods.Count() == 0) throw new Exception("Товар не найден");
+            //if (goods.FirstOrDefault().GoodId == 0 && query.BoxId > 0) throw new Exception("Запрет короб внутри короба");
 
-            var saveQuery = query;
-            saveQuery.GoodId = goods.FirstOrDefault().GoodId;
-            saveQuery.GoodName = goods.FirstOrDefault().GoodName;
-            saveQuery.GoodArticle = goods.FirstOrDefault().GoodArticle;
-            saveQuery.CountQty = 1;
-            _goodRepository.Save(saveQuery);
+            query.GoodId = goods.FirstOrDefault().GoodId;
+            query.GoodName = goods.FirstOrDefault().GoodName;
+            query.GoodArticle = goods.FirstOrDefault().GoodArticle;
+            query.CountQty = 1;
+
+            _goodRepository.Save(query);
         }
 
         public void Update(GoodQueryModel queryModel)
@@ -100,6 +108,22 @@ namespace Business.Manager
             var query = _mapper.Map<GoodQuery>(queryModel);
 
             _goodRepository.Delete(query);
+        }
+
+        public void Defect(GoodQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<GoodQuery>(queryModel);
+
+            _goodRepository.SaveDefect(query);
+
+            if (!string.IsNullOrEmpty(query.Path))
+            {
+                var taskQuery = new TaskQuery { TaskId = query.TaskId, Path = query.Path, GoodId = query.Id };
+                var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Defect_Photo");
+                taskQuery.TypeId = hFileType.Id;
+                _taskRepository.SaveAct(taskQuery);
+            }
         }
     }
 }

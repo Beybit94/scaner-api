@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace DatabaseMigrations.Migrations
 {
-    [Migration(202012021158)]
-    class Scaner_Goods_Triger : Migration
+    [Migration(202012311619)]
+    public class AlterTrigger : Migration
     {
         public override void Down()
         {
@@ -18,7 +18,7 @@ namespace DatabaseMigrations.Migrations
         public override void Up()
         {
             Execute.Sql(@"
-CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
+ALTER TRIGGER [dbo].[Trigger_Scaner_Goods]
     ON [dbo].[Scaner_Goods]
     FOR DELETE, INSERT, UPDATE
     AS 
@@ -28,7 +28,7 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
         DECLARE @TaskId int,
                 @Barcode nvarchar(50), 
                 @Article nvarchar(50),
-                @DamagePercentId int,
+                @DefectId int,
                 @ProcessTypedId int;
 
         IF EXISTS(SELECT * FROM DELETED)
@@ -62,11 +62,11 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
         ELSE
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
-            SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DamagePercentId = I.DamagePercentId 
+            SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DefectId = I.DefectId 
             FROM INSERTED I
-            JOIN DELETED ON DELETED.Id = I.Id
+            JOIN DELETED D ON D.Id = I.Id
 
-            IF ISNULL(@DamagePercentId,0) <> 0
+            IF ISNULL(@DefectId,0) <> 0
             BEGIN
                 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
                 VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),'Артикуль:'+@Article);

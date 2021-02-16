@@ -103,7 +103,7 @@ select  dd.PlanNum,
         dd.Quantity,
         dd.Barcode
 from Scaner_1cDocData dd 
-where dd.PlanNum = '{_query.PlanNum}'");
+where dd.PlanNum = @PlanNum",new { _query.PlanNum });
 
             return entity.ToList();
         }

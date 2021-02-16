@@ -11,7 +11,6 @@ namespace Business.Mappers
             CreateMap<UsersModel, Users>();
             CreateMap<TasksModel, Tasks>();
             CreateMap<GoodsModel, Goods>();
-            CreateMap<DifferencesModel, Differences>();
             CreateMap<ScanerFileModel, ScanerFile>();
             CreateMap<Scaner_1cDocDataModel, Scaner_1cDocData>();
         }

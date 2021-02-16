@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# S1104: Fields should not have public accessibility
+dotnet_diagnostic.S1104.severity = none
+
+# S3626: Jump statements should not be redundant
+dotnet_diagnostic.S3626.severity = none
+
+# S2201: Return values from functions without side effects should not be ignored
+dotnet_diagnostic.S2201.severity = none

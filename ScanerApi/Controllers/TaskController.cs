@@ -62,7 +62,7 @@ namespace ScanerApi.Controllers
             try
             {
                 _taskManager.EndTask(model);
-                return Ok(new { success = true });
+                return Ok(new { success = true, data = _taskManager.GetTaskById(model) });
             }
             catch (Exception ex)
             {
@@ -114,21 +114,26 @@ namespace ScanerApi.Controllers
             try
             {
                 var provider = new InMemoryMultipartFormDataStreamProvider();
-
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                foreach (var file in provider.Files)
+                var query = provider.FormDataToTaskQuery();
+                var path = "";
+                Task fileResult = Task.Run(async () =>
                 {
-                    var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
-                    byte[] fileArray = await file.ReadAsByteArrayAsync();
-                    var path = _fileManager.UploadFile(fileArray, filename);
+                    foreach (var file in provider.Files)
+                    {
+                        var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
+                        byte[] fileArray = await file.ReadAsByteArrayAsync();
+                        path = _fileManager.UploadFile(fileArray, filename);
+                    }
+                });
 
-                    var query = provider.FormDataToQuery();
+                await fileResult.ContinueWith(t =>
+                {
                     query.Path = path;
                     _taskManager.SaveAct(query);
-                }
-
-
+                });
+                fileResult.Wait();
 
                 return Ok(new { success = true });
             }

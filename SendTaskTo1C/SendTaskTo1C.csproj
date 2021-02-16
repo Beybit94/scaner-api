@@ -60,7 +60,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -201,10 +201,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://10.20.100.26/1cws/Accepting.1cws%3fwsdl">
+    <WebReferenceUrl Include="http://10.20.100.38/1cws/Accepting.1cws%3fwsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WebReference\</RelPath>
-      <UpdateFromURL>http://10.20.100.26/1cws/Accepting.1cws%3fwsdl</UpdateFromURL>
+      <UpdateFromURL>http://10.20.100.38/1cws/Accepting.1cws%3fwsdl</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

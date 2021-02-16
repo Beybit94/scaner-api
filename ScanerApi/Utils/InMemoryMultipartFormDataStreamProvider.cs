@@ -1,4 +1,5 @@
-﻿using Business.QueryModels.Task;
+﻿using Business.QueryModels.Good;
+using Business.QueryModels.Task;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -102,10 +103,27 @@ namespace ScanerApi.Utils
 
     public static class InMemoryMultipartFormDataExtension
     {
-        public static TaskQueryModel FormDataToQuery(this InMemoryMultipartFormDataStreamProvider obj)
+        public static TaskQueryModel FormDataToTaskQuery(this InMemoryMultipartFormDataStreamProvider obj)
         {
             NameValueCollection formData = obj.FormData;
             TaskQueryModel model = new TaskQueryModel();
+            foreach (string key in formData.AllKeys)
+            {
+                PropertyInfo pi = model.GetType().GetProperty(key, BindingFlags.Public | BindingFlags.Instance);
+                if (pi != null)
+                {
+                    object val = pi.PropertyType == typeof(int) ? (object)Convert.ToInt32(formData[key]) : (object)formData[key];
+                    pi.SetValue(model, val, null);
+                }
+            }
+
+            return model;
+        }
+
+        public static GoodQueryModel FormDataToGoodQuery(this InMemoryMultipartFormDataStreamProvider obj)
+        {
+            NameValueCollection formData = obj.FormData;
+            GoodQueryModel model = new GoodQueryModel();
             foreach (string key in formData.AllKeys)
             {
                 PropertyInfo pi = model.GetType().GetProperty(key, BindingFlags.Public | BindingFlags.Instance);

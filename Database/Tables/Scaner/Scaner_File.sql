@@ -2,7 +2,7 @@
 (
 	[Id] INT IDENTITY (1, 1) NOT NULL PRIMARY KEY, 
     [TaskId] INT NOT NULL, 
-    [BoxId] INT NULL, 
+    [GoodId] INT NULL, 
     [Path] NVARCHAR(500) NOT NULL, 
     [TypeId] INT NOT NULL, 
     CONSTRAINT [FK_Scaner_File_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
@@ -25,7 +25,7 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
     @level1type = N'TABLE',
     @level1name = N'Scaner_File',
     @level2type = N'COLUMN',
-    @level2name = N'BoxId'
+    @level2name = 'GoodId'
 GO
 EXEC sp_addextendedproperty @name = N'MS_Description',
     @value = N'Идентификатор задачи',

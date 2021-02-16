@@ -67,3 +67,9 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
     @level1name = N'Scaner_1cDocData',
     @level2type = N'COLUMN',
     @level2name = N'UserId'
+
+GO
+CREATE INDEX [IX_Scaner_1cDocData_PlanNum] ON [dbo].[Scaner_1cDocData] ([PlanNum])
+
+GO
+CREATE INDEX [IX_Scaner_1cDocData_Article] ON [dbo].[Scaner_1cDocData] ([Article])
