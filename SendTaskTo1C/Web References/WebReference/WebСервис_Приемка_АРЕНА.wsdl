@@ -52,12 +52,6 @@
           <xs:element name="Quantity" type="xs:decimal" />
           <xs:element name="Barcode" nillable="true" type="xs:string" />
           <xs:element name="GoodBarcode" nillable="true" type="xs:string" />
-          <xs:element name="DefectDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="DefectDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="SerialNumber" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="DefectPercentage" nillable="true" type="xs:integer" />
-          <xs:element minOccurs="0" name="DefectLink" nillable="true" type="xs:string" />
-          <xs:element name="Defect" type="xs:boolean" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="Receipts">
@@ -220,10 +214,10 @@
       <documentation>
         <wsi:Claim xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" conformsTo="http://ws-i.org/profiles/basic/1.1" />
       </documentation>
-      <soapbind:address location="http://10.20.100.38/1cws/Accepting.1cws" />
+      <soapbind:address location="http://10.20.100.26/1cws/Accepting.1cws" />
     </port>
     <port name="WebСервис_Приемка_АРЕНАSoap12" binding="tns:WebСервис_Приемка_АРЕНАSoap12Binding">
-      <soap12bind:address location="http://10.20.100.38/1cws/Accepting.1cws" />
+      <soap12bind:address location="http://10.20.100.26/1cws/Accepting.1cws" />
     </port>
   </service>
 </definitions>

@@ -80,22 +80,23 @@ namespace Business.Manager
             var InProcessStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
 
             var task = _taskRepository.GetTaskById(query);
-            if(task.StatusId == StartStatus.Id)
+            if (task.StatusId == StartStatus.Id)
             {
                 var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
                 var files = _taskRepository.FilesByTask(query);
 
-                if(!files.Any(m => m.TypeId == hFileType.Id))
+                if (!files.Any(m => m.TypeId == hFileType.Id))
                 {
                     var goods = _goodRepository.GetGoodsByTask(new GoodQuery { TaskId = task.Id });
                     if (goods.Any(m => m.DefectId.HasValue)) throw new Exception("Фото акта не прикреплен");
 
                     var difference = Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
-                    if(difference.receipts.Any(m=>m.CountQty != m.Quantity )) throw new Exception("Фото акта не прикреплен");
+                    if (difference.receipts.Any(m => m.CountQty != m.Quantity)) throw new Exception("Фото акта не прикреплен");
                 }
 
                 query.StatusId = InProcessStatus.Id;
-            }else if(task.StatusId == InProcessStatus.Id)
+            }
+            else if (task.StatusId == InProcessStatus.Id)
             {
                 query.StatusId = EndStatus.Id;
                 query.EndDateTime = DateTime.Now;
@@ -130,7 +131,7 @@ namespace Business.Manager
             var diff = new DifferencesModel();
 
             //Отсканированные товары/короб
-            foreach(var good in goods.Where(m=>m.GoodId != 0)) 
+            foreach (var good in goods.Where(m => m.GoodId != 0))
             {
                 var receipt = new ReceiptModel
                 {
@@ -141,7 +142,7 @@ namespace Business.Manager
                 };
 
                 GoodsModel box = null;
-                if(good.BoxId.HasValue && good.BoxId != 0)
+                if (good.BoxId.HasValue && good.BoxId != 0)
                 {
                     box = _mapper.Map<GoodsModel>(goods.FirstOrDefault(m => m.Id == good.BoxId));
                     receipt.Barcode = box.BarCode;
@@ -153,7 +154,7 @@ namespace Business.Manager
 
                 var _docDatas = docdatas.Where(m => m.Article == good.GoodArticle &&
                                                     m.Barcode == (box != null ? box.BarCode : "0"));
-                
+
                 //Пропускаем где по одному Article несколько записей
                 var length = _docDatas.Count();
                 if (length > 1) continue;
@@ -197,13 +198,13 @@ namespace Business.Manager
                 if (good.Count() > 1)
                 {
                     var findGood = goods.FirstOrDefault(m => m.GoodArticle == docData.Article);
-                    if(findGood == null)
+                    if (findGood == null)
                     {
                         findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
                     }
 
                     var quantity = findGood.CountQty;
-                    foreach(var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
+                    foreach (var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
                     {
                         var receipt = new ReceiptModel
                         {
@@ -260,13 +261,13 @@ namespace Business.Manager
             if (task.StatusId == StartStatus.Id)
             {
                 diff.boxes = _mapper.Map<List<GoodsModel>>(goods.Where(m => m.GoodId == 0 && m.DefectId != null).ToList());
-                foreach(var item in docdatas.Where(m=>m.Barcode != "0").GroupBy(m=>m.Barcode))
+                foreach (var item in docdatas.Where(m => m.Barcode != "0").GroupBy(m => m.Barcode))
                 {
                     if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
                     diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });
                 }
                 diff.receipts = diff.receipts.Where(m => m.Barcode == "0" || diff.boxes.Any(b => b.BarCode == m.Barcode))
-                                             .Where(m=>m.CountQty != m.Quantity).ToHashSet();
+                                             .Where(m => m.CountQty != m.Quantity).ToHashSet();
                 diff.receipts.Distinct();
             }
             else
@@ -341,6 +342,7 @@ namespace Business.Manager
                     //Если пусто выбираем любой РОТ
                     var _docData = _docDatas.FirstOrDefault();
                     if (_docData == null) _docData = docdatas.FirstOrDefault();
+                    if (_docData == null) continue;
 
                     var _receipt = new ReceiptModel
                     {
@@ -385,6 +387,7 @@ namespace Business.Manager
                     //Если пусто выбираем любой РОТ
                     var _docData = _docDatas.FirstOrDefault();
                     if (_docData == null) _docData = docdatas.FirstOrDefault();
+                    if (_docData == null) continue;
 
                     var _receipt = new ReceiptModel
                     {
@@ -535,7 +538,7 @@ namespace Business.Manager
             var query = _mapper.Map<Data1cQuery>(queryModel);
             var entity = _data1CRepository.DocDataByPlanNum(query);
 
-            return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);        
+            return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);
         }
     }
 }

@@ -53,12 +53,12 @@ namespace SendTaskTo1C
                         Quantity = g.Quantity,
                         Barcode = g.Barcode,
                         GoodBarcode = g.GoodBarcode,
-                        Defect = g.IsDefect,
-                        DefectDate = g.DefectDate,
-                        DefectDescription = g.Description,
-                        SerialNumber = g.SerialNumber,
-                        DefectPercentage = g.DefectPercentage,
-                        DefectLink = g.DefectLink
+                        //Defect = g.IsDefect,
+                        //DefectDate = g.DefectDate,
+                        //DefectDescription = g.Description,
+                        //SerialNumber = g.SerialNumber,
+                        //DefectPercentage = g.DefectPercentage,
+                        //DefectLink = g.DefectLink
                     }).ToArray();
                 }
 

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="SendTaskTo1C_WebReference_WebСервис_Приемка_АРЕНА" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://10.20.100.38/1cws/Accepting.1cws</Value>
+      <Value Profile="(Default)">http://10.20.100.26/1cws/Accepting.1cws</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -20,8 +20,13 @@ namespace Business.Models
         public int? BoxId { get; set; }
         public DateTime Created { get; set; }
 
-
-        public DateTime Created { get; set; }
+        public bool IsBox
+        {
+            get
+            {
+                return string.IsNullOrEmpty(GoodArticle) || GoodArticle.Equals("0") || GoodId == 0;
+            }
+        }
 
         public override ModelValidationResult Validate()
         {
