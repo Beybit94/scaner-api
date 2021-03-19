@@ -68,6 +68,8 @@ namespace ScanerApi.Areas.Web.Controllers
 
         public ActionResult ScanerGoods(GoodQueryModel model)
         {
+            var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = model.PlanNum });
+            model.TaskId = task.Id;
             var data = _goodManager.GetGoods(model);
             return View("ScanerGoods", data);
         }
