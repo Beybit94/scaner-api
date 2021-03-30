@@ -366,7 +366,8 @@ namespace Business.Manager
                         _receipt.Description = good.Defect.Description;
                         _receipt.SerialNumber = good.Defect.SerialNumber;
                         _receipt.DefectPercentage = good.Defect.Damage.ToString();
-                        _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == good.Id && m.TypeId == hFileType.Id).Path;
+                        _receipt.DefectLink = string.Join(",", files.Where(m => m.GoodId == good.Id && m.TypeId == hFileType.Id)
+                                                                    .Select(m=>m.Path));
                     }
                     boxReceipts.Add(_receipt);
                 }
@@ -410,7 +411,8 @@ namespace Business.Manager
                         _receipt.Description = good.Defect.Description;
                         _receipt.SerialNumber = good.Defect.SerialNumber;
                         _receipt.DefectPercentage = good.Defect.Damage.ToString();
-                        _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == good.Id && m.TypeId == hFileType.Id).Path;
+                        _receipt.DefectLink = string.Join(",", files.Where(m => m.GoodId == good.Id && m.TypeId == hFileType.Id)
+                                                                    .Select(m => m.Path));
                     }
 
                     notBoxReceipts.Add(_receipt);
@@ -492,7 +494,8 @@ namespace Business.Manager
                                 _receipt.Description = _good.Defect.Description;
                                 _receipt.SerialNumber = _good.Defect.SerialNumber;
                                 _receipt.DefectPercentage = _good.Defect.Damage.ToString();
-                                _receipt.DefectLink = files.FirstOrDefault(m => m.GoodId == _good.Id && m.TypeId == hFileType.Id).Path;
+                                _receipt.DefectLink = string.Join(",", files.Where(m => m.GoodId == good.Id && m.TypeId == hFileType.Id)
+                                                                    .Select(m => m.Path));
                             }
 
                             if (quantity <= 0)
