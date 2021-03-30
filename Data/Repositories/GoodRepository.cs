@@ -172,7 +172,7 @@ BEGIN
     WHERE BC.BARCODE = @BarCode
     UNION
     SELECT  0 as Id, '' as GOODARTICLE, 'Короб '+ b.BARCODE as GOODNAME
-    FROM BOXES b
+    FROM Scaner_1cDocData  b
     WHERE b.BARCODE = @BarCode
 END
 ELSE
