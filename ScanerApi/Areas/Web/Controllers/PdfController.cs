@@ -1,10 +1,13 @@
 ﻿using Business.Manager;
+using Business.Models;
 using Business.QueryModels.Data1c;
 using Business.QueryModels.Good;
 using Business.QueryModels.Task;
 using PdfSharp;
 using PdfSharp.Pdf;
+using ScanerApi.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web.Mvc;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
@@ -43,10 +46,14 @@ namespace ScanerApi.Areas.Web.Controllers
 
         public FileResult Index(TaskQueryModel model)
         {
-            var goods = _taskManager.Differences(model);
+            var task = _taskManager.GetTaskById(model);
+            var goods = _goodManager.GetGoods(new GoodQueryModel { TaskId = task.Id });
+            var differences = _taskManager.Differences(model);
+            var report = new PdfViewModels { goods = goods, differences = differences };
+
             MemoryStream stream = new MemoryStream();
-            string content = RenderRazorViewToString("Index", goods.receipts);
-            
+            string content = RenderRazorViewToString("Index", report);
+
             PdfDocument pdf = PdfGenerator.GeneratePdf(content, PageSize.A4);
             pdf.Save(stream, false);
 

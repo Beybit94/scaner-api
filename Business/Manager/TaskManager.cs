@@ -494,7 +494,7 @@ namespace Business.Manager
                                 _receipt.Description = _good.Defect.Description;
                                 _receipt.SerialNumber = _good.Defect.SerialNumber;
                                 _receipt.DefectPercentage = _good.Defect.Damage.ToString();
-                                _receipt.DefectLink = string.Join(",", files.Where(m => m.GoodId == good.Id && m.TypeId == hFileType.Id)
+                                _receipt.DefectLink = string.Join(",", files.Where(m => m.GoodId == _good.Id && m.TypeId == hFileType.Id)
                                                                     .Select(m => m.Path));
                             }
 

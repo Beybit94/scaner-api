@@ -1,180 +1,234 @@
-﻿@model HashSet<Business.Models.ReceiptModel>
+﻿@model ScanerApi.Models.PdfViewModels
+@{
+    var logo = Request.Url.Scheme + "://" + Request.Url.Authority + Url.Content("~/Content/logo.png");
+}
+<head>
+    <style type="text/css">
+        #head {
+            position: relative;
+            padding: 0;
+            margin: 0;
+        }
 
-<div>
-    <h3>АКТ ПРИЕМА ТОВАРА</h3>
-    <hr />
+            #head hr {
+                background-color: red;
+            }
+
+        #title {
+            margin-right: 300px;
+        }
+
+        ul {
+            list-style: none !important;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table td, table td * {
+            vertical-align: top;
+        }
+
+        table tr, table tr * {
+            background-color: dimgrey;
+        }
+    </style>
+</head>
+<body>
+    <div align="right" id="head">
+        <img src="@logo" align="bottom" height="20" width="80" />
+        <div style="border-bottom: 1px solid red;">
+            <span id="title">АКТ ПРИЕМА ТОВАРА</span>
+            <span>ТОО «Arena S» (Арена S)</span>
+        </div>
+    </div>
     <h3>№_____________</h3>
-    <table tyle="width: 80%; border-collapse: collapse;" border="1">
+    <table>
         <tr>
-            <td>Дата Разгрузки</td>
-            <td>_______________</td>
-            <td>день</td>
-            <td>_______________</td>
-            <td>месяц </td>
-            <td>_______________</td>
-            <td>год</td>
+            <td style="background-color:dimgray">Время прибытия ТС</td>
+            <td>@DateTime.Now.ToString("G")</td>
         </tr>
         <tr>
-            <td>Время начала разгрузки</td>
-            <td>_______________</td>
-            <td>часы</td>
-            <td>_______________</td>
-            <td>минуты </td>
+            <td style="background-color:dimgray">Время начала разгрузки</td>
+            <td>@DateTime.Now.ToString("G")</td>
         </tr>
         <tr>
-            <td>Время окончания разгрузки</td>
-            <td>_______________</td>
-            <td>часы</td>
-            <td>_______________</td>
-            <td>минуты </td>
+            <td style="background-color:dimgray">Время окончания разгрузки</td>
+            <td>@DateTime.Now.ToString("G")</td>
         </tr>
     </table>
-    <ul style="list-style:none; margin:0px; padding:0px;">
-        <li>Грузоотправитель (название): _______________</li>
-        <li>Грузополучатель (название): ________________</li>
-        <li>Транспортная компания: _____________________________</li>
-        <li>Транспортное средство: (машина, прицеп, контейнер, вагон) №: _______________</li>
-        <li>Тент, шнуровка, контейнер (повреждены, не повреждены) (ненужное зачеркнуть)</li>
-        <li>Пломба/ы за №:_____________   нарушена, не нарушена, (ненужное зачеркнуть)</li>
-    </ul>
-    <p>Перечень документов, пришедших вместе с транспортным средством</p>
-    <ul style="list-style:none; margin:0px; padding:0px;">
-        <li>Товарно-транспортная накладная (СМR) и/или Ж/Д накладная  №_______________________________</li>
-        <li>Товарная накладная (инвойс)                               №_______________________________</li>
-        <li>Упаковочный лист                                          №_______________  от______________ </li>
-    </ul>
-    <p>Ответственные лица, в составе:</p>
-    <ul style="list-style:none; margin:0px; padding:0px;">
-        <li>Водитель (экспедитор)          (ФИО)________________________</li>
-        <li>Кладовщик (приёмщик)         (ФИО)________________________</li>
-        <li>Менеджер (специалист) ОМ (ФИО)_________________________ </li>
-        <li><b>Составили настоящий акт</b></li>
-    </ul>
-    <br />
-    <p>Приняты следующие места (мезонин):</p>
-    <table style="width: 100%; border-collapse: collapse;" border="1">
-        <tr>
-            <td>№ места</td>
-            <td>№ пломбы в коробке</td>
-            <td>№ места</td>
-            <td>№ пломбы в коробке</td>
-            <td>№ места</td>
-            <td>№ пломбы в коробке</td>
-        </tr>
-        <tr>
-            <td>Место №1</td>
-            <td></td>
-            <td>Место №4</td>
-            <td></td>
-            <td>Место №7</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Место №2</td>
-            <td></td>
-            <td>Место №5</td>
-            <td></td>
-            <td>Место №8</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Место №3</td>
-            <td></td>
-            <td>Место №6</td>
-            <td></td>
-            <td>Место №9</td>
-            <td></td>
-        </tr>
-    </table>
-    <p>скотч пломбы нарушена, не нарушена, (ненужное зачеркнуть)</p>
-    <p>коробка (повреждены, не повреждены) (ненужное зачеркнуть)</p>
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <p>Таблица №1 несоответствия товара по количеству:</p>
-    <table style="width: 100%; border-collapse: collapse;" border="1">
-        <tr>
-            <td>№</td>
-            <td>№ РОТ</td>
-            <td>Номер короба</td>
-            <td>Артикул</td>
-            <td>Наименование модели товара</td>
-            <td>Кол-во план</td>
-            <td>Кол-во факт</td>
-            <td>Разница</td>
-            <td>Статус</td>
-        </tr>
-        @{
-            var i = 1;
-            foreach (var item in Model.ToList())
-            {
-                if (item.CountQty != item.Quantity)
-                {
-                    <tr>
-                        <td>@i</td>
-                        <td>@item.NumberDoc</td>
-                        <td>@item.Barcode</td>
-                        <td>@item.Article</td>
-                        <td>@item.GoodName</td>
-                        <td>@item.Quantity</td>
-                        <td>@item.CountQty</td>
-                        <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
-                        <td>@(item.Quantity < item.CountQty ? "Излишек" : "Недостача")</td>
-                    </tr>
+    <div style="margin-top:5px">
+        <table>
+            <tr>
+                <td>Грузоотправитель (название): </td>
+            </tr>
+            <tr>
+                <td>Грузополучатель (название): </td>
+            </tr>
+            <tr>
+                <td>Перевозчик: </td>
+            </tr>
+            <tr>
+                <td>Транспортное средство: (машина, прицеп, контейнер, вагон) №: </td>
+            </tr>
+            <tr>
+                <td>Тент, шнуровка, контейнер (повреждены, не повреждены) (ненужное зачеркнуть) </td>
+            </tr>
+            <tr>
+                <td>Пломба/ы за №:_______________________________ нарушена, не нарушена, (ненужное зачеркнуть) </td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top:5px">
+        <label style="font-weight:bold">Перечень документов, пришедших вместе с транспортным средством</label>
+        <table>
+            <tr>
+                <td>Товарно-транспортная накладная (СМR) и/или Ж/Д накладная № </td>
+            </tr>
+            <tr>
+                <td>Товарная накладная (инвойс) № </td>
+            </tr>
+            <tr>
+                <td>Упаковочный лист №_______________________________ от______________  </td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top:5px">
+        <label style="font-weight:bold">Приняты следующие места (мезонин):</label>
+        <table style="width: 100%; border-collapse: collapse;" border="1">
+            <thead style="background-color:dimgray">
+                <tr>
+                    <th>№ места</th>
+                    <th>№ короба</th>
+                    <th>ШК</th>
+                    <th>Артикул</th>
+                    <th>Наименование модели товара</th>
+                    <th>Кол-во</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var i = 1;
+                    foreach (var item in Model.goods)
+                    {
+                        var box = item.BoxId != null && item.BoxId != 0 ?
+                            Model.goods.FirstOrDefault(m => m.Id == item.BoxId).BarCode : "";
+                        <tr>
+                            <td>@i</td>
+                            <td>@box</td>
+                            <td>@item.BarCode</td>
+                            <td>@item.GoodArticle</td>
+                            <td>@item.GoodName</td>
+                            <td>@item.CountQty</td>
+                        </tr>
 
-                    i++;
+                        i++;
+                    }
                 }
-            }
-        }
-    </table>
-    <ul style="list-style:none; margin:0px; padding:0px;">
-        <li>Водитель (экспедитор)          /(ФИО)_____________подпись_______________________</li>
-        <li>Кладовщик (приёмщик)        /(ФИО)_____________подпись_______________________</li>
-        <li>Менеджер (специалист) ОМ/(ФИО)_____________подпись_______________________ </li>
-        <li><b>В случае обнаружении повреждения товара, данная таблица заполняется согласно таблице для ориентировочного определения ущерба товара при приеме</b></li>
-    </ul>
-    <p>Таблица №2 несоответствия товара по качеству:</p>
-    <table style="width: 100%; border-collapse: collapse;" border="1">
-        <tr>
-            <td>№</td>
-            <td>№ РОТ</td>
-            <td>Номер короба</td>
-            <td>Артикул</td>
-            <td>Наименование модели товара</td>
-            <td>Серийный номер</td>
-            <td>Описание повреждения</td>
-            <td>% ущерба</td>
-        </tr>
-        @{
-            i = 0;
-            foreach (var item in Model.ToList())
-            {
-                if (item.CountQty != item.Quantity)
-                {
-                    <tr>
-                        <td>@i</td>
-                        <td>@item.NumberDoc</td>
-                        <td>@item.Barcode</td>
-                        <td>@item.Article</td>
-                        <td>@item.GoodName</td>
-                        <td>@item.SerialNumber</td>
-                        <td>@item.Description</td>
-                        <td>@item.DefectPercentage</td>
-                    </tr>
+            </tbody>
+        </table>
+        <label style="font-weight:bold">Итого принято мест(коробов): _______шт.</label>
+        <label style="font-weight:bold">Итого принято товаров: _______шт. </label>
+    </div>
+    <div style="margin-top:5px">
+        <label style="font-weight:bold">Расхождения:</label>
+        <label style="font-weight:bold">Таблица №1 несоответствия товара по количеству:</label>
+        <table style="width: 100%; border-collapse: collapse;" border="1">
+            <thead style="background-color:dimgray">
+                <tr>
+                    <th>№</th>
+                    <th>№ РОТ</th>
+                    <th>Номер короба</th>
+                    <th>Артикул</th>
+                    <th>Наименование модели товара</th>
+                    <th>Кол-во план</th>
+                    <th>Кол-во факт</th>
+                    <th>Разница</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    i = 1;
+                    foreach (var item in Model.differences.receipts.ToList())
+                    {
+                        if (item.CountQty != item.Quantity)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td>@item.NumberDoc</td>
+                                <td>@item.Barcode</td>
+                                <td>@item.Article</td>
+                                <td>@item.GoodName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.CountQty</td>
+                                <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
+                                <td>@(item.Quantity < item.CountQty ? "Излишек" : "Недостача")</td>
+                            </tr>
 
-                    i++;
+                            i++;
+                        }
+                    }
                 }
-            }
-        }
-    </table>
-    <ul style="list-style:none; margin:0px; padding:0px;">
-        <li>Водитель (экспедитор)          /(ФИО)_____________подпись_______________________</li>
-        <li>Кладовщик (приёмщик)        /(ФИО)_____________подпись_______________________</li>
-        <li>Менеджер (специалист) ОМ/(ФИО)_____________подпись_______________________ </li>
-    </ul>
-</div>
+            </tbody>
+        </table>
+        <label style="font-weight:bold">Таблица №2 несоответствия товара по качеству:</label>
+        <table style="width: 100%; border-collapse: collapse;" border="1">
+            <thead style="background-color:dimgray">
+                <tr>
+                    <th>№</th>
+                    <th>№ РОТ</th>
+                    <th>Номер короба</th>
+                    <th>Артикул</th>
+                    <th>Наименование модели товара</th>
+                    <th>Серийный номер</th>
+                    <th>Описание повреждения</th>
+                    <th>% ущерба</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    i = 0;
+                    foreach (var item in Model.differences.receipts.ToList().Where(m => m.IsDefect))
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.NumberDoc</td>
+                            <td>@item.Barcode</td>
+                            <td>@item.Article</td>
+                            <td>@item.GoodName</td>
+                            <td>@item.SerialNumber</td>
+                            <td>@item.Description</td>
+                            <td>@item.DefectPercentage</td>
+                        </tr>
+
+                        i++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-top:5px">
+        <label>Подписанием настоящего Акта стороны соглашаются, что он был составлен в их присутствии и с соблюдением требований законодательства Республики Казахстан.</label>
+        <br />
+        <label>Настоящий Акт составлен в двух экземплярах, по одному для каждой из Сторон.</label>
+        <br />
+        <label> Подписи сторон:</label>
+        <table>
+            <tr>
+                <td>
+                    <p style="font-weight:bold">Перевозчик</p>
+                    <p>Сдал груз водитель - экспедитор:</p>
+                    <label>(ФИО)__________________________________ подпись_______________</label>
+                </td>
+                <td>
+                    <p style="font-weight:bold"> Грузоотправитель/Грузополучатель</p>
+                    <p>Получил груз кладовщик:</p>
+                    <label>(ФИО)__________________________________  подпись_______________</label>
+                    <br />
+                    <label> Менеджер (специалист) ОМ:</label>
+                    <label>(ФИО)__________________________________  подпись_______________</label>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
