@@ -34,6 +34,10 @@
         table tr, table tr * {
             background-color: dimgrey;
         }
+
+        .w25{
+            width:25%;
+        }
     </style>
 </head>
 <body>
@@ -44,22 +48,26 @@
             <span>ТОО «Arena S» (Арена S)</span>
         </div>
     </div>
-    <h3>№_____________</h3>
-    <table>
-        <tr>
-            <td style="background-color:dimgray">Время прибытия ТС</td>
-            <td>@DateTime.Now.ToString("G")</td>
-        </tr>
-        <tr>
-            <td style="background-color:dimgray">Время начала разгрузки</td>
-            <td>@DateTime.Now.ToString("G")</td>
-        </tr>
-        <tr>
-            <td style="background-color:dimgray">Время окончания разгрузки</td>
-            <td>@DateTime.Now.ToString("G")</td>
-        </tr>
-    </table>
+    <h3>1. №_____________</h3>
+    <div>
+        <span>2. </span>
+        <table>
+            <tr>
+                <td style="background-color:dimgray">Время прибытия ТС</td>
+                <td>@Model.goods.First().Created.ToString("G")</td>
+            </tr>
+            <tr>
+                <td style="background-color:dimgray">Время начала разгрузки</td>
+                <td>@DateTime.Now.ToString("G")</td>
+            </tr>
+            <tr>
+                <td style="background-color:dimgray">Время окончания разгрузки</td>
+                <td>@Model.goods.Last().Created.ToString("G")</td>
+            </tr>
+        </table>
+    </div>
     <div style="margin-top:5px">
+        <span>3. </span>
         <table>
             <tr>
                 <td>Грузоотправитель (название): </td>
@@ -82,6 +90,7 @@
         </table>
     </div>
     <div style="margin-top:5px">
+        <span>4. </span>
         <label style="font-weight:bold">Перечень документов, пришедших вместе с транспортным средством</label>
         <table>
             <tr>
@@ -96,6 +105,7 @@
         </table>
     </div>
     <div style="margin-top:5px">
+        <span>5. </span>
         <label style="font-weight:bold">Приняты следующие места (мезонин):</label>
         <table style="width: 100%; border-collapse: collapse;" border="1">
             <thead style="background-color:dimgray">
@@ -135,6 +145,7 @@
         <label style="font-weight:bold">Итого принято товаров: @Model.goods.Count(m => m.GoodId != 0) шт. </label>
     </div>
     <div style="margin-top:5px">
+        <span>6. </span>
         <label style="font-weight:bold">Расхождения:</label>
         <label style="font-weight:bold">Таблица №1 несоответствия товара по количеству:</label>
         <table style="width: 100%; border-collapse: collapse;" border="1">
@@ -163,7 +174,7 @@
                                 <td>@item.NumberDoc</td>
                                 <td>@item.Barcode</td>
                                 <td>@item.Article</td>
-                                <td>@item.GoodName</td>
+                                <td class="w25">@item.GoodName</td>
                                 <td>@item.Quantity</td>
                                 <td>@item.CountQty</td>
                                 <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
@@ -200,7 +211,7 @@
                             <td>@item.NumberDoc</td>
                             <td>@item.Barcode</td>
                             <td>@item.Article</td>
-                            <td>@item.GoodName</td>
+                            <td class="w25">@item.GoodName</td>
                             <td>@item.SerialNumber</td>
                             <td>@item.Description</td>
                             <td>@item.DefectPercentage</td>
@@ -213,10 +224,13 @@
         </table>
     </div>
     <div style="margin-top:5px">
+        <span>7. </span>
         <label>Подписанием настоящего Акта стороны соглашаются, что он был составлен в их присутствии и с соблюдением требований законодательства Республики Казахстан.</label>
         <br />
+        <span>8. </span>
         <label>Настоящий Акт составлен в двух экземплярах, по одному для каждой из Сторон.</label>
         <br />
+        <span>9. </span>
         <label> Подписи сторон:</label>
         <table>
             <tr>

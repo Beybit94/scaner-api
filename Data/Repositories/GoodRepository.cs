@@ -46,7 +46,8 @@ group by g.GoodName, g.GoodArticle, b.BarCode");
 SELECT g.*, d.*
 FROM Scaner_Goods g
 LEFT JOIN Defects d on d.Id = g.DefectId
-WHERE TaskId = @TaskId", (g, d) =>
+WHERE TaskId = @TaskId
+ORDER BY g.Created DESC", (g, d) =>
             {
                 g.Defect = d;
                 return g;
