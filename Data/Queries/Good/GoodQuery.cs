@@ -24,5 +24,7 @@ namespace Data.Queries.Good
         public int Damage { get; set; }
         public string SerialNumber { get; set; }
         public string Description { get; set; }
+
+        public int ProcessType { get; set; }
     }
 }

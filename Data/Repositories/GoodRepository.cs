@@ -165,13 +165,15 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
             var entity = UnitOfWork.Session.Query<Goods>($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
 BEGIN
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (@ProcessType,'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)
+
     SELECT TOP(1) G.Id, G.GOODARTICLE, G.GOODNAME
     FROM GOODS G 
     JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.Id
     JOIN  BARCODES BC (NOLOCK) ON BC.Id = GB.BARCODEID		
     WHERE BC.BARCODE = @BarCode
     UNION
-    SELECT  0 as Id, '' as GOODARTICLE, 'Короб '+ b.BARCODE as GOODNAME
+    SELECT TOP(1) 0 as Id, '' as GOODARTICLE, 'Короб '+ b.BARCODE as GOODNAME
     FROM Scaner_1cDocData  b
     WHERE b.BARCODE = @BarCode
 END
@@ -180,26 +182,8 @@ BEGIN
     SELECT  G.Id, G.GOODARTICLE, G.GOODNAME
     FROM GOODS G 
     WHERE G.GoodArticle= @GoodArticle
-END", new { _query.BarCode, _query.GoodArticle });
+END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType });
             return entity.ToList();
-        }
-
-        public int ExistBox(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as GoodQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            return UnitOfWork.Session.QueryFirst<int>(@"
-IF EXISTS (SELECT * FROM Scaner_Goods WHERE TaskId = @TaskId AND BarCode = @BarCode AND GoodId = 0)
-BEGIN
-    SELECT 1;
-END
-ELSE
-BEGIN
-    SELECT 0;
-END",new { _query.TaskId, _query.BarCode });
         }
 
         public void Save(Query query)
@@ -222,9 +206,7 @@ BEGIN
                     @CountQty as CountQty, 
                     0 as GOODID, 
                     '' as GOODARTICLE,
-                    @GoodName as GoodName
-            FROM BOXES B
-            WHERE B.BarCode = @BarCode) AS Source
+                    @GoodName as GoodName) AS Source
     ON (Target.TaskId = Source.TaskId 
         AND Target.BarCode = Source.BarCode)
     WHEN NOT MATCHED BY TARGET THEN

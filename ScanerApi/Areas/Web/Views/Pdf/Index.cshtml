@@ -4,6 +4,9 @@
 }
 <head>
     <style type="text/css">
+        body{
+            padding:20px;
+        }
         #head {
             position: relative;
             padding: 0;
@@ -97,37 +100,39 @@
         <table style="width: 100%; border-collapse: collapse;" border="1">
             <thead style="background-color:dimgray">
                 <tr>
-                    <th>№ места</th>
+                    <th>№</th>
                     <th>№ короба</th>
-                    <th>ШК</th>
-                    <th>Артикул</th>
-                    <th>Наименование модели товара</th>
-                    <th>Кол-во</th>
+                    <th>№ пломбы</th>
+                    <th>№</th>
+                    <th>№ короба</th>
+                    <th>№ пломбы</th>
+                    <th>№</th>
+                    <th>№ короба</th>
+                    <th>№ пломбы</th>
                 </tr>
             </thead>
             <tbody>
                 @{
                     var i = 1;
-                    foreach (var item in Model.goods)
-                    {
-                        var box = item.BoxId != null && item.BoxId != 0 ?
-                            Model.goods.FirstOrDefault(m => m.Id == item.BoxId).BarCode : "";
-                        <tr>
-                            <td>@i</td>
-                            <td>@box</td>
-                            <td>@item.BarCode</td>
-                            <td>@item.GoodArticle</td>
-                            <td>@item.GoodName</td>
-                            <td>@item.CountQty</td>
-                        </tr>
 
-                        i++;
+                    for (var j = 0; j < Model.goods.Count(m => m.GoodId == 0); j += 3)
+                    {
+                        var boxes = Model.goods.Where(m => m.GoodId == 0).Skip(j).Take(3);
+                        <tr>
+                            @foreach (var item in boxes)
+                            {
+                                <td>@i</td>
+                                <td>@item.BarCode</td>
+                                <td></td>
+                                i++;
+                            }
+                        </tr>
                     }
                 }
             </tbody>
         </table>
-        <label style="font-weight:bold">Итого принято мест(коробов): _______шт.</label>
-        <label style="font-weight:bold">Итого принято товаров: _______шт. </label>
+        <label style="font-weight:bold">Итого принято мест(коробов): @Model.goods.Count(m => m.GoodId == 0) шт.</label>
+        <label style="font-weight:bold">Итого принято товаров: @Model.goods.Count(m => m.GoodId != 0) шт. </label>
     </div>
     <div style="margin-top:5px">
         <label style="font-weight:bold">Расхождения:</label>

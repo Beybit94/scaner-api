@@ -202,6 +202,7 @@
     <Compile Include="Migrations\202101221506_Scaner_1cDocDataIndexV1.cs" />
     <Compile Include="Migrations\202101201506_TaskIndexV1.cs" />
     <Compile Include="Migrations\202102021117_FileGoodId.cs" />
+    <Compile Include="Migrations\202104130803_SearchProcessType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

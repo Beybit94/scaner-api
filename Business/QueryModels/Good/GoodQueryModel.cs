@@ -21,6 +21,7 @@ namespace Business.QueryModels.Good
         public string SerialNumber { get; set; }
         public string Description { get; set; }
 
+        public int ProcessType { get; set; }
         public override ModelValidationResult Validate()
         {
             var result = new ModelValidator<GoodQueryModel>().Validate(this);
