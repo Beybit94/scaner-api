@@ -181,10 +181,10 @@
                                 <td>@item.Barcode</td>
                                 <td>@item.Article</td>
                                 <td class="w25">@item.GoodName</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.CountQty</td>
-                                <td>@(System.Math.Abs(item.CountQty - item.Quantity))</td>
-                                <td>@(item.Quantity < item.CountQty ? "Излишек" : "Недостача")</td>
+                                <td style="padding:0 2px;">@item.Quantity</td>
+                                <td style="padding:0 2px;">@item.CountQty</td>
+                                <td style="padding:0 2px;">@(System.Math.Abs(item.CountQty - item.Quantity))</td>
+                                <td style="padding:0 2px;">@(item.Quantity < item.CountQty ? "Излишек" : "Недостача")</td>
                             </tr>
 
                             i++;
