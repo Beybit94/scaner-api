@@ -48,7 +48,7 @@ namespace ScanerApi.Areas.Web.Controllers
         {
             var task = _taskManager.GetTaskById(model);
             var goods = _goodManager.GetGoods(new GoodQueryModel { TaskId = task.Id });
-            var differences = _taskManager.Differences(model);
+            var differences = _taskManager.Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
             var report = new PdfViewModels { goods = goods, differences = differences };
 
             MemoryStream stream = new MemoryStream();

@@ -47,7 +47,7 @@ SELECT g.*, d.*
 FROM Scaner_Goods g
 LEFT JOIN Defects d on d.Id = g.DefectId
 WHERE TaskId = @TaskId
-ORDER BY g.Created DESC", (g, d) =>
+ORDER BY g.Created", (g, d) =>
             {
                 g.Defect = d;
                 return g;

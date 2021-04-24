@@ -41,7 +41,11 @@ and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @Proc
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            return UnitOfWork.Session.QueryFirstOrDefault<Tasks>(@"select * from Tasks where (Id = @TaskId or PlanNum = @PlanNum)", new { _query.TaskId, _query.PlanNum });
+            return UnitOfWork.Session.QueryFirstOrDefault<Tasks>($@"
+select * 
+from Tasks 
+where (Id = @TaskId or PlanNum = @PlanNum)
+and StatusId <> 5", new { _query.TaskId, _query.PlanNum });
         }
 
         public void GetPlanNum(Query query)

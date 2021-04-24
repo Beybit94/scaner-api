@@ -123,7 +123,7 @@ namespace Business.Manager
             var query = _mapper.Map<TaskQuery>(queryModel);
 
             var StartStatus = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
-            var task = _taskRepository.GetTaskById(query);
+            var task = _taskRepository.GetTaskById(new TaskQuery { TaskId = query.TaskId });
 
             var goods = _goodRepository.GetGoods(new GoodQuery { TaskId = query.TaskId });
             var docdatas = _data1CRepository.DocDataByPlanNum(new Data1cQuery { PlanNum = query.PlanNum });
