@@ -22,6 +22,10 @@ namespace Data.Model
         public DateTime Created { get; set; }
 
         public Defects Defect { get; set; }
+        /// <summary>
+        /// название короба
+        /// </summary>
+        public string BoxName { get; set; }
 
     }
 }

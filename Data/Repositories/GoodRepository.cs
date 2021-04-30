@@ -42,16 +42,17 @@ group by g.GoodName, g.GoodArticle, b.BarCode");
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.Query<Goods,Defects,Goods>($@"
-SELECT g.*, d.*
+            var entity = UnitOfWork.Session.Query<Goods, Defects, Goods>($@"
+SELECT g.*, g1.BarCode as BoxName, d.*
 FROM Scaner_Goods g
 LEFT JOIN Defects d on d.Id = g.DefectId
-WHERE TaskId = @TaskId
+left join Scaner_Goods g1 on g1.Id =g.BoxId 
+WHERE g.TaskId = @TaskId
 ORDER BY g.Created", (g, d) =>
             {
                 g.Defect = d;
                 return g;
-            }, 
+            },
             new { _query.TaskId, _query.PlanNum });
             return entity.ToList();
         }

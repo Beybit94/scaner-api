@@ -33,5 +33,10 @@ namespace Business.Models
             var result = new ModelValidator<GoodsModel>().Validate(this);
             return result;
         }
+
+        /// <summary>
+        /// название короба
+        /// </summary>
+        public string BoxName { get; set; }
     }
 }

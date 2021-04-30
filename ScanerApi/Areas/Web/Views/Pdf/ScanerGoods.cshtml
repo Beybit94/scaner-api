@@ -20,30 +20,36 @@
         <th>
             @Html.DisplayNameFor(model => model.Created)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.BoxName)
+        </th>
     </tr>
 
     @foreach (var item in Model)
     {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GoodId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CountQty)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GoodName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GoodArticle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BarCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-        </tr>
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.GoodId)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.CountQty)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.GoodName)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.GoodArticle)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.BarCode)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Created)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.BoxName)
+    </td>
+</tr>
     }
 
 </table>

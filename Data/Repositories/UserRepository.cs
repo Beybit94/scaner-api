@@ -25,16 +25,16 @@ namespace Data.Repositories
             var _query = query as UsersQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.QueryFirst<Users>($@"
-SELECT u.Id, 
-       u.UserFirstName, 
-       u.UserSecondName, 
-       u.UserDivisionId, 
-       CAST(u.UserGuid AS NVARCHAR(50)) as UserGuid, 
-       u.UserMiddleName 
-FROM Users u WHERE u.UserName = @Login and u.UserPassword = @Password", new { _query.Login, _query.Password });
-            
-             return entity;
+            var entity = UnitOfWork.Session.Query<Users>($@"
+                SELECT top 1 u.Id, 
+                       u.UserFirstName, 
+                       u.UserSecondName, 
+                       u.UserDivisionId, 
+                       CAST(u.UserGuid AS NVARCHAR(50)) as UserGuid, 
+                       u.UserMiddleName 
+                FROM Users u (nolock) WHERE u.UserName = @Login and u.UserPassword = @Password", new { _query.Login, _query.Password });
+
+            return entity.FirstOrDefault();
         }
 
         public override void Insert(Users entity) => throw new NotImplementedException();
