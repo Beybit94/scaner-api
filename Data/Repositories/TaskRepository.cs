@@ -33,7 +33,7 @@ where t.StatusId = @End
 and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.End, _query.ProcessTypeId });
             return entity.ToList();
         }
-        
+
         public Tasks GetTaskById(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -74,7 +74,9 @@ END", new { _query.PlanNum });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"
+            using (var session = UnitOfWork.Session)
+            {
+                session.Execute(@"
 IF NOT EXISTS (SELECT Id FROM Tasks WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End))
 BEGIN
 	INSERT INTO Tasks (StatusId, 
@@ -88,7 +90,7 @@ BEGIN
             GETDATE(),
             @PlanNum)	
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
-
+            }
         }
 
         public Tasks GetActiveTask(Query query)
@@ -126,9 +128,12 @@ END", new { _query.UserId, _query.DivisionId, _query.Start, _query.InProcess });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"
+            using (var session = UnitOfWork.Session)
+            {
+                session.Execute(@"
 UPDATE Tasks SET StatusId = @StatusId, EndDateTime = @EndDateTime
 WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime });
+            }
         }
 
         public void CloseTask(Query query)
@@ -138,20 +143,22 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var transaction = UnitOfWork.Session.BeginTransaction();
-            try
+            using (var session = UnitOfWork.Session)
             {
-                UnitOfWork.Session.Execute(@"DELETE FROM Scaner_File WHERE TaskId = @TaskId", new { _query.TaskId }, transaction);
-                UnitOfWork.Session.Execute(@"DELETE FROM Scaner_Goods WHERE TaskId = @TaskId", new { _query.TaskId }, transaction);
-                UnitOfWork.Session.Execute(@"DELETE FROM Tasks WHERE ParentId = @TaskId", new { _query.TaskId }, transaction);
-                transaction.Commit();
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"DELETE FROM Scaner_File WHERE TaskId = @TaskId", new { _query.TaskId }, transaction);
+                    session.Execute(@"DELETE FROM Scaner_Goods WHERE TaskId = @TaskId", new { _query.TaskId }, transaction);
+                    session.Execute(@"DELETE FROM Tasks WHERE ParentId = @TaskId", new { _query.TaskId }, transaction);
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
-            catch (Exception)
-            {
-                transaction.Rollback();
-                throw;
-            }
-           
         }
 
         public List<ScanerFile> FilesByTask(Query query)
@@ -172,9 +179,12 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"
+            using (var session = UnitOfWork.Session)
+            {
+                session.Execute(@"
 INSERT INTO Scaner_File
 VALUES (@TaskId, @GoodId, @Path,@TypeId)", new { _query.TaskId, _query.GoodId, _query.Path, _query.TypeId });
+            }
         }
 
         public List<Differences> Differences(Query query)

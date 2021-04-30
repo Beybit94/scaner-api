@@ -194,10 +194,12 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var transaction = UnitOfWork.Session.BeginTransaction();
-            try
+            using (var session = UnitOfWork.Session)
             {
-                UnitOfWork.Session.Execute($@"
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
 BEGIN
     MERGE Scaner_Goods AS Target
@@ -235,22 +237,23 @@ BEGIN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);
 END",
-          new
-          {
-              _query.TaskId,
-              _query.PlanNum,
-              _query.GoodId,
-              _query.GoodName,
-              _query.GoodArticle,
-              _query.CountQty,
-              _query.BarCode,
-              _query.BoxId,
-          }, transaction);
-                transaction.Commit();
-            }
-            catch (Exception)
-            {
-                transaction.Rollback();
+              new
+              {
+                  _query.TaskId,
+                  _query.PlanNum,
+                  _query.GoodId,
+                  _query.GoodName,
+                  _query.GoodArticle,
+                  _query.CountQty,
+                  _query.BarCode,
+                  _query.BoxId,
+              }, transaction);
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                }
             }
         }
 
@@ -261,8 +264,12 @@ END",
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"
+            using(var session = UnitOfWork.Session)
+            {
+                session.Execute(@"
 update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.CountQty, _query.Id });
+            }
+           
         }
 
         public void Delete(Query query)
@@ -272,9 +279,12 @@ update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.Count
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            UnitOfWork.Session.Execute(@"
+            using (var session = UnitOfWork.Session)
+            {
+                session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
 delete from Scaner_Goods where Id = @Id", new { _query.Id });
+            }
         }
 
         public void SaveDefect(Query query)
@@ -284,36 +294,38 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            if (_query.DefectId == 0)
+            using(var session = UnitOfWork.Session)
             {
-                var transaction = UnitOfWork.Session.BeginTransaction();
-                try
+                if (_query.DefectId == 0)
                 {
-                    var DefectId = UnitOfWork.Session.Query<int>(@"
+                    var transaction = session.BeginTransaction();
+                    try
+                    {
+                        var DefectId = session.Query<int>(@"
 INSERT INTO Defects (Damage, SerialNumber, Description)
 VALUES (@Damage, @SerialNumber, @Description); 
 SELECT SCOPE_IDENTITY()", new { _query.Damage, _query.SerialNumber, _query.Description }, transaction);
 
-                    UnitOfWork.Session.Execute(@"
+                        session.Execute(@"
 update Scaner_Goods SET DefectId = @DefectId, Created = getdate() where Id = @Id", new { DefectId, _query.Id }, transaction);
 
-                    transaction.Commit();
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-            else
-            {
-                UnitOfWork.Session.Execute(@"
+                    session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
 update Scaner_Goods SET DefectId = NULL where Id = @Id
 delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
 
+                }
             }
-
         }
     }
 }
