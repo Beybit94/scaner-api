@@ -226,6 +226,12 @@
   <ItemGroup>
     <Content Include="Scripts\Empty.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{7d4d2d5b-7eec-4a19-91f6-880a66333698}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets" Condition="Exists('..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

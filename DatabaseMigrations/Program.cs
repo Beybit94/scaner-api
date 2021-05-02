@@ -1,4 +1,5 @@
-﻿using FluentMigrator.Runner;
+﻿using Common.Configuration;
+using FluentMigrator.Runner;
 using FluentMigrator.Runner.Announcers;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
@@ -85,7 +86,7 @@ namespace DatabaseMigrations
 
         private static string GetConnectionStrings()
         {
-            return ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString;
+            return ConfigurtionOptions.MainConnectionString;
         }
     }
 }
