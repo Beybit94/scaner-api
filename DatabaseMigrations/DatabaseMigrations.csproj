@@ -204,6 +204,9 @@
     <Compile Include="Migrations\202102021117_FileGoodId.cs" />
     <Compile Include="Migrations\202104130803_SearchProcessType.cs" />
     <Compile Include="Migrations\202105011153_LogEndTime.cs" />
+    <Compile Include="Migrations\202105021337_TaskClose.cs" />
+    <Compile Include="Migrations\202105061506_TaskTrigger.cs" />
+    <Compile Include="Migrations\202105061525_AlterTriggerV4.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

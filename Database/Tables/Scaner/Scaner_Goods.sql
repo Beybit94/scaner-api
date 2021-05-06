@@ -116,7 +116,15 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
         END
         ELSE IF EXISTS(SELECT * FROM INSERTED)
         BEGIN
-            SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
+            IF RTRIM(LTRIM(@Article)) = ''
+            BEGIN
+                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood_Search')
+            END
+            ELSE
+            BEGIN
+                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
+            END
+
             SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
             
             INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);

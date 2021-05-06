@@ -323,7 +323,6 @@ update Scaner_Goods SET DefectId = @DefectId, Created = getdate() where Id = @Id
 delete from Scaner_Goods where BoxId = @Id
 update Scaner_Goods SET DefectId = NULL where Id = @Id
 delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
-
                 }
             }
         }

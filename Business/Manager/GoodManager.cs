@@ -126,6 +126,7 @@ namespace Business.Manager
                 var taskQuery = new TaskQuery { TaskId = query.TaskId, Path = query.Path, GoodId = query.Id };
                 var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Defect_Photo");
                 taskQuery.TypeId = hFileType.Id;
+                taskQuery.TypeName = hFileType.Name;
                 _taskRepository.SaveAct(taskQuery);
             }
         }

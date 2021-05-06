@@ -56,14 +56,10 @@ and StatusId <> 5", new { _query.TaskId, _query.PlanNum });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute($@"
-IF EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
+IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,@PlanNum)
-END
-ELSE
-BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,'Документ с номером'+@PlanNum+'не найден')
-    RAISERROR ( 'Документ с таким номером не найден',1,1)
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером'+@PlanNum+'не найден')
+    RAISERROR ('Документ с таким номером не найден',1,1)
 END", new { _query.PlanNum });
         }
 
@@ -89,6 +85,10 @@ BEGIN
             @DivisionId,
             GETDATE(),
             @PlanNum)	
+END
+ELSE
+BEGIN
+    RAISERROR ('Планирование уже существует',1,1)
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
             }
         }
@@ -181,9 +181,22 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
 
             using (var session = UnitOfWork.Session)
             {
-                session.Execute(@"
+                var trans = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"
 INSERT INTO Scaner_File
-VALUES (@TaskId, @GoodId, @Path,@TypeId)", new { _query.TaskId, _query.GoodId, _query.Path, _query.TypeId });
+VALUES (@TaskId, @GoodId, @Path,@TypeId)", new { _query.TaskId, _query.GoodId, _query.Path, _query.TypeId }, trans);
+                    session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+VALUES (@TaskId, (select Id from hProcessType where Code = 'File'), @TypeName);", new { _query.TaskId, _query.TypeName }, trans);
+
+                    trans.Commit();
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                }           
             }
         }
 

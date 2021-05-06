@@ -293,6 +293,7 @@ namespace Business.Manager
 
             var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
             query.TypeId = hFileType.Id;
+            query.TypeName = hFileType.Name;
 
             _taskRepository.SaveAct(query);
         }
