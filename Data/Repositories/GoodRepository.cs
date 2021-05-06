@@ -195,7 +195,7 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -265,7 +265,7 @@ END",
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using(var session = UnitOfWork.Session)
+            using(var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
 update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.CountQty, _query.Id });
@@ -280,7 +280,7 @@ update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.Count
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
@@ -295,7 +295,7 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using(var session = UnitOfWork.Session)
+            using(var session = UnitOfWork.GetConnection())
             {
                 if (_query.DefectId == 0)
                 {

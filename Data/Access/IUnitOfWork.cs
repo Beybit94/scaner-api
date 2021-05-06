@@ -26,5 +26,7 @@ namespace Data.Access
         /// <param name="isolationLevel">Уровень изоляции транзакции</param>
         /// <returns>Транзакция</returns>
         IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
+
+        IDbConnection GetConnection();
     }
 }

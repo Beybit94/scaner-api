@@ -19,7 +19,9 @@ namespace ScanerApi.Controllers
         [Route("Test")]
         public IHttpActionResult Test()
         {
-            return Ok(new { success = true });
+            var model = new UsersQueryModel() { Login = "AAbatova", Password = "Qwerty123" };
+            var _data = _usersManager.Find(model);
+            return Ok(new { success = true, data = _data });
         }
 
         [HttpPost]

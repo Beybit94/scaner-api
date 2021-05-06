@@ -74,10 +74,11 @@ END", new { _query.PlanNum });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
-IF NOT EXISTS (SELECT Id FROM Tasks WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End))
+IF NOT EXISTS (SELECT Id FROM Tasks with (nolock) WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End)) AND 
+EXISTS(Select Id from Scaner_1cDocData C with (nolock) where C.PlanNum = @PlanNum)
 BEGIN
 	INSERT INTO Tasks (StatusId, 
                 UserId, 
@@ -88,7 +89,20 @@ BEGIN
             @UserId,
             @DivisionId,
             GETDATE(),
-            @PlanNum)	
+            @PlanNum)
+RAISERROR ( 'IF NOT EXISTS (SELECT Id FROM Tasks with (nolock) WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End)) AND 
+EXISTS(Select Id from Scaner_1cDocData C with (nolock) where C.PlanNum = @PlanNum)
+BEGIN
+	INSERT INTO Tasks (StatusId, 
+                UserId, 
+                DivisionId, 
+                CreateDateTime, 
+                PlanNum)
+    VALUES( @Start,
+            @UserId,
+            @DivisionId,
+            GETDATE(),
+            @PlanNum)',1,1)
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
             }
         }
@@ -128,7 +142,7 @@ END", new { _query.UserId, _query.DivisionId, _query.Start, _query.InProcess });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
 UPDATE Tasks SET StatusId = @StatusId, EndDateTime = @EndDateTime
@@ -143,7 +157,7 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -179,7 +193,7 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
 INSERT INTO Scaner_File

@@ -13,8 +13,10 @@ namespace SendTaskTo1C
     class Program
     {
         public static IContainer Container { get; set; }
-        static void Main(string[] args)
+
+        static async Task Main(string[] args)
         {
+
             Container = AutofacConfig.Register();
             var taskManager = Container.Resolve<TaskManager>();
 
@@ -79,14 +81,64 @@ namespace SendTaskTo1C
                     query.Message = JsonConvert.SerializeObject(resultSend);
                     query.Request = JsonConvert.SerializeObject(data.ToArray());
                     taskManager.Set1cStatus(query);
+
+                    if (errors.Count > 0)
+                    {
+                        var msgErr = "";
+                        foreach (var err in errors)
+                        {
+                            msgErr = msgErr + err + "<br/>";
+                        }
+                        SendMsgToEmail("Сканер. Возвращаемые ошибки с 1С", msgErr);
+                    }
+                    
                 }
                 catch (Exception ex)
                 {
+                    SendMsgToEmail("Сканер. Ошибка при отправке данных в 1С", ex.Message + " " + ex.StackTrace);
                     throw ex;
                 }
 
 
             }
         }
+
+        /// <summary>
+        /// Отправка уведомлении на почту
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="message"></param>
+        private static void SendMsgToEmail(string subject, string message)
+        {
+            try
+            {
+                var mailServerSenderAddress = System.Configuration.ConfigurationManager.AppSettings["MailServerSenderAddress"];
+                System.Net.Mail.MailAddress from = new System.Net.Mail.MailAddress(mailServerSenderAddress, mailServerSenderAddress);
+                
+                var mailServerToAddress = System.Configuration.ConfigurationManager.AppSettings["MailServerToAddress"];
+                System.Net.Mail.MailAddress to = new System.Net.Mail.MailAddress(mailServerToAddress);
+                System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage(from, to);
+                m.Subject = subject;
+                m.Body = message;
+                m.IsBodyHtml = true;
+                var smtpHost = System.Configuration.ConfigurationManager.AppSettings["MailServerHost"].ToString();
+                var smtpPort = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["MailServerPort"].ToString());
+
+                System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(smtpHost, smtpPort);
+
+                var mailServerUser = System.Configuration.ConfigurationManager.AppSettings["MailServerUser"].ToString();
+                var mailServerPassword = System.Configuration.ConfigurationManager.AppSettings["MailServerPassword"].ToString();
+                smtp.Credentials = new System.Net.NetworkCredential(mailServerUser, mailServerPassword);
+                // smtp.EnableSsl = false;
+                smtp.Send(m); 
+            }
+            catch (Exception ex) { 
+
+            }
+
+
+           
+        }
+
     }
 }
