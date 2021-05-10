@@ -12,7 +12,8 @@ namespace ScanerApi.Modules
         {
             builder.Register(ctx =>
                {
-                   var unitOfWork = new UnitOfWork(ConfigurtionOptions.MainConnectionString);
+                   var con = ConfigurtionOptions.MainConnectionString;
+                   var unitOfWork = new UnitOfWork(con);
                    unitOfWork.Init();
                    return unitOfWork;
                }).As<IUnitOfWork>().SingleInstance();

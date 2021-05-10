@@ -33,8 +33,6 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            _taskRepository.GetPlanNum(query);
-
             var InProcess = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
             var Start = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
             var End = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");

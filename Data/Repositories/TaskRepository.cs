@@ -48,21 +48,6 @@ where (Id = @TaskId or PlanNum = @PlanNum)
 and StatusId <> 5", new { _query.TaskId, _query.PlanNum });
         }
 
-        public void GetPlanNum(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            UnitOfWork.Session.Execute($@"
-IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
-BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером'+@PlanNum+'не найден')
-    RAISERROR ('Документ с таким номером не найден',1,1)
-END", new { _query.PlanNum });
-        }
-
         public void UnloadTask(Query query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
@@ -73,22 +58,30 @@ END", new { _query.PlanNum });
             using (var session = UnitOfWork.Session)
             {
                 session.Execute(@"
-IF NOT EXISTS (SELECT Id FROM Tasks WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End))
+IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
 BEGIN
-	INSERT INTO Tasks (StatusId, 
-                UserId, 
-                DivisionId, 
-                CreateDateTime, 
-                PlanNum)
-    VALUES( @Start,
-            @UserId,
-            @DivisionId,
-            GETDATE(),
-            @PlanNum)	
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером'+@PlanNum+'не найден')
+    RAISERROR ('Документ с таким номером не найден',1,1)
 END
 ELSE
 BEGIN
-    RAISERROR ('Планирование уже существует',1,1)
+    IF NOT EXISTS (SELECT Id FROM Tasks WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End))
+    BEGIN
+	    INSERT INTO Tasks (StatusId, 
+                    UserId, 
+                    DivisionId, 
+                    CreateDateTime, 
+                    PlanNum)
+        VALUES( @Start,
+                @UserId,
+                @DivisionId,
+                GETDATE(),
+                @PlanNum)	
+    END
+    ELSE
+    BEGIN
+        RAISERROR ('Планирование уже существует',1,1)
+    END
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
             }
         }
