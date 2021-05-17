@@ -56,13 +56,13 @@ and StatusId <> 5", new { _query.TaskId, _query.PlanNum });
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             UnitOfWork.Session.Execute($@"
-IF EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
+IF EXISTS (SELECT top 1 PlanNum FROM Scaner_1cDocData with (nolock) WHERE PlanNum = @PlanNum)
 BEGIN
     INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,@PlanNum)
 END
 ELSE
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,'Документ с номером'+@PlanNum+'не найден')
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (1,'Документ с номером '+@PlanNum+'не найден')
     RAISERROR ( 'Документ с таким номером не найден',1,1)
 END", new { _query.PlanNum });
         }
@@ -90,19 +90,6 @@ BEGIN
             @DivisionId,
             GETDATE(),
             @PlanNum)
-RAISERROR ( 'IF NOT EXISTS (SELECT Id FROM Tasks with (nolock) WHERE PlanNum = @PlanNum AND StatusId in (@Start,@InProcess,@End)) AND 
-EXISTS(Select Id from Scaner_1cDocData C with (nolock) where C.PlanNum = @PlanNum)
-BEGIN
-	INSERT INTO Tasks (StatusId, 
-                UserId, 
-                DivisionId, 
-                CreateDateTime, 
-                PlanNum)
-    VALUES( @Start,
-            @UserId,
-            @DivisionId,
-            GETDATE(),
-            @PlanNum)',1,1)
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
             }
         }
