@@ -80,8 +80,6 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<GoodQuery>(queryModel);
 
-            var hProcessType = CacheDictionaryManager.GetDictionaryShort<hProcessType>().FirstOrDefault(d => d.Code == "SearchGood");
-            query.ProcessType = hProcessType.Id;
             query.GoodArticle = !string.IsNullOrEmpty(query.BarCode) && !string.IsNullOrWhiteSpace(query.BarCode) ?
                                 "" : query.GoodArticle;
             //Проверка товара на количество

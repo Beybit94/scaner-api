@@ -10,50 +10,27 @@ using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Mvc;
+using System.Web.Optimization;
+using System.Web.Routing;
 
 namespace ScanerApi.Areas.Web
 {
-    public class WebAreaRegistration : AreaRegistration 
+    public class WebAreaRegistration : AreaRegistration
     {
-        public override string AreaName 
+        public override string AreaName
         {
-            get 
+            get
             {
                 return "Web";
             }
         }
 
-        public override void RegisterArea(AreaRegistrationContext context) 
+        public override void RegisterArea(AreaRegistrationContext context)
         {
-            context.MapRoute(
-                "Web_default",
-                "Web/{controller}/{action}/{id}",
-                new { action = "Index", id = UrlParameter.Optional }
-            );
+            RouteConfig.RegisterRoutes(context);
+            //BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            var builder = new ContainerBuilder();
-
-            builder.Register(ctx => new MapperConfiguration(cfg => AutoMapperConfiguration.Configure(cfg)))
-                   .AsSelf().SingleInstance();
-            builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper(c.Resolve))
-                   .As<IMapper>().InstancePerLifetimeScope();
-
-            builder.Register(ctx =>
-            {
-                var unitOfWork = new UnitOfWork(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString);
-                unitOfWork.Init();
-                return unitOfWork;
-            }).As<IUnitOfWork>().SingleInstance();
-            builder.RegisterType<TaskRepository>().InstancePerRequest();
-            builder.RegisterType<Data1cRepository>().InstancePerRequest();
-            builder.RegisterType<GoodRepository>().InstancePerRequest();
-            builder.RegisterType<TaskManager>().InstancePerRequest();
-            builder.RegisterType<GoodManager>().InstancePerRequest();
-            builder.RegisterControllers(Assembly.GetExecutingAssembly());
-
-            var container = builder.Build();
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
-
+            AutofacConfig.Register();
             WebPageConfig.Register(GlobalConfiguration.Configuration);
         }
     }

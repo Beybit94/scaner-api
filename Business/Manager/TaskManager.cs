@@ -542,5 +542,14 @@ namespace Business.Manager
 
             return _mapper.Map<List<Scaner_1cDocDataModel>>(entity);
         }
+
+        public List<LogsModel> LogsByTask(TaskQueryModel queryModel)
+        {
+            if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
+            var query = _mapper.Map<TaskQuery>(queryModel);
+
+            var entity = _taskRepository.LogsByTask(query);
+            return _mapper.Map<List<LogsModel>>(entity);
+        }
     }
 }
