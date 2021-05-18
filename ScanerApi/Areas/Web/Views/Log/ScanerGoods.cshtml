@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Business.Models.GoodsModel>
+
+<table class="table">
+    <tr>
+        <th>
+            Артикуль
+        </th>
+        <th>
+            Название
+        </th>
+        <th>
+            Количество
+        </th>
+        <th>
+            ШК
+        </th>
+        <th>
+            Короб
+        </th>
+        <th>
+            Время
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        var box = item.BoxId == null || item.BoxId == 0 ?
+            "" : Model.FirstOrDefault(m => m.Id == item.BoxId).BarCode;
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GoodArticle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GoodName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CountQty)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BarCode)
+            </td>
+            <td>@box</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+        </tr>
+    }
+
+</table>

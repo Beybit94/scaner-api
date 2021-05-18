@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Web/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @using (Ajax.BeginForm("Search", new AjaxOptions
+        {
+            InsertionMode = InsertionMode.Replace,
+            HttpMethod = "GET",
+            UpdateTargetId = "result",
+            //LoadingElementId = "loader",      
+            //OnBegin = "onAjaxBegin",
+            //OnComplete = "onAjaxComplete"
+        }))
+        {
+            <div class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <input type="text" class="form-control" id="planNum" name="planNum" placeholder="Номер планирование">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Поиск</button>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-12" id="result"></div>
+</div>
+
