@@ -144,7 +144,7 @@ FROM (
     SELECT G.ID as GOODID, G.GOODARTICLE,G.GOODNAME
     FROM GOODS G 	
     WHERE G.GoodName LIKE @GoodArticle) G
-GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%" +_query.GoodArticle + "%" });
+GROUP BY G.GOODID,G.GOODARTICLE, G.GOODNAME", new { @GoodArticle = "%" + _query.GoodArticle + "%" });
             return entity.ToList();
         }
 
@@ -168,11 +168,20 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.Query<Goods>($@"
+            using (var session = UnitOfWork.Session)
+            {
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'SearchGood'),
+        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId });
+
+                    var entity = session.Query<Goods>($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (@ProcessType,'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)
-
     SELECT TOP(1) G.Id, G.GOODARTICLE, G.GOODNAME
     FROM GOODS G 
     JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.Id
@@ -188,8 +197,27 @@ BEGIN
     SELECT  G.Id, G.GOODARTICLE, G.GOODNAME
     FROM GOODS G 
     WHERE G.GoodArticle= @GoodArticle
-END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType });
-            return entity.ToList();
+END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskId });
+
+                    if (!entity.Any())
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),
+        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId });
+                    }
+
+                    transaction.Commit();
+                    return entity.ToList();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    return new List<Goods>();
+                }
+            }
+
         }
 
         public void Save(Query query)
@@ -274,7 +302,7 @@ END",
                 session.Execute(@"
 update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.CountQty, _query.Id });
             }
-           
+
         }
 
         public void Delete(Query query)

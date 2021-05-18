@@ -208,6 +208,7 @@
     <Compile Include="Migrations\202105061506_TaskTrigger.cs" />
     <Compile Include="Migrations\202105061525_AlterTriggerV4.cs" />
     <Compile Include="Migrations\202105101201_UsersIndex.cs" />
+    <Compile Include="Migrations\202105111821_AlterTriggerV6.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

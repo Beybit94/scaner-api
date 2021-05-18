@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace DatabaseMigrations.Migrations
 {
-    [Migration(202105061525)]
-    public class AlterTriggerV5 : Migration
+    [Migration(202105111821)]
+    public class AlterTriggerV6 : Migration
     {
         public override void Down()
         {
@@ -31,30 +31,8 @@ ALTER TRIGGER [dbo].[Trigger_Scaner_Goods]
                 @DefectId int,
                 @ProcessTypedId int;
 
-        IF EXISTS(SELECT * FROM DELETED)
-        BEGIN
-            SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood')
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
-
-            DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
-        END
-        ELSE IF EXISTS(SELECT * FROM INSERTED)
-        BEGIN
-            IF RTRIM(LTRIM(@Article)) = ''
-            BEGIN
-                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood_Search')
-            END
-            ELSE
-            BEGIN
-                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
-            END
-
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
-            
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
-        END
-        ELSE
+        IF EXISTS(SELECT * FROM INSERTED I
+                  JOIN DELETED D ON D.Id = I.Id)
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
             SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DefectId = I.DefectId 
@@ -70,10 +48,34 @@ ALTER TRIGGER [dbo].[Trigger_Scaner_Goods]
             ELSE
             BEGIN
                 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
-                VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article);
+                VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
             END
 
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article);
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
+
+        END
+        ELSE IF EXISTS(SELECT * FROM INSERTED)
+        BEGIN
+            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
+
+            IF RTRIM(LTRIM(@Article)) = ''
+            BEGIN
+                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood_Search')
+            END
+            ELSE
+            BEGIN
+                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
+            END
+            
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
+        END
+        ELSE
+        BEGIN
+            SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood')
+            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
+
+            DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
+            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
         END
 
     END

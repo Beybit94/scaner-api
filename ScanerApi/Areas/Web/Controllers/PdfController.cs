@@ -61,24 +61,11 @@ namespace ScanerApi.Areas.Web.Controllers
             return File(stream.ToArray(), "application/pdf");
         }
 
-        public ActionResult DocData(Data1cQueryModel model)
-        {
-            var data = _taskManager.DocDataModels(model);
-            return View("DocData", data);
-        }
-
         public ActionResult Goods(GoodQueryModel model)
         {
             var data = _goodManager.GetGoodWithBarcode(model);
             return View("Goods", data);
         }
 
-        public ActionResult ScanerGoods(GoodQueryModel model)
-        {
-            var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = model.PlanNum });
-            model.TaskId = task.Id;
-            var data = _goodManager.GetGoods(model);
-            return View("ScanerGoods", data);
-        }
     }
 }

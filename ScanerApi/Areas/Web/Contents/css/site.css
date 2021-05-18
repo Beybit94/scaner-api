@@ -1,0 +1,15 @@
+﻿body.loading .loading-modal {
+    display: block;
+}
+
+.loading-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    min-height: 100%;
+    width: 100%;
+    background: #c9d3e2 url('/Content/Images/Loader.gif') 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .3 ) url('/Content/Images/285.GIF') 50% 50% no-repeat;
+}
