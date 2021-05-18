@@ -203,6 +203,11 @@
     <Compile Include="Migrations\202101201506_TaskIndexV1.cs" />
     <Compile Include="Migrations\202102021117_FileGoodId.cs" />
     <Compile Include="Migrations\202104130803_SearchProcessType.cs" />
+    <Compile Include="Migrations\202105011153_LogEndTime.cs" />
+    <Compile Include="Migrations\202105021337_TaskClose.cs" />
+    <Compile Include="Migrations\202105061506_TaskTrigger.cs" />
+    <Compile Include="Migrations\202105061525_AlterTriggerV4.cs" />
+    <Compile Include="Migrations\202105101201_UsersIndex.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -224,6 +229,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\Empty.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{7d4d2d5b-7eec-4a19-91f6-880a66333698}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets" Condition="Exists('..\packages\FluentMigrator.Runner.SqlServerCe.3.2.9\build\netstandard2.0\FluentMigrator.Runner.SqlServerCe.targets')" />

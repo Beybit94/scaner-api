@@ -27,3 +27,6 @@
 	[Education] [nvarchar](max) NULL,
 	[UserCat] [nvarchar](50) NULL
 )
+GO
+CREATE NONCLUSTERED INDEX [IX_Users_UserName]
+    ON [dbo].[Users]([UserName] ASC);

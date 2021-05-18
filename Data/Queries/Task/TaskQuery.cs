@@ -24,6 +24,8 @@ namespace Data.Queries.Task
        
         public int Deleted { get; set; }
         public int ProcessTypeId { get; set; }
+
         public int TypeId { get; set; }
+        public string TypeName { get; set; }
     }
 }

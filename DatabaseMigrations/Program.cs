@@ -1,4 +1,5 @@
-﻿using FluentMigrator.Runner;
+﻿using Common.Configuration;
+using FluentMigrator.Runner;
 using FluentMigrator.Runner.Announcers;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;

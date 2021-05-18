@@ -47,7 +47,7 @@ SELECT g.*, g1.BarCode as BoxName, d.*
 FROM Scaner_Goods g
 LEFT JOIN Defects d on d.Id = g.DefectId
 left join Scaner_Goods g1 on g1.Id =g.BoxId 
-WHERE g.TaskId = @TaskId
+WHERE g.TaskId = @TaskId 
 ORDER BY g.Created", (g, d) =>
             {
                 g.Defect = d;
@@ -76,7 +76,7 @@ ORDER BY g.Created", (g, d) =>
             //WHERE TaskId = @TaskId 
             //order by Created desc", new { _query.TaskId });
 
-            var procedure = "[dbo.GetGoodsByTask]";
+            var procedure = "[GetGoodsByTask]";
             var values = new { taskId = _query.TaskId };
             var entity = UnitOfWork.Session.Query<Goods>(procedure, values, commandType: CommandType.StoredProcedure);
             return entity.ToList();
@@ -328,7 +328,6 @@ update Scaner_Goods SET DefectId = @DefectId, Created = getdate() where Id = @Id
 delete from Scaner_Goods where BoxId = @Id
 update Scaner_Goods SET DefectId = NULL where Id = @Id
 delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
-
                 }
             }
         }

@@ -33,8 +33,6 @@ namespace Business.Manager
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
             var query = _mapper.Map<TaskQuery>(queryModel);
 
-            _taskRepository.GetPlanNum(query);
-
             var InProcess = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
             var Start = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "Start");
             var End = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "End");
@@ -293,6 +291,7 @@ namespace Business.Manager
 
             var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
             query.TypeId = hFileType.Id;
+            query.TypeName = hFileType.Name;
 
             _taskRepository.SaveAct(query);
         }
