@@ -64,7 +64,7 @@ ORDER BY g.Created", (g, d) =>
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            //            var entity = UnitOfWork.Session.Query<Goods>(@"
+            //var entity = UnitOfWork.Session.Query<Goods>(@"
             //SELECT Id,
             //       GoodId,
             //       CountQty,
@@ -168,7 +168,7 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -177,27 +177,27 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'SearchGood'),
-        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId });
+        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
 
                     var entity = session.Query<Goods>($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
 BEGIN
     SELECT TOP(1) G.Id, G.GOODARTICLE, G.GOODNAME
-    FROM GOODS G 
+    FROM GOODS G with (nolock)
     JOIN GOODSBARCODES GB (NOLOCK) ON GB.GOODID = G.Id
     JOIN  BARCODES BC (NOLOCK) ON BC.Id = GB.BARCODEID		
     WHERE BC.BARCODE = @BarCode
     UNION
     SELECT TOP(1) 0 as Id, '' as GOODARTICLE, 'Короб '+ b.BARCODE as GOODNAME
-    FROM Scaner_1cDocData  b
+    FROM Scaner_1cDocData  b with (nolock)
     WHERE b.BARCODE = @BarCode
 END
 ELSE
 BEGIN
     SELECT  G.Id, G.GOODARTICLE, G.GOODNAME
-    FROM GOODS G 
+    FROM GOODS G with (nolock)
     WHERE G.GoodArticle= @GoodArticle
-END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskId });
+END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskId }, transaction);
 
                     if (!entity.Any())
                     {
@@ -205,13 +205,13 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskI
 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),
-        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId });
+        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
                     }
 
                     transaction.Commit();
                     return entity.ToList();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
                     return new List<Goods>();

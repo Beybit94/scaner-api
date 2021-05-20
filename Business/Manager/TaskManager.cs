@@ -202,6 +202,7 @@ namespace Business.Manager
                     }
 
                     var quantity = findGood.CountQty;
+                    var i = 0;
                     foreach (var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
                     {
                         var receipt = new ReceiptModel
@@ -226,7 +227,15 @@ namespace Business.Manager
                             quantity = quantity - item.Quantity;
                         }
 
+
                         //if (receipt.CountQty == receipt.Quantity) continue;
+                        // FIX - Показ кол. что осталось
+                        i++;
+                        if (quantity > 0 && good.Count() == i )
+                        {
+                            receipt.CountQty = receipt.CountQty + quantity;
+                        }
+
                         diff.receipts.Add(receipt);
                     }
                 }
@@ -275,7 +284,10 @@ namespace Business.Manager
                 {
                     if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
                     diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });
+                  
                 }
+
+
                 diff.receipts = diff.receipts.Where(m => diff.boxes.Any(b => b.BarCode == m.Barcode))
                                              .Where(m => m.CountQty != m.Quantity).ToHashSet();
                 diff.receipts.Distinct();

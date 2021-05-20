@@ -58,9 +58,9 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
             using (var session = UnitOfWork.GetConnection())
             {
                 session.Execute(@"
-IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
+IF NOT EXISTS (SELECT top 1 PlanNum FROM Scaner_1cDocData with(nolock) WHERE PlanNum = @PlanNum)
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером'+@PlanNum+'не найден')
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером '+ @PlanNum+'не найден')
     RAISERROR ('Документ с таким номером не найден',1,1)
 END
 ELSE
