@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Business.Models.Scaner_1cDocDataModel>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.PlanNum)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NumberDoc)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Article)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Barcode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.PlanNum)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NumberDoc)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Article)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Barcode)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Quantity)
+        </td>
+    </tr>
+}
+
+</table>

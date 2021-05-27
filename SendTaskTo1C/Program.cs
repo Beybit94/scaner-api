@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SendTaskTo1C
@@ -22,85 +21,101 @@ namespace SendTaskTo1C
 
             var query = new TaskQueryModel();
             //query.PlanNum = "0000121838_1";
+           
+            //query.TaskId = 702;
+            //query.PlanNum = "0000132795_2";
+            //var difference = taskManager.Differences(query);
+
+
             var items = taskManager.PrepareDataTo1c(query);
 
             //query.TaskId = 140;
             //query.PlanNum = "0000110175_4";
             //var difference = taskManager.Differences(query);
-
+ 
             if (!items.Any()) return;
-
-            using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
+            var tasks = items.GroupBy(x => x.TaskId);
+            foreach (var task in tasks)
             {
-                var data = items.GroupBy(m => m.NumberDoc).Select(m => new WebReference.Receipt
+                using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
                 {
-                    GUID_Location = m.FirstOrDefault().Location,
-                    GUID_WEB = m.FirstOrDefault().TaskId.ToString(),
-                    GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A",
-                    DateDoc = m.FirstOrDefault().DateDoc,
-                    DateBeginLoad = m.FirstOrDefault().DateBeginLoad,
-                    DateEndLoad = m.FirstOrDefault().DateEndLoad,
-                    DateReceipt = m.FirstOrDefault().DateReceipt,
-                    Rowpictures = "0",
-                    TypeDoc = "РасходныйОрдерНаТовары",
-                    NumberDoc = m.FirstOrDefault().NumberDoc
-                }).ToArray();
-
-                foreach (var item in data)
-                {
-                    item.ReceiptGood = items.Where(m => m.NumberDoc == item.NumberDoc).Select(g =>
-                    new WebReference.ReceiptGood
+                    var data = items.Where(x => x.TaskId == task.Key).GroupBy(m => m.NumberDoc).Select(m => new WebReference.Receipt
                     {
-                        Article = g.Article,
-                        Quantity = g.Quantity,
-                        Barcode = g.Barcode,
-                        GoodBarcode = g.GoodBarcode,
+                        GUID_Location = m.FirstOrDefault().Location,
+                        GUID_WEB = m.FirstOrDefault().TaskId.ToString(),
+                        GUID_Division = "A34D95B8-3BFF-11DF-9B61-001B78E2224A",
+                        DateDoc = m.FirstOrDefault().DateDoc,
+                        DateBeginLoad = m.FirstOrDefault().DateBeginLoad,
+                        DateEndLoad = m.FirstOrDefault().DateEndLoad,
+                        DateReceipt = m.FirstOrDefault().DateReceipt,
+                        Rowpictures = !string.IsNullOrEmpty(m.FirstOrDefault().DefectLink) ? m.FirstOrDefault().DefectLink:  "0", //"0",  m.FirstOrDefault().DefectLink
+                        TypeDoc = "РасходныйОрдерНаТовары",
+                        NumberDoc = m.FirstOrDefault().NumberDoc
+                    }).ToArray();
+
+                    foreach (var item in data)
+                    {
+                        item.ReceiptGood = items.Where(m => m.NumberDoc == item.NumberDoc)
+                        .GroupBy(x=> new { x.Article, x.Quantity, x.Barcode, x.GoodBarcode})    
+                        .Select(g =>
+                        new WebReference.ReceiptGood
+                        {
+                            Article = g.Key.Article,
+                            Quantity = g.Key.Quantity,
+                            Barcode = g.Key.Barcode,
+                            GoodBarcode = g.Key.GoodBarcode,
                         //Defect = g.IsDefect,
                         //DefectDate = g.DefectDate,
                         //DefectDescription = g.Description,
                         //SerialNumber = g.SerialNumber,
                         //DefectPercentage = g.DefectPercentage,
                         //DefectLink = g.DefectLink
-                    }).ToArray();
-                }
-
-                List<string> errors = new List<string>();
-                query.Request = JsonConvert.SerializeObject(data);
-                var arr = data.ToArray();
-                try
-                {
-                    var resultSend = acceptSend.LoadReceipts_new(data);
-                    foreach (var r in resultSend)
-                    {
-                        foreach (var m in r.Messages)
-                        {
-                            errors.Add("CODE: " + m.Code + "; Message: " + m.Message1);
-                        }
+                        }).ToArray(); // 
                     }
-                    query.TaskId = items.FirstOrDefault().TaskId;
-                    query.Message = JsonConvert.SerializeObject(resultSend);
-                    query.Request = JsonConvert.SerializeObject(data.ToArray());
-                    taskManager.Set1cStatus(query);
 
-                    if (errors.Count > 0)
+                    List<string> errors = new List<string>();
+                    query.Request = JsonConvert.SerializeObject(data);
+                    var arr = data.ToArray();
+                    try
                     {
-                        var msgErr = "";
-                        foreach (var err in errors)
+                        var resultSend = acceptSend.LoadReceipts_new(data);
+                        foreach (var r in resultSend)
                         {
-                            msgErr = msgErr + err + "<br/>";
+                            foreach (var m in r.Messages)
+                            {
+                                errors.Add("CODE: " + m.Code + "; Message: " + m.Message1);
+                            }
                         }
-                        SendMsgToEmail("Сканер. Возвращаемые ошибки с 1С", msgErr);
+                        query.TaskId = items.FirstOrDefault().TaskId;
+                        query.PlanNum = items.FirstOrDefault().PlanNum;
+                        query.Message = JsonConvert.SerializeObject(resultSend);
+                        query.Request = JsonConvert.SerializeObject(data.ToArray());
+                        taskManager.Set1cStatus(query);
+
+                        var addressLocation = taskManager.GetAddressLocationByTask(query.TaskId);
+                        if (errors.Count > 0)
+                        {
+                            var msgErr = "<b>Магазин:</b> " + addressLocation + "<br/>";
+                            msgErr = msgErr + "<b>Номер планирование:</b> " + query.PlanNum + "<br/>";
+                            foreach (var err in errors)
+                            {
+                                msgErr = msgErr + err + "<br/>";
+                            }
+                            SendMsgToEmail("Сканер. " + addressLocation + ". Возвращаемые сообщения из 1С", msgErr);
+                        }
+
                     }
-                    
-                }
-                catch (Exception ex)
-                {
-                    SendMsgToEmail("Сканер. Ошибка при отправке данных в 1С", ex.Message + " " + ex.StackTrace);
-                    throw ex;
-                }
+                    catch (Exception ex)
+                    {
+                        SendMsgToEmail("Сканер. Ошибка при отправке данных в 1С", ex.Message + " " + ex.StackTrace);
+                        throw ex;
+                    }
 
 
+                }
             }
+
+            
         }
 
         /// <summary>
@@ -116,8 +131,14 @@ namespace SendTaskTo1C
                 System.Net.Mail.MailAddress from = new System.Net.Mail.MailAddress(mailServerSenderAddress, mailServerSenderAddress);
                 
                 var mailServerToAddress = System.Configuration.ConfigurationManager.AppSettings["MailServerToAddress"];
-                System.Net.Mail.MailAddress to = new System.Net.Mail.MailAddress(mailServerToAddress);
-                System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage(from, to);
+                System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage();
+                m.From = from;
+                foreach (var address in mailServerToAddress.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    m.To.Add(address);
+                }
+
+                //System.Net.Mail.MailAddress to = new System.Net.Mail.MailAddress(mailServerToAddress);
                 m.Subject = subject;
                 m.Body = message;
                 m.IsBodyHtml = true;
@@ -132,12 +153,9 @@ namespace SendTaskTo1C
                 // smtp.EnableSsl = false;
                 smtp.Send(m); 
             }
-            catch (Exception ex) { 
-
+            catch (Exception ex) {
+                var test = ex.Message + " " + ex.StackTrace;
             }
-
-
-           
         }
 
     }

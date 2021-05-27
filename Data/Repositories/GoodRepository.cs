@@ -64,21 +64,21 @@ ORDER BY g.Created", (g, d) =>
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            //var entity = UnitOfWork.Session.Query<Goods>(@"
-            //SELECT Id,
-            //       GoodId,
-            //       CountQty,
-            //       GoodName,
-            //       GoodArticle,
-            //       BarCode,
-            //       DefectId 
-            //FROM Scaner_Goods
-            //WHERE TaskId = @TaskId 
-            //order by Created desc", new { _query.TaskId });
+            var entity = UnitOfWork.Session.Query<Goods>(@"
+            SELECT Id,
+                   GoodId,
+                   CountQty,
+                   GoodName,
+                   GoodArticle,
+                   BarCode,
+                   DefectId 
+            FROM Scaner_Goods
+            WHERE TaskId = @TaskId 
+            order by Created desc", new { _query.TaskId });
 
-            var procedure = "[GetGoodsByTask]";
-            var values = new { taskId = _query.TaskId };
-            var entity = UnitOfWork.Session.Query<Goods>(procedure, values, commandType: CommandType.StoredProcedure);
+            //var procedure = "[GetGoodsByTask]";
+            //var values = new { taskId = _query.TaskId };
+            //var entity = UnitOfWork.Session.Query<Goods>(procedure, values, commandType: CommandType.StoredProcedure);
             return entity.ToList();
         }
 

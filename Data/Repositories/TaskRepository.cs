@@ -27,10 +27,15 @@ namespace Data.Repositories
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Tasks>(@"
-select t.* 
-from Tasks t
-where t.StatusId = @End
-and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.End, _query.ProcessTypeId });
+            select t.* 
+            from Tasks t
+            where t.StatusId = @End
+            and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.End, _query.ProcessTypeId });
+
+            //var entity = UnitOfWork.Session.Query<Tasks>(@"
+            //select t.* 
+            //from Tasks t
+            //where t.Id in (728)"); // 711
             return entity.ToList();
         }
 
@@ -60,8 +65,8 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
                 session.Execute(@"
 IF NOT EXISTS (SELECT top 1 PlanNum FROM Scaner_1cDocData with(nolock) WHERE PlanNum = @PlanNum)
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером '+ @PlanNum+'не найден')
-    RAISERROR ('Документ с таким номером не найден',1,1)
+    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером '+ @PlanNum+'не найден');
+    RAISERROR ('Планирование не найдено!',17,1);
 END
 ELSE
 BEGIN
@@ -80,9 +85,11 @@ BEGIN
     END
     ELSE
     BEGIN
-        RAISERROR ('Планирование уже существует',1,1)
+        RAISERROR ('Планирование уже существует',17,1);
     END
 END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
+            
+
             }
         }
 
@@ -252,6 +259,28 @@ group by l.Id,
          l.Response,
          l.Request
 order by Created", new { _query.TaskId }).ToList();
+        }
+
+        /// <summary>
+        /// Получение адреса по задаче
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        public string GetAddressLocationByTask(int taskId)
+        {
+            try
+            {
+                var procedure = "[GetAddressLocationByTask]";
+                var values = new { taskId = taskId };
+                var entity = UnitOfWork.Session.Query<string>(procedure, values, commandType: CommandType.StoredProcedure);
+                return entity.FirstOrDefault().Trim();
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+            
+
         }
     }
 }

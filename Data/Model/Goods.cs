@@ -28,18 +28,8 @@ namespace Data.Model
         public string BoxName { get; set; }
 
         /// <summary>
-        /// Кол. остатков товара в магазине
+        /// разделение товара на 3 кучи(На витрину, Для хранения, Клиентский)
         /// </summary>
-        public int? QuantityInLocation { get; set; }
-
-        /// <summary>
-        /// Id магазина
-        /// </summary>
-        public int? LocationId { get; set; }
-
-        /// <summary>
-        /// Название магазина 
-        /// </summary>
-        public string LocationName { get; set; }
+        public string DeliveryCategoryDesc { get; set; } 
     }
 }
