@@ -233,24 +233,24 @@ group by g.GoodName,g.GoodArticle,g.Quantity,g.CountQty", new { _query.TaskId, _
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            return UnitOfWork.Session.Query<Logs>(@"
-select t.PlanNum as PlanNum, 
-       hp.Name as ProcessName, 
+            return UnitOfWork.Session.Query<Logs, Task, Goods, Logs>(@"
+select hp.Name as ProcessName, 
        l.Response as Response,
        l.Request as Request,
-       l.Created as Created 
+       l.Created as Created,
+       t.*,
+       g.*
 from Logs l
-join Tasks t on t.Id = l.TaskId
 join hProcessType hp on hp.Id = l.ProcessTypeId
+left join Tasks t on t.Id = l.TaskId
+left join Scaner_Goods g on g.Id = l.GoodId
 where l.TaskId = @TaskId
-group by l.Id, 
-         l.TaskId, 
-         l.Created, 
-         t.PlanNum, 
-         hp.Name, 
-         l.Response,
-         l.Request
-order by Created", new { _query.TaskId }).ToList();
+order by l.Created", (l, t,g) =>
+            {
+                l.Task = t;
+                l.Good = g;
+                return l;
+            }, new { _query.TaskId }).ToList();
         }
     }
 }
