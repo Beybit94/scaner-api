@@ -42,6 +42,20 @@ group by g.GoodName, g.GoodArticle, b.BarCode");
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
+//            var entity = UnitOfWork.Session.Query<Goods, Defects, Goods>($@"
+//SELECT g.*, g1.BarCode as BoxName, d.*
+//FROM Scaner_Goods g
+//LEFT JOIN Defects d on d.Id = g.DefectId
+//left join Scaner_Goods g1 on g1.Id =g.BoxId 
+//WHERE g.TaskId = @TaskId 
+//ORDER BY g.Created", (g, d) =>
+//            {
+//                g.Defect = d;
+//                return g;
+//            },
+//            new { _query.TaskId, _query.PlanNum });
+
+
             var entity = UnitOfWork.Session.Query<Goods, Defects, Goods>($@"
 SELECT g.*, g1.BarCode as BoxName, d.*
 FROM Scaner_Goods g
@@ -53,7 +67,8 @@ ORDER BY g.Created", (g, d) =>
                 g.Defect = d;
                 return g;
             },
-            new { _query.TaskId, _query.PlanNum });
+                        new { _query.TaskId, _query.PlanNum });
+
             return entity.ToList();
         }
 
@@ -244,7 +259,8 @@ BEGIN
                     '' as GOODARTICLE,
                     @GoodName as GoodName) AS Source
     ON (Target.TaskId = Source.TaskId 
-        AND Target.BarCode = Source.BarCode)
+        AND Target.BarCode = Source.BarCode
+        AND ISNULL(Target.BoxId,0) = Source.BoxId)
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);      

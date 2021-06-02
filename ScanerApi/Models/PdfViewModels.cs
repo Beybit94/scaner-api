@@ -8,6 +8,7 @@ namespace ScanerApi.Models
 {
     public class PdfViewModels
     {
+        public TasksModel task = new TasksModel();
         public List<GoodsModel> goods = new List<GoodsModel>();
         public DifferencesModel differences = new DifferencesModel();
     }

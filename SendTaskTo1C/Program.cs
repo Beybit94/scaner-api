@@ -48,7 +48,7 @@ namespace SendTaskTo1C
                         DateBeginLoad = m.FirstOrDefault().DateBeginLoad,
                         DateEndLoad = m.FirstOrDefault().DateEndLoad,
                         DateReceipt = m.FirstOrDefault().DateReceipt,
-                        Rowpictures = !string.IsNullOrEmpty(m.FirstOrDefault().DefectLink) ? m.FirstOrDefault().DefectLink:  "0", //"0",  m.FirstOrDefault().DefectLink
+                        Rowpictures = !string.IsNullOrEmpty(m.FirstOrDefault().DefectLink) ? m.FirstOrDefault().DefectLink :  "0", //"0",  m.FirstOrDefault().DefectLink
                         TypeDoc = "РасходныйОрдерНаТовары",
                         NumberDoc = m.FirstOrDefault().NumberDoc
                     }).ToArray();
@@ -61,7 +61,7 @@ namespace SendTaskTo1C
                         new WebReference.ReceiptGood
                         {
                             Article = g.Key.Article,
-                            Quantity = g.Key.Quantity,
+                            Quantity = g.Key.Quantity, //g.Sum(s => s.Quantity),
                             Barcode = g.Key.Barcode,
                             GoodBarcode = g.Key.GoodBarcode,
                         //Defect = g.IsDefect,
@@ -76,6 +76,7 @@ namespace SendTaskTo1C
                     List<string> errors = new List<string>();
                     query.Request = JsonConvert.SerializeObject(data);
                     var arr = data.ToArray();
+
                     try
                     {
                         var resultSend = acceptSend.LoadReceipts_new(data);

@@ -85,7 +85,16 @@ namespace Business.Manager
             //Проверка товара на количество
             var goods = _goodRepository.ExistGood(query);
             if (goods.Count() > 1) throw new Exception("Несколько товаров по штрихкоду");
-            if (goods.Count() == 0) throw new Exception("Товар не найден");
+            if (goods.Count() == 0)
+            {
+                if (!string.IsNullOrEmpty(query.BarCode) && query.BarCode.StartsWith("C"))
+                {
+                    throw new Exception("Короб по текущей задаче не найден");
+                }
+             
+             throw new Exception("Товар не найден");
+            }
+                
             //if (goods.FirstOrDefault().GoodId == 0 && query.BoxId > 0) throw new Exception("Запрет короб внутри короба");
 
             query.GoodId = goods.FirstOrDefault().GoodId;

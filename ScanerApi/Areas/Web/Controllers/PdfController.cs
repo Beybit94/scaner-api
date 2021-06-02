@@ -44,13 +44,12 @@ namespace ScanerApi.Areas.Web.Controllers
             }
         }
 
-        public FileResult Index(TaskQueryModel model)
+        public FileResult Index(string PlanNum)
         {
-            var task = _taskManager.GetTaskById(model);
+            var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = PlanNum });
             var goods = _goodManager.GetGoods(new GoodQueryModel { TaskId = task.Id });
             var differences = _taskManager.Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
-            var report = new PdfViewModels { goods = goods, differences = differences };
-
+            var report = new PdfViewModels { task = task, goods = goods, differences = differences };
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", report);
 

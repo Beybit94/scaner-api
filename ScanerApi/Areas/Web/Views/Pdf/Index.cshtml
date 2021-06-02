@@ -56,15 +56,15 @@
         <div>
             <table>
                 <tr>
-                    <td style="background-color:dimgray">Время прибытия ТС</td>
+                    <td>Время прибытия ТС</td>
+                    <td>@(Model.task != null ? Model.task.CreateDateTime.ToString("G") : "")</td>
+                </tr>
+                <tr>
+                    <td>Время начала разгрузки</td>
                     <td>@(Model.goods.Any() ? Model.goods.First().Created.ToString("G") : "")</td>
                 </tr>
                 <tr>
-                    <td style="background-color:dimgray">Время начала разгрузки</td>
-                    <td>@DateTime.Now.ToString("G")</td>
-                </tr>
-                <tr>
-                    <td style="background-color:dimgray">Время окончания разгрузки</td>
+                    <td>Время окончания разгрузки</td>
                     <td>@(Model.goods.Any() ? Model.goods.Last().Created.ToString("G") : "")</td>
                 </tr>
             </table>
