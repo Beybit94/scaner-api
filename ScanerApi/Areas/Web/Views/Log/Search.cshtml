@@ -6,10 +6,11 @@
 <div class="row">
     @if (task != null && !string.IsNullOrEmpty(task.PlanNum))
     {
-        <div class="col-md-12 m-2">
-            <a class="btn btn-danger" href="@Url.Action("ScanerGoods",new { taskId = task.Id })" target="_blank">Отсканированные товары</a>
-            <a class="btn btn-primary" href="@Url.Action("DocData",new { planNum = task.PlanNum })" target="_blank">Данные с 1с</a>
-        </div>
+    <div class="col-md-12 m-2">
+        <a class="btn btn-info" href="@Url.Action("Index","Pdf",new { PlanNum = task.PlanNum })" target="_blank">Отчет</a>
+        <a class="btn btn-danger" href="@Url.Action("ScanerGoods",new { taskId = task.Id })" target="_blank">Отсканированные товары</a>
+        <a class="btn btn-primary" href="@Url.Action("DocData",new { planNum = task.PlanNum })" target="_blank">Данные с 1с</a>
+    </div>
     }
     <div class="col-md-12">
         <table class="table">
@@ -35,7 +36,7 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PlanNum)
+                        @task.PlanNum
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ProcessName)
