@@ -9,8 +9,7 @@
     <ProjectGuid>{40768a1d-5a16-487d-8674-bcc20a8433da}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
-    <RootPath>
-    </RootPath>
+    <RootPath />
     <RootNamespace>Database</RootNamespace>
     <AssemblyName>Database</AssemblyName>
     <ModelCollation>1049,CI</ModelCollation>
@@ -50,7 +49,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
     <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
     <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
   </PropertyGroup>
@@ -106,6 +104,8 @@
     <Build Include="Tables\WebProject\Boxes.sql" />
     <Build Include="Tables\Logs.sql" />
     <Build Include="Tables\Defects.sql" />
+    <Build Include="Tables\Requests.sql" />
+    <Build Include="Tables\Responses.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Database.refactorlog" />

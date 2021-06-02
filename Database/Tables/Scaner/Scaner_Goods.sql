@@ -101,6 +101,7 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
         SET NOCOUNT ON;
 
         DECLARE @TaskId int,
+                @GoodId int,
                 @Barcode nvarchar(50), 
                 @Article nvarchar(50),
                 @DefectId int,
@@ -110,28 +111,28 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
                   JOIN DELETED D ON D.Id = I.Id)
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
-            SELECT @TaskId = I.TaskId, @Article = I.GoodArticle, @Barcode = I.BarCode, @DefectId = I.DefectId 
+            SELECT @TaskId = I.TaskId, @GoodId = I.Id, @Article = I.GoodArticle, @Barcode = I.BarCode, @DefectId = I.DefectId 
             FROM INSERTED I
             JOIN DELETED D ON D.Id = I.Id
 
             IF ISNULL(@DefectId,0) <> 0
             BEGIN
-                INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
-                VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
+                INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) 
+                VALUES (@TaskId, @GoodId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
 
             END
             ELSE
             BEGIN
-                INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
-                VALUES (@TaskId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
+                INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) 
+                VALUES (@TaskId, @GoodId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
             END
 
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
+            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
 
         END
         ELSE IF EXISTS(SELECT * FROM INSERTED)
         BEGIN
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
+            SELECT @TaskId = TaskId, @GoodId = Id, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
             
             IF RTRIM(LTRIM(@Article)) = ''
             BEGIN
@@ -142,15 +143,15 @@ CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
                  SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
             END
             
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
+            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
         END
         ELSE
         BEGIN
             SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood')
-            SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
+            SELECT @TaskId = TaskId, @GoodId = Id, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
 
             DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
-            INSERT INTO Logs (TaskId, ProcessTypeId, Response) VALUES (@TaskId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
+            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
         END
 
     END

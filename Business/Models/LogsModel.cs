@@ -11,6 +11,7 @@ namespace Business.Models
     public class LogsModel : Model
     {
         public int TaskId { get; set; }
+        public int GoodId { get; set; }
         public int ProcessTypeId { get; set; }       
         public string Response { get; set; }
         public string Request { get; set; }
