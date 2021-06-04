@@ -80,5 +80,6 @@ namespace ScanerApi.Areas.Web.Controllers
             var data = _taskManager.DocDataModels(model);
             return View("DocData", data);
         }
+
     }
 }

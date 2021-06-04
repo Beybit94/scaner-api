@@ -157,5 +157,27 @@ namespace ScanerApi.Controllers
                 return Json(new { error = ex.Message, success = false });
             }
         }
+
+
+        #region Test
+        //[HttpGet]
+        //[ActionName("CreateTest")]
+        //[Route("CreateTest")]
+        //public IHttpActionResult CreateTest(string barCode)
+        //{
+        //    try
+        //    {
+        //        var model = new GoodQueryModel();
+        //        model.BarCode = barCode;
+        //        model.TaskId = 208;
+        //        _goodManager.Save(model);
+        //        return Ok(new { success = true });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { error = ex.Message, success = false });
+        //    }
+        //}
+        #endregion
     }
 }

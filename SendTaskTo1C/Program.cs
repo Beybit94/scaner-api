@@ -18,7 +18,7 @@ namespace SendTaskTo1C
 
             Container = AutofacConfig.Register();
             var taskManager = Container.Resolve<TaskManager>();
-
+            var fileManager = Container.Resolve<FileManager>();
             var query = new TaskQueryModel();
             //query.PlanNum = "0000121838_1";
            
@@ -76,7 +76,8 @@ namespace SendTaskTo1C
                     List<string> errors = new List<string>();
                     query.Request = JsonConvert.SerializeObject(data);
                     var arr = data.ToArray();
-
+                    // var mergedPhotoTest = fileManager.CreatePhotosPDF(task.Key); // пока в работе!
+                    return;
                     try
                     {
                         var resultSend = acceptSend.LoadReceipts_new(data);

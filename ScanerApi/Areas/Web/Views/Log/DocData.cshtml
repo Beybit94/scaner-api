@@ -1,39 +1,39 @@
 ﻿@model IEnumerable<Business.Models.Scaner_1cDocDataModel>
 
-<table class="table">
+<table class="table" style="table-layout:fixed;">
     <tr>
-        <th>
+        <th >
             Номер планирование
         </th>
-        <th>
+        <th >
             РОТ
         </th>
-        <th>
+        <th >
             Артикуль
         </th>
-        <th>
+        <th >
             ШК
         </th>
-        <th>
+        <th >
             Количество
         </th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
-        <td>
+        <td style="padding-left:10px; padding-right:10px;">
             @Html.DisplayFor(modelItem => item.PlanNum)
         </td>
-        <td>
+        <td style="padding-left:10px; padding-right:10px;">
             @Html.DisplayFor(modelItem => item.NumberDoc)
         </td>
-        <td>
+        <td style="padding-left:10px; padding-right:10px;">
             @Html.DisplayFor(modelItem => item.Article)
         </td>
-        <td>
+        <td style="padding-left:10px; padding-right:10px;">
             @Html.DisplayFor(modelItem => item.Barcode)
         </td>
-        <td>
+        <td style="padding-left:10px; padding-right:10px;">
             @Html.DisplayFor(modelItem => item.Quantity)
         </td>
     </tr>

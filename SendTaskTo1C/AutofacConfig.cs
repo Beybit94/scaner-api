@@ -29,7 +29,7 @@ namespace SendTaskTo1C
             builder.RegisterType<GoodRepository>();
             builder.RegisterType<Data1cRepository>();
             builder.RegisterType<TaskManager>();
-
+            builder.RegisterType<FileManager>();
 
             return builder.Build();
         }

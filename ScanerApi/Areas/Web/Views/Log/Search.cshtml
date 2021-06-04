@@ -3,55 +3,56 @@
     var task = (Business.Models.TasksModel)ViewBag.Task;
     //Model.Any() ? Model.FirstOrDefault(m => !string.IsNullOrEmpty(m.Request)).Request : "";
 }
+
 <div class="row">
-    @if (task != null && !string.IsNullOrEmpty(task.PlanNum))
-    {
-    <div class="col-md-12 m-2">
-        <a class="btn btn-info" href="@Url.Action("Index","Pdf",new { PlanNum = task.PlanNum })" target="_blank">Отчет</a>
-        <a class="btn btn-danger" href="@Url.Action("ScanerGoods",new { taskId = task.Id })" target="_blank">Отсканированные товары</a>
-        <a class="btn btn-primary" href="@Url.Action("DocData",new { planNum = task.PlanNum })" target="_blank">Данные с 1с</a>
-    </div>
-    }
-    <div class="col-md-12">
-        <table class="table">
-            <tr>
-                <th>
-                    Номер планирование
-                </th>
-                <th>
-                    Название процесса
-                </th>
-                <th>
-                    Комментарий
-                </th>
-                <th>
-                    Время
-                </th>
-                <th>
-
-                </th>
-            </tr>
-
-            @foreach (var item in Model)
-            {
+        @if (task != null && !string.IsNullOrEmpty(task.PlanNum))
+        {
+            <div class="col-md-12 m-2">
+                <a class="btn btn-info" style="padding-right:10px;" href="@Url.Action("Index","Pdf",new { PlanNum = task.PlanNum })" target="_blank">Акт</a>
+                <a class="btn btn-danger" style="padding-right: 10px; " href="@Url.Action("ScanerGoods",new { taskId = task.Id })" target="_blank">Отсканированные товары</a>
+                <a class="btn btn-primary" style="padding-right:10px;" href="@Url.Action("DocData",new { planNum = task.PlanNum })" target="_blank">Данные с 1с</a>
+            </div>
+        }
+        <div class="col-md-12">
+            <table class="table"  width="100%"  style="table-layout:fixed;">
                 <tr>
-                    <td>
-                        @task.PlanNum
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ProcessName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Response)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Created)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Request)
-                    </td>
+                    <th width="10%">
+                        Номер планирование
+                    </th>
+                    <th width="15%">
+                        Название процесса
+                    </th>
+                    <th width="25%" >
+                        Комментарий
+                    </th>
+                    <th width="10%" style="padding-left:10px;padding-right:10px;">
+                        Время
+                    </th>
+                    <th  style="padding-left:10px;padding-right:10px;">
+
+                    </th>
                 </tr>
-            }
-        </table>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td >
+                            @task.PlanNum
+                        </td>
+                        <td nowrap style="padding-left:10px;padding-right:10px;">
+                            @Html.DisplayFor(modelItem => item.ProcessName)
+                        </td>
+                        <td width="25%" style="padding-left:10px;padding-right:5px;">
+                            @Html.DisplayFor(modelItem => item.Response)
+                        </td>
+                        <td nowrap style="padding-left:10px;padding-right:10px;">
+                            @Html.DisplayFor(modelItem => item.Created)
+                        </td>
+                        <td style="padding-left:10px;padding-right:10px;">
+                            @Html.DisplayFor(modelItem => item.Request)
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
     </div>
-</div>

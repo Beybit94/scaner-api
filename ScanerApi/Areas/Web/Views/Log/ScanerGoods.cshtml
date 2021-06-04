@@ -1,20 +1,20 @@
 ﻿@model IEnumerable<Business.Models.GoodsModel>
 
-<table class="table">
+<table class="table" style="table-layout:fixed;">
     <tr>
-        <th>
+        <th >
             Артикуль
         </th>
-        <th>
+        <th >
             Название
         </th>
-        <th>
+        <th >
             Количество
         </th>
-        <th>
+        <th >
             ШК
         </th>
-        <th>
+        <th >
             Короб
         </th>
         <th>
@@ -27,20 +27,20 @@
         var box = item.BoxId == null || item.BoxId == 0 ?
             "" : Model.FirstOrDefault(m => m.Id == item.BoxId).BarCode;
         <tr>
-            <td>
+            <td  style="padding-left:10px; padding-right:10px;">
                 @Html.DisplayFor(modelItem => item.GoodArticle)
             </td>
-            <td>
+            <td style="padding-left:10px; padding-right:10px;">
                 @Html.DisplayFor(modelItem => item.GoodName)
             </td>
-            <td>
+            <td style="padding-left:10px; padding-right:10px;">
                 @Html.DisplayFor(modelItem => item.CountQty)
             </td>
-            <td>
+            <td style="padding-left:10px; padding-right:10px;">
                 @Html.DisplayFor(modelItem => item.BarCode)
             </td>
-            <td>@box</td>
-            <td>
+            <td style="padding-left:10px; padding-right:10px;">@box</td>
+            <td style="padding-left:10px; padding-right:10px;">
                 @Html.DisplayFor(modelItem => item.Created)
             </td>
         </tr>

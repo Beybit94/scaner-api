@@ -200,11 +200,13 @@ namespace Business.Manager
                     {
                         findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
                     }
+                    //var quantity = findGood.CountQty; // old value
+                    //var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(x => new { x.GoodArticle, x.BoxId }) // GroupBy(c => c.GoodArticle).
+                    //  .Select(g => g.Sum(x => x.CountQty)).FirstOrDefault();
 
-                 //   var quantity = findGood.CountQty; // old value
-                    var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(c => c.GoodArticle).
-                      Select(g => g.Sum(x => x.CountQty)).Sum();
-                    var i = 0;
+                    var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(c => c.GoodArticle)
+                    .Select(g => g.Sum(x => x.CountQty)).FirstOrDefault();
+
                     foreach (var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
                     {
 
@@ -228,16 +230,7 @@ namespace Business.Manager
                         {
                             receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
                             quantity = quantity - item.Quantity;
-
-
-
                         }
-
-                        //i++;
-                        //if (quantity > 0 && good.Count() == i)
-                        //{
-                        //    receipt.CountQty = receipt.CountQty + quantity;
-                        //}
 
                         diff.receipts.Add(receipt);
                     }
@@ -383,6 +376,8 @@ namespace Business.Manager
                     boxReceipts.Add(_receipt);
                 }
                 _receipts.AddRange(boxReceipts);
+
+
                 //Товары вне короба
                 foreach (var good in goods.Where(m => !string.IsNullOrEmpty(m.GoodArticle))
                                           .Where(m => !m.BoxId.HasValue || m.BoxId == 0))
@@ -412,6 +407,7 @@ namespace Business.Manager
                         Article = good.GoodArticle,
                         Quantity = good.CountQty,
                         GoodBarcode = good.BarCode,
+                        Barcode = "0" // added new value
                     };
 
                     if (good.DefectId.HasValue)
@@ -453,19 +449,9 @@ namespace Business.Manager
                 }
                 _receipts.AddRange(docReceipts);
 
-                if (docReceipts.Any(x => x.Article == "485260"))
-                {
-                    var reciept1 = docReceipts.Where(x => x.Article == "485260").ToArray();
-                }
-
                 //Несколько товаров по Article
                 foreach (var good in docdatas.GroupBy(m => m.Article).Where(m => m.Count() > 1))
                 {
-                    if (good.Any(x => x.Article == "74509"))
-                    {
-                        var test4 = good.Where(x => x.Article == "485260").ToArray();
-                    }
-
                     var article = good.FirstOrDefault().Article;
                     var _good = goods.FirstOrDefault(m => m.GoodArticle == article);
 
@@ -495,8 +481,9 @@ namespace Business.Manager
                         var box = goods.FirstOrDefault(m => m.Id == _good.BoxId);
 
                         //  var quantity = _good.CountQty; // -- old value
-                        var quantity = goods.Where(x => x.GoodArticle == _good.GoodArticle).GroupBy(c => c.GoodArticle).
-                      Select(g => g.Sum(x => x.CountQty)).Sum();
+                        var quantity = goods.Where(x => x.GoodArticle == _good.GoodArticle).GroupBy(x => new { x.GoodArticle })
+                        .Select(g => g.Sum(x => x.CountQty)).FirstOrDefault();
+
                         foreach (var _docData in _docDatas)
                         {
                             var _receipt = new ReceiptModel
@@ -530,7 +517,7 @@ namespace Business.Manager
                             {
                                 _receipt.Quantity = quantity >= _docData.Quantity ? _docData.Quantity : quantity;
                                 _receipt.GoodBarcode = quantity >= _docData.Quantity ? _good.BarCode : "";
-                                _receipt.Barcode = _docData.Barcode != null ? _docData.Barcode : "";
+                                _receipt.Barcode = (_docData.Barcode != null ) ? _docData.Barcode : "0";
                                 //_receipt.Barcode = box != null ? box.BarCode : ""; // old.value
 
                                 quantity = quantity - _docData.Quantity;
@@ -547,6 +534,11 @@ namespace Business.Manager
                 receipts.AddRange(_receipts);
             }
 
+            //var rec1 = boxReceipts.Where(x => x.Article == "69774");
+            //var rec2 = notBoxReceipts.Where(x => x.Article == "69774");
+            //var rec3 = docReceipts.Where(x => x.Article == "69774");
+            //var rec4 = rotReceipts.Where(x => x.Article == "69774");
+            
             return receipts;
         }
 

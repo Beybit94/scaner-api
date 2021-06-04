@@ -260,7 +260,9 @@ BEGIN
                     @GoodName as GoodName) AS Source
     ON (Target.TaskId = Source.TaskId 
         AND Target.BarCode = Source.BarCode
-        AND ISNULL(Target.BoxId,0) = Source.BoxId)
+        AND ISNULL(Target.BoxId,0) = Source.BoxId
+        AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss')
+)
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);      
@@ -279,7 +281,9 @@ BEGIN
             WHERE G.GoodArticle= @GoodArticle) AS Source
     ON (Target.TaskId = Source.TaskId 
         AND Target.GoodArticle = Source.GoodArticle 
-        AND ISNULL(Target.BoxId,0) = Source.BoxId)
+        AND ISNULL(Target.BoxId,0) = Source.BoxId
+        AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss')
+)
     WHEN MATCHED THEN
          UPDATE SET Target.CountQty = (Target.CountQty+1), Created = GETDATE()
     WHEN NOT MATCHED BY TARGET THEN

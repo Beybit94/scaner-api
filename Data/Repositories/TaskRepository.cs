@@ -26,16 +26,16 @@ namespace Data.Repositories
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            var entity = UnitOfWork.Session.Query<Tasks>(@"
-            select t.* 
-            from Tasks t
-            where t.StatusId = @End
-            and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.End, _query.ProcessTypeId });
-
             //var entity = UnitOfWork.Session.Query<Tasks>(@"
             //select t.* 
             //from Tasks t
-            //where t.Id in (770)"); // 755
+            //where t.StatusId = @End
+            //and NOT EXISTS(select Id from Logs where TaskId = t.Id and ProcessTypeId = @ProcessTypeId)", new { _query.End, _query.ProcessTypeId });
+
+            var entity = UnitOfWork.Session.Query<Tasks>(@"
+            select t.* 
+            from Tasks t
+            where t.Id in (795)"); // 755
             return entity.ToList();
         }
 
