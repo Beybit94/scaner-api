@@ -77,7 +77,6 @@ namespace SendTaskTo1C
                     query.Request = JsonConvert.SerializeObject(data);
                     var arr = data.ToArray();
                     // var mergedPhotoTest = fileManager.CreatePhotosPDF(task.Key); // пока в работе!
-                    return;
                     try
                     {
                         var resultSend = acceptSend.LoadReceipts_new(data);
