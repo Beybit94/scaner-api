@@ -173,61 +173,125 @@ namespace Business.Manager
             }
         }
 
-
-        public string CreatePhotosPDF(int taskId)
+        /// <summary>
+        /// Все акты в один документ PDF
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        public string CreatePhotosActToPDF(int taskId)
         {
-            var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
-            var files = _taskRepository.FilesByTask(new Data.Queries.Task.TaskQuery { TaskId = taskId });
-            if (files.Count <= 0)
+            try
+            {
+                var hFileType = CacheDictionaryManager.GetDictionaryShort<hFileType>().FirstOrDefault(d => d.Code == "Act_Photo");
+                var files = _taskRepository.FilesByTask(new Data.Queries.Task.TaskQuery { TaskId = taskId });
+                if (files.Count <= 0)
+                {
+                    return "";
+                }
+
+                dynamic fileName = taskId.ToString() + ".pdf";
+                var pdfGeneratePath = ConfigurtionOptions.FtpFolder + "/pdf/";
+                if (!DirectoryExists(pdfGeneratePath))
+                {
+                    MakeDirectory(pdfGeneratePath);
+                }
+
+                string filePathPdf = string.Concat(pdfGeneratePath, fileName);
+                string dest = string.Concat(ConfigurtionOptions.FtpConnectionString, filePathPdf);
+                PdfSharp.Pdf.PdfDocument doc = new PdfSharp.Pdf.PdfDocument();
+
+                // --------------------------------------------
+                doc.Options.FlateEncodeMode = PdfSharp.Pdf.PdfFlateEncodeMode.BestCompression;
+                doc.Options.UseFlateDecoderForJpegImages = PdfSharp.Pdf.PdfUseFlateDecoderForJpegImages.Automatic;
+                doc.Options.NoCompression = false;
+                doc.Options.CompressContentStreams = true;
+                // --------------------------------------------
+
+                foreach (var file in files.Where(x => x.TypeId == hFileType.Id))
+                {
+                    var filePath = file.Path;
+                    var request = WebRequest.Create(filePath);
+                    request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
+                    using (var response = request.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    using (var imgSource = Image.FromStream(stream))
+                    {
+                        MemoryStream strm = new MemoryStream();
+                        imgSource.Save(strm, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                        using (XImage img = XImage.FromStream(strm))
+                        {
+                            img.Interpolate = false;
+                            int width = img.PixelWidth;
+                            int height = img.PixelHeight;
+
+                            PdfSharp.Pdf.PdfPage page = new PdfSharp.Pdf.PdfPage
+                            {
+                                Width = width,
+                                Height = height
+                            };
+                            doc.Pages.Add(page);
+                            XGraphics gfx = XGraphics.FromPdfPage(page);
+                            gfx.DrawImage(img, 15, 70, width, height);
+                            gfx.Dispose();
+                        }
+                    }
+                }
+                //doc.Save("C:\\Docs\\pdf\\1.pdf");
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    doc.Save(ms, false);
+                    byte[] buffer = new byte[ms.Length];
+                    ms.Seek(0, SeekOrigin.Begin);
+                    ms.Flush();
+                    ms.Read(buffer, 0, (int)ms.Length);
+                    var isLoaded = FtpUploadFile(buffer, "pdf", fileName);
+                    doc.Dispose();
+                    return isLoaded ? dest : "";
+                }
+            }
+            catch (Exception ex)
             {
                 return "";
             }
+            
+        }
 
-
-            dynamic fileName = taskId.ToString() + "_" + DateTime.Now.Ticks + ".pdf";
-            var pdfGeneratePath = ConfigurtionOptions.FtpFolder + "/pdf";
-            if (!DirectoryExists(pdfGeneratePath))
+        /// <summary>
+        /// Загрузка файла в FTP
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="folderName"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        private bool FtpUploadFile(byte[] bytes, string folderName, string fileName)
+        {
+            try
             {
-                MakeDirectory(pdfGeneratePath);
-            }
+                string filePath = string.Concat(ConfigurtionOptions.FtpFolder + "/" + folderName + "/", fileName);
+                string path = string.Concat(ConfigurtionOptions.FtpConnectionString, filePath);
 
-            string filePathPdf = string.Concat(pdfGeneratePath, fileName);
-            string dest = string.Concat(ConfigurtionOptions.FtpConnectionString, filePathPdf);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(path));
 
-            PdfSharp.Pdf.PdfDocument doc = new PdfSharp.Pdf.PdfDocument();
-            // --------------------------------------------
+                request.Method = WebRequestMethods.Ftp.UploadFile;
 
-            foreach (var file in files.Where(x => x.TypeId == hFileType.Id))
-            {
-                var filePath = file.Path;
-                var request = WebRequest.Create(filePath);
                 request.Credentials = new NetworkCredential(ConfigurtionOptions.FtpUser, ConfigurtionOptions.FtpPass);
-                using (var response = request.GetResponse())
-                using (var stream = response.GetResponseStream())
-                using (var imgSource = Image.FromStream(stream))
+
+                request.ContentLength = bytes.Length;
+                using (Stream request_stream = request.GetRequestStream())
                 {
-                    MemoryStream strm = new MemoryStream();
-                    imgSource.Save(strm, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    using (XImage img = XImage.FromStream(strm))
-                    {
-                        img.Interpolate = false;
-                        int width = img.PixelWidth;
-                        int height = img.PixelHeight;
-                        PdfSharp.Pdf.PdfPage page = new PdfSharp.Pdf.PdfPage
-                        {
-                            Width = width,
-                            Height = height
-                        };
-                        doc.Pages.Add(page);
-                    }                    
+                    request_stream.Write(bytes, 0, bytes.Length);
+                    request_stream.Flush();
+                    // request_stream.Close();
                 }
+                return true;
             }
-            // --------------------------------------------
-            doc.Save(dest);
-            doc.Dispose();
-
-            return dest;
+            catch (Exception ex)
+            {
+                return false;
+            }
+            
         }
 
     }

@@ -302,7 +302,16 @@ END",
                   _query.BoxId,
               }, transaction);
                     transaction.Commit();
+
+                    // удаление дублированных данных 
+                    session.Execute(@"
+                        delete from Scaner_Goods where Id in (
+                        Select  Max(S.id) as id  from Scaner_Goods S  where  S.TaskId = @TaskId and S.GoodArticle= @GoodArticle 
+                        Group by FORMAT(S.Created, 'yyyy-MM-dd HH:mm:ss')
+                        Having Count(*) > 1
+                        )", new { _query.TaskId, _query.GoodArticle });
                 }
+
                 catch (Exception)
                 {
                     transaction.Rollback();

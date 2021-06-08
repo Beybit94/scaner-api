@@ -1,42 +1,55 @@
 ﻿@model IEnumerable<Business.Models.Scaner_1cDocDataModel>
-
+@{ ViewBag.Title = "План";}
 <table class="table" style="table-layout:fixed;">
     <tr>
-        <th >
+        <th>
             Номер планирование
         </th>
-        <th >
+        <th>
             РОТ
         </th>
-        <th >
+        <th>
             Артикуль
         </th>
-        <th >
+        <th>
             ШК
         </th>
-        <th >
+        <th>
             Количество
+        </th>
+        <th>
+            Дата документа в 1С
+        </th>
+        <th>
+            Дата создание
         </th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td style="padding-left:10px; padding-right:10px;">
-            @Html.DisplayFor(modelItem => item.PlanNum)
-        </td>
-        <td style="padding-left:10px; padding-right:10px;">
-            @Html.DisplayFor(modelItem => item.NumberDoc)
-        </td>
-        <td style="padding-left:10px; padding-right:10px;">
-            @Html.DisplayFor(modelItem => item.Article)
-        </td>
-        <td style="padding-left:10px; padding-right:10px;">
-            @Html.DisplayFor(modelItem => item.Barcode)
-        </td>
-        <td style="padding-left:10px; padding-right:10px;">
-            @Html.DisplayFor(modelItem => item.Quantity)
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.PlanNum)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.NumberDoc)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.Article)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.Barcode)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.DateDoc)
+            </td>
+            <td style="padding-left:10px; padding-right:10px;">
+                @Html.DisplayFor(modelItem => item.DateCreated)
+            </td>
+        </tr>
+    }
 
 </table>

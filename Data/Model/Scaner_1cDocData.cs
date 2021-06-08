@@ -22,5 +22,6 @@ namespace Data.Model
         public string LocationGuid { get; set; }
         public string GoodArticle { get; set; }
         public int CountQty { get; set; }
+        public DateTime? DateCreated { get; set; }
     }
 }

@@ -101,7 +101,8 @@ select  dd.PlanNum,
         dd.LocationGuid,
         dd.Article,
         dd.Quantity,
-        dd.Barcode
+        dd.Barcode,
+        Max(dd.DateCreated) as DateCreated
 from Scaner_1cDocData dd 
 where dd.PlanNum = @PlanNum
 group by dd.PlanNum,

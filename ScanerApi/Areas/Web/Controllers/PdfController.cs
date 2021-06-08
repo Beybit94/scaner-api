@@ -49,7 +49,8 @@ namespace ScanerApi.Areas.Web.Controllers
             var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = PlanNum });
             var goods = _goodManager.GetGoods(new GoodQueryModel { TaskId = task.Id });
             var differences = _taskManager.Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
-            var report = new PdfViewModels { task = task, goods = goods, differences = differences };
+            var test = differences.receipts.ToString();
+             var report = new PdfViewModels { task = task, goods = goods, differences = differences };
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", report);
 
@@ -66,7 +67,11 @@ namespace ScanerApi.Areas.Web.Controllers
             return View("Goods", data);
         }
 
-
+        /// <summary>
+        /// Факт
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public ActionResult ScanerGoods(GoodQueryModel model)
         {
             var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = model.PlanNum });
@@ -75,6 +80,11 @@ namespace ScanerApi.Areas.Web.Controllers
             return View("ScanerGoods", data);
         }
 
+        /// <summary>
+        /// План
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public ActionResult DocData(Data1cQueryModel model)
         {
             var data = _taskManager.DocDataModels(model);

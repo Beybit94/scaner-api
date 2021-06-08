@@ -26,5 +26,7 @@ namespace Business.Models
         {
             throw new NotImplementedException();
         }
+
+        public DateTime? DateCreated { get; set; }
     }
 }

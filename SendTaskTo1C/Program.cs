@@ -15,7 +15,6 @@ namespace SendTaskTo1C
 
         static async Task Main(string[] args)
         {
-
             Container = AutofacConfig.Register();
             var taskManager = Container.Resolve<TaskManager>();
             var fileManager = Container.Resolve<FileManager>();
@@ -25,8 +24,6 @@ namespace SendTaskTo1C
             //query.TaskId = 702;
             //query.PlanNum = "0000132795_2";
             //var difference = taskManager.Differences(query);
-
-
             var items = taskManager.PrepareDataTo1c(query);
 
             //query.TaskId = 140;
@@ -37,6 +34,7 @@ namespace SendTaskTo1C
             var tasks = items.GroupBy(x => x.TaskId);
             foreach (var task in tasks)
             {
+                var actPdfLink = fileManager.CreatePhotosActToPDF(task.Key);
                 using (var acceptSend = new WebReference.WebСервис_Приемка_АРЕНА())
                 {
                     var data = items.Where(x => x.TaskId == task.Key).GroupBy(m => m.NumberDoc).Select(m => new WebReference.Receipt
@@ -48,7 +46,7 @@ namespace SendTaskTo1C
                         DateBeginLoad = m.FirstOrDefault().DateBeginLoad,
                         DateEndLoad = m.FirstOrDefault().DateEndLoad,
                         DateReceipt = m.FirstOrDefault().DateReceipt,
-                        Rowpictures = !string.IsNullOrEmpty(m.FirstOrDefault().DefectLink) ? m.FirstOrDefault().DefectLink :  "0", //"0",  m.FirstOrDefault().DefectLink
+                        Rowpictures = !string.IsNullOrEmpty(actPdfLink)? actPdfLink : "0", 
                         TypeDoc = "РасходныйОрдерНаТовары",
                         NumberDoc = m.FirstOrDefault().NumberDoc
                     }).ToArray();
@@ -76,7 +74,7 @@ namespace SendTaskTo1C
                     List<string> errors = new List<string>();
                     query.Request = JsonConvert.SerializeObject(data);
                     var arr = data.ToArray();
-                    // var mergedPhotoTest = fileManager.CreatePhotosPDF(task.Key); // пока в работе!
+
                     try
                     {
                         var resultSend = acceptSend.LoadReceipts_new(data);
