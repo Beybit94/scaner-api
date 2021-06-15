@@ -192,7 +192,7 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'SearchGood'),
-        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
+        'ШК: '+@BarCode+' , Артикул: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
 
                     var entity = session.Query<Goods>($@"
 IF RTRIM(LTRIM(@GoodArticle)) = ''
@@ -220,7 +220,7 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskI
 INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),
-        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
+        'ШК: '+@BarCode+' , Артикул: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
                     }
 
                     transaction.Commit();
@@ -237,6 +237,7 @@ VALUES (@TaskId,
 
         public void Save(Query query)
         {
+            System.Threading.Thread.Sleep(500); // Timer задержка для терминала (для искл. дублей)
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as GoodQuery;
@@ -262,7 +263,7 @@ BEGIN
         AND Target.BarCode = Source.BarCode
         AND ISNULL(Target.BoxId,0) = Source.BoxId
         AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss')
-)
+    )
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);      
@@ -282,8 +283,8 @@ BEGIN
     ON (Target.TaskId = Source.TaskId 
         AND Target.GoodArticle = Source.GoodArticle 
         AND ISNULL(Target.BoxId,0) = Source.BoxId
-        AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss')
-)
+        AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss') 
+    )
     WHEN MATCHED THEN
          UPDATE SET Target.CountQty = (Target.CountQty+1), Created = GETDATE()
     WHEN NOT MATCHED BY TARGET THEN

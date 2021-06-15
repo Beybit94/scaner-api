@@ -50,7 +50,7 @@ namespace ScanerApi.Areas.Web.Controllers
             var goods = _goodManager.GetGoods(new GoodQueryModel { TaskId = task.Id });
             var differences = _taskManager.Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
             var test = differences.receipts.ToString();
-             var report = new PdfViewModels { task = task, goods = goods, differences = differences };
+            var report = new PdfViewModels { task = task, goods = goods, differences = differences };
             MemoryStream stream = new MemoryStream();
             string content = RenderRazorViewToString("Index", report);
 

@@ -185,31 +185,27 @@ namespace Business.Manager
                     receipt.SerialNumber = good.Defect.SerialNumber;
                     receipt.DefectPercentage = good.Defect.Damage.ToString();
                 }
-                diff.receipts.Add(receipt);
+                diff.receipts.Add(receipt);                    
             }
-
-            //Товар из 1с
+           //Товар из 1с
             foreach (var good in docdatas.GroupBy(m => m.Article))
             {
                 var docData = good.FirstOrDefault();
                 //По одному Article несколько записей
-                if (good.Count() > 1) 
+                if (good.Count() > 1)
                 {
                     var findGood = goods.FirstOrDefault(m => m.GoodArticle == docData.Article);
                     if (findGood == null)
                     {
                         findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
                     }
-                    //var quantity = findGood.CountQty; // old value
-                    //var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(x => new { x.GoodArticle, x.BoxId }) // GroupBy(c => c.GoodArticle).
-                    //  .Select(g => g.Sum(x => x.CountQty)).FirstOrDefault();
 
-                    var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(c => c.GoodArticle)
-                    .Select(g => g.Sum(x => x.CountQty)).FirstOrDefault();
+                    //var quantity = findGood.CountQty; // old value
+                    var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(x => new { x.GoodArticle })
+                      .Select(g => g.Sum(x => x.CountQty)).Sum();
 
                     foreach (var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
                     {
-
                         var receipt = new ReceiptModel
                         {
                             NumberDoc = item.NumberDoc,
@@ -222,12 +218,29 @@ namespace Business.Manager
                             GoodName = findGood.GoodName
                         };
 
-                        if (quantity <= 0)
+                        var goodBoxExists = goods.Any(x => x.GoodArticle == findGood.GoodArticle && x.BoxId != 0 && x.BoxName != item.Barcode);
+                        var isEmptyCountQty = false;
+                        if (!goodBoxExists && item.Barcode != "0" && !string.IsNullOrEmpty(item.Barcode))
+                        {
+                            isEmptyCountQty = true;
+                        }
+
+                        if (quantity <= 0 || isEmptyCountQty)
                         {
                             receipt.CountQty = 0;
+
+                            if (isEmptyCountQty)
+                            {
+                                receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
+                                quantity = quantity - item.Quantity;
+                            }
                         }
                         else
                         {
+                            var goodSumCountQty = goods.Where(x => x.GoodArticle == item.Article && x.BoxName == item.Barcode).Sum(x => x.CountQty);
+                            var goodSumCountQty1 = goods.Where(x => x.GoodArticle == item.Article && x.BoxName != item.Barcode).Sum(x => x.CountQty);
+                            var selectNotBoxedGoods = goods.Where(x => x.GoodArticle == item.Article && x.BoxName != item.Barcode);
+
                             receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
                             quantity = quantity - item.Quantity;
                         }
@@ -255,7 +268,6 @@ namespace Business.Manager
 
                     var findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
                     receipt.GoodName = findGood != null ? findGood.GoodName : "";
-
                     //if (receipt.CountQty == receipt.Quantity) continue;
                     diff.receipts.Add(receipt);
                 }
@@ -281,10 +293,10 @@ namespace Business.Manager
                     if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
                     diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });                  
                 }
-
                 diff.receipts = diff.receipts.Where(m => m.Barcode == "0" || diff.boxes.Any(b => b.BarCode == m.Barcode)) 
                                              .Where(m => m.CountQty != m.Quantity).ToHashSet();
-                diff.receipts.Distinct();
+
+               diff.receipts.Distinct();
             }
 
             return diff;
@@ -534,10 +546,10 @@ namespace Business.Manager
                 receipts.AddRange(_receipts);
             }
 
-            //var rec1 = boxReceipts.Where(x => x.Article == "69774");
-            //var rec2 = notBoxReceipts.Where(x => x.Article == "69774");
-            //var rec3 = docReceipts.Where(x => x.Article == "69774");
-            //var rec4 = rotReceipts.Where(x => x.Article == "69774");
+            //var rec1 = boxReceipts.Where(x => x.Article == "461514");
+            //var rec2 = notBoxReceipts.Where(x => x.Article == "461514");
+            //var rec3 = docReceipts.Where(x => x.Article == "461514");
+            //var rec4 = rotReceipts.Where(x => x.Article == "461514");
             
             return receipts;
         }
