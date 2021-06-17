@@ -63,4 +63,25 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="GoodId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="040f3691-6b6d-4183-a99b-3f86794a76aa" ChangeDateTime="06/17/2021 08:52:43">
+    <Property Name="ElementName" Value="[dbo].[Logs].[Response]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Description" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="81aa9c1a-0ee1-48b6-8325-ce4a453bd810" ChangeDateTime="06/17/2021 08:53:24">
+    <Property Name="ElementName" Value="[dbo].[Logs].[Description]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Desc" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bd93354c-e89a-4c3e-b2fe-86dce980283b" ChangeDateTime="06/17/2021 08:53:53">
+    <Property Name="ElementName" Value="[dbo].[Logs].[Desc]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Description" />
+  </Operation>
 </Operations>

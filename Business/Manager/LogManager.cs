@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Models;
 using Business.QueryModels.Logs;
+using Data.Model;
 using Data.Queries.Logs;
 using Data.Repositories;
 using System;
@@ -16,6 +17,12 @@ namespace Business.Manager
         private readonly LogRepository _logRepository;
         private IMapper _mapper;
 
+        public LogManager(LogRepository logRepository, IMapper mappper)
+        {
+            _logRepository = logRepository;
+            _mapper = mappper;
+        }
+
         public List<LogsModel> LogsByTask(LogsListQueryModel queryModel)
         {
             if (queryModel == null) throw new ArgumentNullException(nameof(queryModel));
@@ -25,9 +32,10 @@ namespace Business.Manager
             return _mapper.Map<List<LogsModel>>(entity);
         }
 
-        public void Insert()
+        public void Insert(LogsModel model)
         {
-
+            var entity = _mapper.Map<Logs>(model);
+            _logRepository.Insert(entity);
         }
     }
 }

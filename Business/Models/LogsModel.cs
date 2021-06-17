@@ -26,4 +26,18 @@ namespace Business.Models
             throw new NotImplementedException();
         }
     }
+
+    public enum ProcessCode
+    {
+        UpdateGood,
+        CreateGood,
+        CreateGood_Search,
+        DeleteGood,
+        Defect,
+        Undefect,
+        SearchGood,
+        Task_Start,
+        Task_End,
+        Task_Close
+    }
 }

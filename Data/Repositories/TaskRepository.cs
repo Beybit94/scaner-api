@@ -60,7 +60,7 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
                 session.Execute(@"
 IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Response) VALUES (18,'Документ с номером'+@PlanNum+'не найден')
+    INSERT INTO Logs (ProcessTypeId, Description) VALUES ((SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),'Документ с номером'+@PlanNum+'не найден')
     RAISERROR ('Документ с таким номером не найден',1,1)
 END
 ELSE
@@ -76,7 +76,10 @@ BEGIN
                 @UserId,
                 @DivisionId,
                 GETDATE(),
-                @PlanNum)	
+                @PlanNum);
+
+         INSERT INTO Logs (TaskId,ProcessTypeId, Description) 
+         VALUES (SCOPE_IDENTITY(),(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Start'),@PlanNum)
     END
     ELSE
     BEGIN
@@ -123,9 +126,36 @@ END", new { _query.UserId, _query.DivisionId, _query.Start, _query.InProcess });
 
             using (var session = UnitOfWork.Session)
             {
-                session.Execute(@"
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"
 UPDATE Tasks SET StatusId = @StatusId, EndDateTime = @EndDateTime
-WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime });
+WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime }, transaction);
+
+                    session.Execute(@"
+DECLARE @ProcessTypedId int;
+IF @StatusId IN (SELECT Id FROM hTaskStatus WHERE Code IN ('End','Deleted'))
+BEGIN
+    IF @StatusId IN (SELECT Id FROM hTaskStatus WHERE Code IN ('End'))
+    BEGIN
+        SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_End');
+    END
+    ELSE IF @StatusId IN (SELECT Id FROM hTaskStatus WHERE Code IN ('Deleted'))
+    BEGIN
+        SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Close');
+    END
+
+    INSERT INTO Logs (TaskId, ProcessTypeId) VALUES (@TaskId, @ProcessTypedId);
+END", new { _query.TaskId, _query.StatusId }, transaction);
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+               
             }
         }
 
@@ -181,7 +211,7 @@ WHERE Id = @TaskId", new { _query.TaskId, _query.StatusId, _query.EndDateTime })
 INSERT INTO Scaner_File
 VALUES (@TaskId, @GoodId, @Path,@TypeId)", new { _query.TaskId, _query.GoodId, _query.Path, _query.TypeId }, trans);
                     session.Execute(@"
-INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, (select Id from hProcessType where Code = 'File'), @TypeName);", new { _query.TaskId, _query.TypeName }, trans);
 
                     trans.Commit();
@@ -191,66 +221,6 @@ VALUES (@TaskId, (select Id from hProcessType where Code = 'File'), @TypeName);"
                     trans.Rollback();
                 }           
             }
-        }
-
-        public List<Differences> Differences(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            var entity = UnitOfWork.Session.Query<Differences>($@"
-select g.GoodName,g.GoodArticle,g.Quantity,g.CountQty
-from (
-    select  g.GoodName,
-            g.GoodArticle, 
-            dd.Quantity,
-            ISNULL(sg.CountQty,0) as CountQty
-    from Scaner_1cDocData dd
-    join Goods g on g.GoodArticle = dd.Article
-    outer apply(select sg.CountQty as CountQty from Scaner_Goods sg where sg.GoodArticle = dd.Article and sg.TaskId = @TaskId) sg
-    where dd.PlanNum = '{_query.PlanNum.Trim()}'
-    union
-    select  g.GoodName,
-            g.GoodArticle, 
-            ISNULL(dd.Quantity,0) as Quantity,
-            sg.CountQty
-    from Scaner_Goods sg
-    join Goods g on g.Id = sg.GoodId
-    outer apply(select dd.Quantity from Scaner_1cDocData dd where sg.GoodArticle = dd.Article and dd.PlanNum = '{_query.PlanNum.Trim()}') dd
-    where sg.TaskId = @TaskId
-) g
-where g.Quantity <> g.CountQty
-group by g.GoodName,g.GoodArticle,g.Quantity,g.CountQty", new { _query.TaskId, _query.PlanNum }).ToList();
-            return entity;
-        }
-
-        public List<Logs> LogsByTask(Query query)
-        {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-
-            var _query = query as TaskQuery;
-            if (_query == null) throw new InvalidCastException(nameof(_query));
-
-            return UnitOfWork.Session.Query<Logs, Task, Goods, Logs>(@"
-select hp.Name as ProcessName, 
-       l.Response as Response,
-       l.Request as Request,
-       l.Created as Created,
-       t.*,
-       g.*
-from Logs l
-join hProcessType hp on hp.Id = l.ProcessTypeId
-left join Tasks t on t.Id = l.TaskId
-left join Scaner_Goods g on g.Id = l.GoodId
-where l.TaskId = @TaskId
-order by l.Created", (l, t,g) =>
-            {
-                l.Task = t;
-                l.Good = g;
-                return l;
-            }, new { _query.TaskId }).ToList();
         }
     }
 }

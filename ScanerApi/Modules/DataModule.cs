@@ -22,6 +22,7 @@ namespace ScanerApi.Modules
             builder.RegisterType<TaskRepository>().InstancePerRequest();
             builder.RegisterType<GoodRepository>().InstancePerRequest();
             builder.RegisterType<Data1cRepository>().InstancePerRequest();
+            builder.RegisterType<LogRepository>().InstancePerRequest();
         }
     }
 }
