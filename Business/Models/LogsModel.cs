@@ -11,14 +11,11 @@ namespace Business.Models
     public class LogsModel : Model
     {
         public int TaskId { get; set; }
-        public int GoodId { get; set; }
         public int ProcessTypeId { get; set; }       
-        public string Response { get; set; }
-        public string Request { get; set; }
+        public string Description { get; set; }
         public DateTime Created { get; set; }
         public DateTime Ended { get; set; }
 
-        public string PlanNum { get; set; }
         public string ProcessName { get; set; }
 
         public override ModelValidationResult Validate()

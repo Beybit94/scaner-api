@@ -12,16 +12,13 @@ namespace Data.Model
     public class Logs: Entity
     {
         public int TaskId { get; set; }
-        public int GoodId { get; set; }
         public int ProcessTypeId { get; set; }
-        public string Response { get; set; }
-        public string Request { get; set; }
+        public string Description { get; set; }
         public DateTime Created { get; set; }
         public DateTime Ended { get; set; }
 
         public string ProcessName { get; set; }
 
         public Task Task { get; set; }
-        public Goods Good { get; set; }
     }
 }
