@@ -27,9 +27,7 @@ namespace Data.Repositories
 
             return UnitOfWork.Session.Query<Logs, Task, Logs>(@"
 select hp.Name as ProcessName, 
-       l.Response as Response,
-       l.Request as Request,
-       l.Created as Created,
+       l.*,
        t.*
 from Logs l
 join hProcessType hp on hp.Id = l.ProcessTypeId
