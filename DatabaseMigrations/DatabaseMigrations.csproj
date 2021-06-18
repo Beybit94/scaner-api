@@ -212,6 +212,7 @@
     <Compile Include="Migrations\202106012147_LogGood.cs" />
     <Compile Include="Migrations\202106181108_LogDesc.cs" />
     <Compile Include="Migrations\202106181138_DocData_CreatedDate.cs" />
+    <Compile Include="Migrations\202106181151_LocationDivision.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
