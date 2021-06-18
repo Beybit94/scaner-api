@@ -10,7 +10,8 @@
     [Barcode] NVARCHAR(50) NULL, 
     [Quantity] INT NULL, 
     [UserId] INT NULL, 
-    [LocationGuid] NVARCHAR(50) NULL
+    [LocationGuid] NVARCHAR(50) NULL, 
+    [DateCreated] DATETIME NULL DEFAULT getdate()
 )
 
 GO

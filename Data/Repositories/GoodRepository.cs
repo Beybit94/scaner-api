@@ -244,9 +244,8 @@ BEGIN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);    
         
-        INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+        INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
         VALUES (Source.TaskId, 
-                SCOPE_IDENTITY(), 
                 (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
                 'Артикуль:'+Source.GOODARTICLE+', ШК:'+Source.BarCode);
 END
@@ -268,9 +267,8 @@ BEGIN
     WHEN MATCHED THEN
          UPDATE SET Target.CountQty = (Target.CountQty+1), Created = GETDATE()
 
-         INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+         INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
          VALUES (Source.TaskId, 
-                 Target.Id, 
                  (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
                  'Артикуль:'+Source.GOODARTICLE+', ШК:'+ Source.BarCode +', Было:'+ Target.CountQty + ', Стало:'+ (Target.CountQty+1))
 
@@ -278,9 +276,8 @@ BEGIN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);
 
-        INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+        INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
         VALUES (Source.TaskId, 
-                SCOPE_IDENTITY(), 
                 (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
                 'Артикуль:'+Source.GOODARTICLE+', ШК:'+Source.BarCode);
 END",
@@ -327,9 +324,8 @@ DECLARE @TaskId int,
 SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode, @CountQtyOld = CountQty 
 from Scaner_Goods where Id=@Id;
 
-INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
-        @Id,
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
         'Артикуль:'+@Article+', ШК:'+ @BarCode +', Было:'+ @CountQtyOld + ', Стало:'+ @CountQty)", new { _query.CountQty, _query.Id }, transaction);
 
@@ -368,9 +364,8 @@ DECLARE @TaskId int,
 SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
 from Scaner_Goods where Id=@Id;
 
-INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
-        @Id,
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood'),
         'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
 
@@ -415,9 +410,8 @@ DECLARE @TaskId int,
 SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
 from Scaner_Goods where Id=@Id;
 
-INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
-        @Id,
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),
         'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
                     }
@@ -435,9 +429,8 @@ DECLARE @TaskId int,
 SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
 from Scaner_Goods where Id=@Id;
 
-INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Description) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
-        @Id,
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),
         'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
                     }
