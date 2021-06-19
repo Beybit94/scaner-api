@@ -34,8 +34,11 @@ namespace ScanerApi.Areas.Web
             builder.RegisterType<TaskRepository>().InstancePerRequest();
             builder.RegisterType<Data1cRepository>().InstancePerRequest();
             builder.RegisterType<GoodRepository>().InstancePerRequest();
+            builder.RegisterType<LogRepository>().InstancePerRequest();
+
             builder.RegisterType<TaskManager>().InstancePerRequest();
             builder.RegisterType<GoodManager>().InstancePerRequest();
+            builder.RegisterType<LogManager>().InstancePerRequest();
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
 
             var container = builder.Build();

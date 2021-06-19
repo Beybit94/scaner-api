@@ -243,11 +243,6 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);    
-        
-        INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
-        VALUES (Source.TaskId, 
-                (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
-                'Артикуль:'+Source.GOODARTICLE+', ШК:'+Source.BarCode);
 END
 ELSE
 BEGIN
@@ -266,20 +261,9 @@ BEGIN
         AND ISNULL(Target.BoxId,0) = Source.BoxId)
     WHEN MATCHED THEN
          UPDATE SET Target.CountQty = (Target.CountQty+1), Created = GETDATE()
-
-         INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
-         VALUES (Source.TaskId, 
-                 (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
-                 'Артикуль:'+Source.GOODARTICLE+', ШК:'+ Source.BarCode +', Было:'+ Target.CountQty + ', Стало:'+ (Target.CountQty+1))
-
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
         VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);
-
-        INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
-        VALUES (Source.TaskId, 
-                (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
-                'Артикуль:'+Source.GOODARTICLE+', ШК:'+Source.BarCode);
 END",
               new
               {
@@ -292,6 +276,24 @@ END",
                   _query.BarCode,
                   _query.BoxId,
               }, transaction);
+
+                    if (_query.GoodId != 0)
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (Source.TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
+        'Артикуль:'+@GoodArticle+', ШК:'+ @BarCode +', Было:'+ (@CountQty-1) + ', Стало:'+ @CountQty)", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+                    }
+                    else
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (Source.TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
+        'Артикуль:'+@GoodArticle+', ШК:'+@BarCode);", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+                    }
+
                     transaction.Commit();
                 }
                 catch (Exception ex)

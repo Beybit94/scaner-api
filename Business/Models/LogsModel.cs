@@ -16,7 +16,6 @@ namespace Business.Models
         public DateTime Created { get; set; }
         public DateTime Ended { get; set; }
 
-        public string PlanNum { get; set; }
         public string ProcessName { get; set; }
 
         public override ModelValidationResult Validate()
