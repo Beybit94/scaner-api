@@ -173,6 +173,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="202119061426_GoodsDateFormat.cs" />
     <Compile Include="CustomConsoleAnnouncer.cs" />
     <Compile Include="Migrations\202010070739_Initial.cs" />
     <Compile Include="Migrations\202010091438_SeedData.cs" />
