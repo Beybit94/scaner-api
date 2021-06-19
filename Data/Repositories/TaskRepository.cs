@@ -57,11 +57,15 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
 
             using (var session = UnitOfWork.Session)
             {
-                session.Execute(@"
+                var trans = session.BeginTransaction();
+                try
+                {
+                    var Id = session.QueryFirstOrDefault<int>(@"
 IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
 BEGIN
     INSERT INTO Logs (ProcessTypeId, Description) VALUES ((SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),'Документ с номером'+@PlanNum+'не найден')
     RAISERROR ('Документ с таким номером не найден',1,1)
+    select 0;
 END
 ELSE
 BEGIN
@@ -78,14 +82,27 @@ BEGIN
                 GETDATE(),
                 @PlanNum);
 
-         INSERT INTO Logs (TaskId,ProcessTypeId, Description) 
-         VALUES (SCOPE_IDENTITY(),(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Start'),@PlanNum)
+        select  SCOPE_IDENTITY();
     END
     ELSE
     BEGIN
         RAISERROR ('Планирование уже существует',1,1)
     END
-END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End });
+END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _query.InProcess, _query.End }, trans);
+
+                    if(Id != 0)
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId,ProcessTypeId, Description) 
+VALUES (@Id,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Start'),@PlanNum)", new { Id }, trans);
+                    }
+                    
+                    trans.Commit();
+                }catch(Exception ex)
+                {
+                    trans.Rollback();
+                    throw ex;
+                }
             }
         }
 
