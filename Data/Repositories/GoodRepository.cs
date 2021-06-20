@@ -42,33 +42,17 @@ group by g.GoodName, g.GoodArticle, b.BarCode");
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-//            var entity = UnitOfWork.Session.Query<Goods, Defects, Goods>($@"
-//SELECT g.*, g1.BarCode as BoxName, d.*
-//FROM Scaner_Goods g
-//LEFT JOIN Defects d on d.Id = g.DefectId
-//left join Scaner_Goods g1 on g1.Id =g.BoxId 
-//WHERE g.TaskId = @TaskId 
-//ORDER BY g.Created", (g, d) =>
-//            {
-//                g.Defect = d;
-//                return g;
-//            },
-//            new { _query.TaskId, _query.PlanNum });
-
-
             var entity = UnitOfWork.Session.Query<Goods, Defects, Goods>($@"
-SELECT g.*, g1.BarCode as BoxName, d.*
+SELECT g.*, d.*
 FROM Scaner_Goods g
 LEFT JOIN Defects d on d.Id = g.DefectId
-left join Scaner_Goods g1 on g1.Id =g.BoxId 
-WHERE g.TaskId = @TaskId 
+WHERE TaskId = @TaskId
 ORDER BY g.Created", (g, d) =>
             {
                 g.Defect = d;
                 return g;
             },
-                        new { _query.TaskId, _query.PlanNum });
-
+            new { _query.TaskId, _query.PlanNum });
             return entity.ToList();
         }
 
@@ -80,20 +64,16 @@ ORDER BY g.Created", (g, d) =>
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
             var entity = UnitOfWork.Session.Query<Goods>(@"
-            SELECT Id,
-                   GoodId,
-                   CountQty,
-                   GoodName,
-                   GoodArticle,
-                   BarCode,
-                   DefectId 
-            FROM Scaner_Goods
-            WHERE TaskId = @TaskId 
-            order by Created desc", new { _query.TaskId });
-
-            //var procedure = "[GetGoodsByTask]";
-            //var values = new { taskId = _query.TaskId };
-            //var entity = UnitOfWork.Session.Query<Goods>(procedure, values, commandType: CommandType.StoredProcedure);
+SELECT Id,
+       GoodId,
+       CountQty,
+       GoodName,
+       GoodArticle,
+       BarCode,
+       DefectId 
+FROM Scaner_Goods
+WHERE TaskId = @TaskId 
+order by Created desc", new { _query.TaskId });
             return entity.ToList();
         }
 
@@ -189,7 +169,7 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
                 try
                 {
                     session.Execute(@"
-INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'SearchGood'),
         'ШК: '+@BarCode+' , Артикул: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
@@ -217,7 +197,7 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskI
                     if (!entity.Any())
                     {
                         session.Execute(@"
-INSERT INTO Logs (TaskId, ProcessTypeId, Response) 
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),
         'ШК: '+@BarCode+' , Артикул: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
@@ -269,7 +249,7 @@ BEGIN
     )
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (TaskId, BoxId, GoodId, GoodArticle, GoodName, CountQty, BarCode)
-        VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);      
+        VALUES (Source.TaskId, Source.BoxId, Source.GoodId, Source.GoodArticle, Source.GoodName, Source.CountQty, Source.BarCode);    
 END
 ELSE
 BEGIN
@@ -305,20 +285,30 @@ END",
                   _query.BarCode,
                   _query.BoxId,
               }, transaction);
+
+                    if (_query.GoodId != 0)
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (Source.TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
+        'Артикуль:'+@GoodArticle+', ШК:'+ @BarCode +', Было:'+ (@CountQty-1) + ', Стало:'+ @CountQty)", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+                    }
+                    else
+                    {
+                        session.Execute(@"
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (Source.TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
+        'Артикуль:'+@GoodArticle+', ШК:'+@BarCode);", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+                    }
+
                     transaction.Commit();
-
-                    // удаление дублированных данных 
-                    //session.Execute(@"
-                    //    delete from Scaner_Goods where Id in (
-                    //    Select  Max(S.id) as id  from Scaner_Goods S  where  S.TaskId = @TaskId and S.GoodArticle= @GoodArticle 
-                    //    Group by FORMAT(S.Created, 'yyyy-MM-dd HH:mm:ss')
-                    //    Having Count(*) > 1
-                    //    )", new { _query.TaskId, _query.GoodArticle });
                 }
-
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    throw ex;
                 }
             }
         }
@@ -332,8 +322,31 @@ END",
 
             using(var session = UnitOfWork.GetConnection())
             {
-                session.Execute(@"
-update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.CountQty, _query.Id });
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.CountQty, _query.Id }, transaction);
+                    session.Execute(@"
+DECLARE @TaskId int,
+@Barcode nvarchar(50), 
+@Article nvarchar(50),
+@CountQtyOld int ;
+
+SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode, @CountQtyOld = CountQty 
+from Scaner_Goods where Id=@Id;
+
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
+        'Артикуль:'+@Article+', ШК:'+ @BarCode +', Было:'+ @CountQtyOld + ', Стало:'+ @CountQty)", new { _query.CountQty, _query.Id }, transaction);
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
             }
 
         }
@@ -347,9 +360,34 @@ update Scaner_Goods set CountQty = @CountQty where Id = @Id", new { _query.Count
 
             using (var session = UnitOfWork.GetConnection())
             {
-                session.Execute(@"
+                var transaction = session.BeginTransaction();
+                try
+                {
+                    session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
-delete from Scaner_Goods where Id = @Id", new { _query.Id });
+delete from Scaner_Goods where Id = @Id", new { _query.Id }, transaction);
+
+                    session.Execute(@"
+DECLARE @TaskId int,
+@Barcode nvarchar(50), 
+@Article nvarchar(50);
+
+SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
+from Scaner_Goods where Id=@Id;
+
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood'),
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+
             }
         }
 
@@ -362,11 +400,12 @@ delete from Scaner_Goods where Id = @Id", new { _query.Id });
 
             using(var session = UnitOfWork.GetConnection())
             {
-                if (_query.DefectId == 0)
+                var transaction = session.BeginTransaction();
+                try
                 {
-                    var transaction = session.BeginTransaction();
-                    try
+                    if (_query.DefectId == 0)
                     {
+
                         var DefectId = session.Query<int>(@"
 INSERT INTO Defects (Damage, SerialNumber, Description)
 VALUES (@Damage, @SerialNumber, @Description); 
@@ -374,21 +413,45 @@ SELECT SCOPE_IDENTITY()", new { _query.Damage, _query.SerialNumber, _query.Descr
 
                         session.Execute(@"
 update Scaner_Goods SET DefectId = @DefectId, Created = getdate() where Id = @Id", new { DefectId, _query.Id }, transaction);
+                        session.Execute(@"
+DECLARE @TaskId int,
+@Barcode nvarchar(50), 
+@Article nvarchar(50);
 
-                        transaction.Commit();
+SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
+from Scaner_Goods where Id=@Id;
+
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-                else
-                {
-                    session.Execute(@"
+                        session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
 update Scaner_Goods SET DefectId = NULL where Id = @Id
 delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
+                        session.Execute(@"
+DECLARE @TaskId int,
+@Barcode nvarchar(50), 
+@Article nvarchar(50);
+
+SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode 
+from Scaner_Goods where Id=@Id;
+
+INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
+VALUES (@TaskId, 
+        (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
                 }
             }
         }

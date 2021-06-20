@@ -106,6 +106,10 @@
     <Build Include="Tables\Defects.sql" />
     <Build Include="Tables\Requests.sql" />
     <Build Include="Tables\Responses.sql" />
+    <Build Include="StoredProcedures\GetGoodsByTask.sql" />
+    <Build Include="StoredProcedures\GetAddressLocationByTask.sql" />
+    <Build Include="Tables\WebProject\Divisions.sql" />
+    <Build Include="Tables\WebProject\Locations.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Database.refactorlog" />

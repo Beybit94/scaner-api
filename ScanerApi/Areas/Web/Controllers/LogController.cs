@@ -1,6 +1,7 @@
 ﻿using Business.Manager;
 using Business.QueryModels.Data1c;
 using Business.QueryModels.Good;
+using Business.QueryModels.Logs;
 using Business.QueryModels.Task;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,13 @@ namespace ScanerApi.Areas.Web.Controllers
     {
         private readonly TaskManager _taskManager;
         private readonly GoodManager _goodManager;
+        private readonly LogManager _logManager;
 
-        public LogController(TaskManager taskManager, GoodManager goodManager)
+        public LogController(TaskManager taskManager, GoodManager goodManager, LogManager logManager)
         {
             _taskManager = taskManager;
             _goodManager = goodManager;
+            _logManager = logManager;
         }
 
         // GET: Web/Log
@@ -30,7 +33,7 @@ namespace ScanerApi.Areas.Web.Controllers
         public PartialViewResult Search(string planNum)
         {
             var task = _taskManager.GetTaskById(new TaskQueryModel { PlanNum = planNum });
-            var logs = _taskManager.LogsByTask(new TaskQueryModel { TaskId = task.Id });
+            var logs = _logManager.LogsByTask(new LogsListQueryModel { TaskId = task.Id });
             ViewBag.Task = task;
             return PartialView("Search", logs);
         }

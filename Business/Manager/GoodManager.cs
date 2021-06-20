@@ -16,12 +16,14 @@ namespace Business.Manager
     {
         private readonly GoodRepository _goodRepository;
         private readonly TaskRepository _taskRepository;
+        private readonly LogRepository _logRepository;
         private readonly IMapper _mapper;
 
-        public GoodManager(GoodRepository goodRepository, TaskRepository taskRepository, IMapper mappper)
+        public GoodManager(GoodRepository goodRepository, TaskRepository taskRepository, LogRepository logRepository, IMapper mappper)
         {
             _goodRepository = goodRepository;
             _taskRepository = taskRepository;
+            _logRepository = logRepository;
             _mapper = mappper;
         }
 

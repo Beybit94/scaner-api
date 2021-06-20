@@ -8,7 +8,7 @@
     [CountQty] INT NULL , 
     [BarCode] NVARCHAR(50) NULL , 
     [BoxId] INT NULL , 
-    [Created] DATETIME NOT NULL DEFAULT getdate(), 
+    [Created] DATETIME NOT NULL DEFAULT FORMAT(getdate(),'dd-MM-yyyy hh:mm:ss'), 
     [DefectId] INT NULL , 
     CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
     CONSTRAINT [FK_Scaner_Goods_Defects_DefectId] FOREIGN KEY ([DefectId]) REFERENCES [Defects]([Id]) 
@@ -91,70 +91,6 @@ EXEC sp_addextendedproperty @name = N'MS_Description',
 GO
 
 
-GO
-
-CREATE TRIGGER [dbo].[Trigger_Scaner_Goods]
-    ON [dbo].[Scaner_Goods]
-    FOR DELETE, INSERT, UPDATE
-    AS 
-    BEGIN
-        SET NOCOUNT ON;
-
-        DECLARE @TaskId int,
-                @GoodId int,
-                @Barcode nvarchar(50), 
-                @Article nvarchar(50),
-                @DefectId int,
-                @ProcessTypedId int;
-
-        IF EXISTS(SELECT * FROM INSERTED I
-                  JOIN DELETED D ON D.Id = I.Id)
-        BEGIN
-            SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood')
-            SELECT @TaskId = I.TaskId, @GoodId = I.Id, @Article = I.GoodArticle, @Barcode = I.BarCode, @DefectId = I.DefectId 
-            FROM INSERTED I
-            JOIN DELETED D ON D.Id = I.Id
-
-            IF ISNULL(@DefectId,0) <> 0
-            BEGIN
-                INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) 
-                VALUES (@TaskId, @GoodId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
-
-            END
-            ELSE
-            BEGIN
-                INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) 
-                VALUES (@TaskId, @GoodId,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),'Артикуль:'+@Article+', ШК:'+@Barcode);
-            END
-
-            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
-
-        END
-        ELSE IF EXISTS(SELECT * FROM INSERTED)
-        BEGIN
-            SELECT @TaskId = TaskId, @GoodId = Id, @Article = GoodArticle, @Barcode = BarCode FROM INSERTED
-            
-            IF RTRIM(LTRIM(@Article)) = ''
-            BEGIN
-                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood_Search')
-            END
-            ELSE
-            BEGIN
-                 SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood')
-            END
-            
-            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
-        END
-        ELSE
-        BEGIN
-            SET @ProcessTypedId = (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood')
-            SELECT @TaskId = TaskId, @GoodId = Id, @Article = GoodArticle, @Barcode = BarCode FROM DELETED
-
-            DELETE Tasks WHERE ParentId = @TaskId AND BarCode = @Barcode;
-            INSERT INTO Logs (TaskId, GoodId, ProcessTypeId, Response) VALUES (@TaskId, @GoodId,@ProcessTypedId,'Артикуль:'+@Article+', ШК:'+@Barcode);
-        END
-
-    END
 GO
 EXEC sp_addextendedproperty @name = N'MS_Description',
     @value = N'Дефект',

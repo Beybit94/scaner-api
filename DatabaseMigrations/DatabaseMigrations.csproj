@@ -173,6 +173,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="202119061426_GoodsDateFormat.cs" />
     <Compile Include="CustomConsoleAnnouncer.cs" />
     <Compile Include="Migrations\202010070739_Initial.cs" />
     <Compile Include="Migrations\202010091438_SeedData.cs" />
@@ -210,6 +211,9 @@
     <Compile Include="Migrations\202105101201_UsersIndex.cs" />
     <Compile Include="Migrations\202105111821_AlterTriggerV6.cs" />
     <Compile Include="Migrations\202106012147_LogGood.cs" />
+    <Compile Include="Migrations\202106181108_LogDesc.cs" />
+    <Compile Include="Migrations\202106181138_DocData_CreatedDate.cs" />
+    <Compile Include="Migrations\202106181151_LocationDivision.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

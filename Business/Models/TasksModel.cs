@@ -25,4 +25,11 @@ namespace Business.Models
             return result;
         }
     }
+
+    public enum TaskStatusCode
+    {
+        Start,
+        End,
+        Deleted,
+    }
 }
