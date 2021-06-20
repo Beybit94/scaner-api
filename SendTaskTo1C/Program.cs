@@ -13,7 +13,7 @@ namespace SendTaskTo1C
     {
         public static IContainer Container { get; set; }
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Container = AutofacConfig.Register();
             var taskManager = Container.Resolve<TaskManager>();

@@ -5,8 +5,8 @@
 <head>
     <style type="text/css">
         body {
-            padding: 20px;
-            font-size: 15px;
+            padding: 10px;
+            font-size: 14px;
         }
 
         #head {
@@ -50,7 +50,7 @@
             <span style="font-size:9px">ТОО «Arena S» (Арена S)</span>
         </div>
     </div>
-    <h3>1. №_____________</h3>
+    <p>1. №_____________</p>
     <div>
         <span>2. </span>
         <div>
@@ -72,8 +72,12 @@
     </div>
     <div style="margin-top:5px">
         <span>3. </span>
+        
         <div>
             <table>
+                <tr>
+                    <td>Планирование: @Model.task.PlanNum</td>
+                </tr>
                 <tr>
                     <td>Грузоотправитель (название): </td>
                 </tr>
@@ -113,17 +117,17 @@
     <div style="margin-top:5px">
         <span>5. </span>
         <label style="font-weight:bold">Приняты следующие места (мезонин):</label>
-        <table style="width: 100%; border-collapse: collapse;" border="1">
+        <table style="width: 100%; border-collapse: collapse;font-size:13px;" border="1">
             <thead style="background-color:dimgray">
                 <tr>
-                    <th>№</th>
-                    <th>№ короба</th>
+                    <th width="20px">№</th>
+                    <th width="60px">№ короба</th>
                     <th>№ пломбы</th>
-                    <th>№</th>
-                    <th>№ короба</th>
+                    <th width="20px">№</th>
+                    <th width="60px">№ короба</th>
                     <th>№ пломбы</th>
-                    <th>№</th>
-                    <th>№ короба</th>
+                    <th width="20px">№</th>
+                    <th width="60px">№ короба</th>
                     <th>№ пломбы</th>
                 </tr>
             </thead>
@@ -157,15 +161,15 @@
         <table style="width: 100%; border-collapse: collapse;" border="1" class="diff">
             <thead style="background-color:dimgray;font-size:10px">
                 <tr>
-                    <th>№</th>
-                    <th>№ РОТ</th>
-                    <th>Номер короба</th>
-                    <th>Артикул</th>
-                    <th>Наименование модели товара</th>
-                    <th>Кол-во план</th>
-                    <th>Кол-во факт</th>
-                    <th>Разница</th>
-                    <th>Статус</th>
+                    <th  width="5%">№</th>
+                    <th width="11%">№ РОТ</th>
+                    <th width="9%">№ короба</th>
+                    <th width="7%">Артикул</th>
+                    <th width="41%">Наименование модели товара</th>
+                    <th width="6%">План</th>
+                    <th width="6%">Факт</th>
+                    <th width="6%">Разница</th>
+                    <th width="9%">Статус</th>
                 </tr>
             </thead>
             <tbody>
@@ -249,9 +253,9 @@
                     <p style="font-weight:bold"> Грузоотправитель/Грузополучатель</p>
                     <p>Получил груз кладовщик:</p>
                     <label>(ФИО)__________________________________  подпись_______________</label>
-                    <br />
+                    @*<br />
                     <label> Менеджер (специалист) ОМ:</label>
-                    <label>(ФИО)__________________________________  подпись_______________</label>
+                    <label>(ФИО)__________________________________  подпись_______________</label>*@
                 </td>
             </tr>
         </table>

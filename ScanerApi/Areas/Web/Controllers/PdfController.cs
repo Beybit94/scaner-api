@@ -51,7 +51,7 @@ namespace ScanerApi.Areas.Web.Controllers
             var differences = _taskManager.Differences(new TaskQueryModel { TaskId = task.Id, PlanNum = task.PlanNum });
             var test = differences.receipts.ToString();
             var report = new PdfViewModels { task = task, goods = goods, differences = differences };
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new MemoryStream();           
             string content = RenderRazorViewToString("Index", report);
 
             PdfDocument pdf = PdfGenerator.GeneratePdf(content, PageSize.A4);

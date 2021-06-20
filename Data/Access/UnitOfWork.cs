@@ -17,10 +17,12 @@ namespace Data.Access
         public UnitOfWork(string connectionString)
         {
             //Session = new SqlConnection(connectionString);
-            SqlConnection connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
-            Session = connection;
+            Session = new SqlConnection(connectionString);
+
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //if (connection.State == ConnectionState.Closed)
+            //    connection.Open();
+            //Session = connection;
 
             _connectString = connectionString;
            
@@ -64,7 +66,6 @@ namespace Data.Access
             SqlConnection connection = new SqlConnection(_connectString);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
-
             return connection;
         }
     }

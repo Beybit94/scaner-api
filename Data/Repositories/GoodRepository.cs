@@ -237,12 +237,16 @@ VALUES (@TaskId,
 
         public void Save(Query query)
         {
-            System.Threading.Thread.Sleep(500); // Timer задержка для терминала (для искл. дублей)
+            
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
+
+
+
+          //  System.Threading.Thread.Sleep(600); // Timer задержка для терминала (для искл. дублей)
             using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
@@ -261,7 +265,6 @@ BEGIN
                     @GoodName as GoodName) AS Source
     ON (Target.TaskId = Source.TaskId 
         AND Target.BarCode = Source.BarCode
-        AND ISNULL(Target.BoxId,0) = Source.BoxId
         AND FORMAT(Target.Created, 'yyyy-MM-dd HH:mm:ss') <> FORMAT(GetDate(), 'yyyy-MM-dd HH:mm:ss')
     )
     WHEN NOT MATCHED BY TARGET THEN
@@ -305,12 +308,12 @@ END",
                     transaction.Commit();
 
                     // удаление дублированных данных 
-                    session.Execute(@"
-                        delete from Scaner_Goods where Id in (
-                        Select  Max(S.id) as id  from Scaner_Goods S  where  S.TaskId = @TaskId and S.GoodArticle= @GoodArticle 
-                        Group by FORMAT(S.Created, 'yyyy-MM-dd HH:mm:ss')
-                        Having Count(*) > 1
-                        )", new { _query.TaskId, _query.GoodArticle });
+                    //session.Execute(@"
+                    //    delete from Scaner_Goods where Id in (
+                    //    Select  Max(S.id) as id  from Scaner_Goods S  where  S.TaskId = @TaskId and S.GoodArticle= @GoodArticle 
+                    //    Group by FORMAT(S.Created, 'yyyy-MM-dd HH:mm:ss')
+                    //    Having Count(*) > 1
+                    //    )", new { _query.TaskId, _query.GoodArticle });
                 }
 
                 catch (Exception)

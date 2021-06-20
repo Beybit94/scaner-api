@@ -102,6 +102,20 @@ namespace Business.Manager
             query.GoodArticle = goods.FirstOrDefault().GoodArticle;
             query.CountQty = 1;
 
+            #region проверка Основной задачи (если основная задача и не указан короб, то не даем добавить товар вне короба )
+            var activeTask = _taskRepository.GetTaskById(new TaskQuery() { TaskId = query.TaskId });
+            var InProcess = CacheDictionaryManager.GetDictionaryShort<hTaskStatus>().FirstOrDefault(d => d.Code == "In process");
+
+            if (activeTask.StatusId == InProcess.Id)
+            {
+                if (query.BoxId == 0)
+                {
+                    return;
+                   // throw new Exception("Запрет на сканирование вне короба на основной задаче");
+                }
+            }
+            #endregion
+
             _goodRepository.Save(query);
         }
 

@@ -204,6 +204,8 @@ namespace Business.Manager
                     var quantity = goods.Where(x => x.GoodArticle == findGood.GoodArticle).GroupBy(x => new { x.GoodArticle })
                       .Select(g => g.Sum(x => x.CountQty)).Sum();
 
+                    List<int> goodIds = new List<int>();
+                    var i = 0;
                     foreach (var item in good.Select(m => new { m.PlanNum, m.NumberDoc, m.DateDoc, m.LocationGuid, m.Article, m.Quantity, m.Barcode }))
                     {
                         var receipt = new ReceiptModel
@@ -217,13 +219,16 @@ namespace Business.Manager
                             GoodBarcode = findGood.BarCode,
                             GoodName = findGood.GoodName
                         };
+                        var isGoodAddOkExists = goods.Any(x => x.GoodArticle == findGood.GoodArticle && x.BoxId != 0 && x.BoxId != null && x.BoxName == item.Barcode);
+                        var goodsOutBox = goods.FirstOrDefault(x => x.GoodArticle == findGood.GoodArticle && x.BoxId != 0 && x.BoxName != item.Barcode && good.Where(g => g.Barcode == x.BoxName).Count() == 0);
 
-                        var goodBoxExists = goods.Any(x => x.GoodArticle == findGood.GoodArticle && x.BoxId != 0 && x.BoxName != item.Barcode);
-                        var isEmptyCountQty = false;
-                        if (!goodBoxExists && item.Barcode != "0" && !string.IsNullOrEmpty(item.Barcode))
+                        var goodBoxNotExists = goodsOutBox != null && !goodIds.Contains(goodsOutBox.Id) ;
+                        if (goodsOutBox != null)
                         {
-                            isEmptyCountQty = true;
+                            goodIds.Add(goodsOutBox.Id);
                         }
+
+                        bool isEmptyCountQty = (goodBoxNotExists || !isGoodAddOkExists) && item.Barcode != "0" && !string.IsNullOrEmpty(item.Barcode);
 
                         if (quantity <= 0 || isEmptyCountQty)
                         {
@@ -231,55 +236,55 @@ namespace Business.Manager
 
                             if (isEmptyCountQty)
                             {
-                                receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
-                                quantity = quantity - item.Quantity;
+                                 quantity = quantity - item.Quantity;
                             }
                         }
                         else
                         {
-                            var goodSumCountQty = goods.Where(x => x.GoodArticle == item.Article && x.BoxName == item.Barcode).Sum(x => x.CountQty);
-                            var goodSumCountQty1 = goods.Where(x => x.GoodArticle == item.Article && x.BoxName != item.Barcode).Sum(x => x.CountQty);
-                            var selectNotBoxedGoods = goods.Where(x => x.GoodArticle == item.Article && x.BoxName != item.Barcode);
-
                             receipt.CountQty = quantity >= item.Quantity ? item.Quantity : quantity;
                             quantity = quantity - item.Quantity;
                         }
-
                         diff.receipts.Add(receipt);
                     }
                 }
                 else
                 {
-                    if (diff.receipts.Any(m => m.Article == docData.Article &&
-                                             m.Barcode == docData.Barcode &&
-                                             m.NumberDoc == docData.NumberDoc)) continue;
-
-                    var receipt = new ReceiptModel
+                    if (diff.receipts.Any(m =>
                     {
-                        NumberDoc = docData.NumberDoc,
-                        DateDoc = docData.DateDoc ?? DateTime.Now,
-                        Location = docData.LocationGuid,
-                        Quantity = docData.Quantity,
-                        Barcode = docData.Barcode,
-                        Article = docData.Article,
-                        GoodBarcode = "",
-                        CountQty = 0,
-                    };
+                        return docData != null && (m.Article == docData.Article &&
+                                                   m.Barcode == docData.Barcode &&
+                                                   m.NumberDoc == docData.NumberDoc);
+                    })) continue;
 
-                    var findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
-                    receipt.GoodName = findGood != null ? findGood.GoodName : "";
-                    //if (receipt.CountQty == receipt.Quantity) continue;
-                    diff.receipts.Add(receipt);
+                    if (docData != null)
+                    {
+                        var receipt = new ReceiptModel
+                        {
+                            NumberDoc = docData.NumberDoc,
+                            DateDoc = docData.DateDoc ?? DateTime.Now,
+                            Location = docData.LocationGuid,
+                            Quantity = docData.Quantity,
+                            Barcode = docData.Barcode,
+                            Article = docData.Article,
+                            GoodBarcode = "",
+                            CountQty = 0,
+                        };
+
+                        var findGood = _goodRepository.GetGoodsByArticle(new GoodQuery { GoodArticle = docData.Article });
+                        receipt.GoodName = findGood != null ? findGood.GoodName : "";
+                        //if (receipt.CountQty == receipt.Quantity) continue;
+                        diff.receipts.Add(receipt);
+                    }
                 }
             }
 
-            if (task.StatusId == StartStatus.Id)
+            if (StartStatus != null && task.StatusId == StartStatus.Id)
             {
                 diff.boxes = _mapper.Map<List<GoodsModel>>(goods.Where(m => m.GoodId == 0 && m.DefectId != null).ToList());
                 foreach (var item in docdatas.Where(m => m.Barcode != "0").GroupBy(m => m.Barcode))
                 {
-                    if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
-                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });
+                    if (goods.Any(m => m.BarCode == item.FirstOrDefault()?.Barcode)) continue;
+                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault()?.Barcode });
                 }
                 diff.receipts = diff.receipts.Where(m => m.Barcode == "0" || diff.boxes.Any(b => b.BarCode == m.Barcode))
                                              .Where(m => m.CountQty != m.Quantity).ToHashSet();
@@ -290,8 +295,8 @@ namespace Business.Manager
                 diff.boxes = _mapper.Map<List<GoodsModel>>(goods.Where(m => m.GoodId == 0 && m.DefectId == null).ToList());
                 foreach (var item in docdatas.Where(m => m.Barcode != "0").GroupBy(m => m.Barcode))
                 {
-                    if (goods.Any(m => m.BarCode == item.FirstOrDefault().Barcode)) continue;
-                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault().Barcode });                  
+                    if (goods.Any(m => m.BarCode == item.FirstOrDefault()?.Barcode)) continue;
+                    diff.boxes.Add(new GoodsModel { BarCode = item.FirstOrDefault()?.Barcode });                  
                 }
                 diff.receipts = diff.receipts.Where(m => m.Barcode == "0" || diff.boxes.Any(b => b.BarCode == m.Barcode)) 
                                              .Where(m => m.CountQty != m.Quantity).ToHashSet();
