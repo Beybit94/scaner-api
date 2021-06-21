@@ -37,7 +37,7 @@ PRINT N'Идет создание Ограничение по умолчанию
 
 GO
 ALTER TABLE [dbo].[Scaner_Goods]
-    ADD DEFAULT FORMAT(getdate(),'dd-MM-yyyy hh:mm:ss') as datetime FOR [Created];");
+    ADD DEFAULT FORMAT(getdate(),'dd-MM-yyyy hh:mm:ss') FOR [Created];");
         }
     }
 }

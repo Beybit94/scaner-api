@@ -8,7 +8,7 @@
     [CountQty] INT NULL , 
     [BarCode] NVARCHAR(50) NULL , 
     [BoxId] INT NULL , 
-    [Created] DATETIME NOT NULL DEFAULT FORMAT(getdate(),'dd-MM-yyyy hh:mm:ss'), 
+    [Created] DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     [DefectId] INT NULL , 
     CONSTRAINT [FK_Scaner_Goods_Tasks_TaskId] FOREIGN KEY ([TaskId]) REFERENCES [Tasks]([Id]), 
     CONSTRAINT [FK_Scaner_Goods_Defects_DefectId] FOREIGN KEY ([DefectId]) REFERENCES [Defects]([Id]) 
