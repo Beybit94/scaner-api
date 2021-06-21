@@ -25,11 +25,11 @@ namespace SendTaskTo1C
                 unitOfWork.Init();
                 return unitOfWork;
             }).As<IUnitOfWork>().SingleInstance();
+
             builder.RegisterType<TaskRepository>();
             builder.RegisterType<GoodRepository>();
             builder.RegisterType<Data1cRepository>();
             builder.RegisterType<TaskManager>();
-
 
             return builder.Build();
         }

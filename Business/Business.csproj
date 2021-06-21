@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factory\ConnectionFactory.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Manager\CacheDictionaryManager.cs" />
     <Compile Include="Manager\DictionaryManager.cs" />
     <Compile Include="Manager\FileManager.cs" />
