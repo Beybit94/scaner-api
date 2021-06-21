@@ -320,7 +320,7 @@ VALUES (Source.TaskId,
                     session.Execute(@"
 DECLARE @TaskId int,
 @Barcode nvarchar(50), 
-@Article nvarchar(50),
+@Article nvarchar(150),
 @CountQtyOld int ;
 
 SELECT @TaskId = TaskId, @Article = GoodArticle, @Barcode = BarCode, @CountQtyOld = CountQty 
@@ -329,7 +329,7 @@ from Scaner_Goods where Id=@Id;
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
-        'Артикуль:'+@Article+', ШК:'+ @BarCode +', Было:'+ @CountQtyOld + ', Стало:'+ @CountQty)", new { _query.CountQty, _query.Id }, transaction);
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.CountQty, _query.Id }, transaction);
 
                     transaction.Commit();
                 }
