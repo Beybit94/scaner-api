@@ -74,3 +74,6 @@ CREATE INDEX [IX_Scaner_1cDocData_PlanNum] ON [dbo].[Scaner_1cDocData] ([PlanNum
 
 GO
 CREATE INDEX [IX_Scaner_1cDocData_Article] ON [dbo].[Scaner_1cDocData] ([Article])
+
+GO
+CREATE INDEX [IX_Scaner_1cDocData_Barcode] ON [dbo].[Scaner_1cDocData] ([Barcode])
