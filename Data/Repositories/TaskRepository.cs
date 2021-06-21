@@ -55,7 +55,7 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var trans = session.BeginTransaction();
                 try
@@ -63,7 +63,7 @@ and StatusId not in (select Id from hTaskStatus where Code in ('Deleted'))", new
                     var Id = session.QueryFirstOrDefault<int>(@"
 IF NOT EXISTS (SELECT PlanNum FROM Scaner_1cDocData WHERE PlanNum = @PlanNum)
 BEGIN
-    INSERT INTO Logs (ProcessTypeId, Description) VALUES ((SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),'Документ с номером'+@PlanNum+'не найден')
+    INSERT INTO Logs (ProcessTypeId, Description) VALUES ((SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),'Документ с номером '+@PlanNum+'не найден')
     RAISERROR ('Документ с таким номером не найден',1,1)
     select 0;
 END
@@ -94,7 +94,7 @@ END", new { _query.PlanNum, _query.UserId, _query.DivisionId, _query.Start, _que
                     {
                         session.Execute(@"
 INSERT INTO Logs (TaskId,ProcessTypeId, Description) 
-VALUES (@Id,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Start'),@PlanNum)", new { Id }, trans);
+VALUES (@Id,(SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Task_Start'),@PlanNum)", new { Id, _query.PlanNum }, trans);
                     }
                     
                     trans.Commit();
@@ -141,7 +141,7 @@ END", new { _query.UserId, _query.DivisionId, _query.Start, _query.InProcess });
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -183,7 +183,7 @@ END", new { _query.TaskId, _query.StatusId }, transaction);
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -219,7 +219,7 @@ END", new { _query.TaskId, _query.StatusId }, transaction);
             var _query = query as TaskQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var trans = session.BeginTransaction();
                 try

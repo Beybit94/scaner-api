@@ -7,13 +7,14 @@ namespace Data.Access
     public class UnitOfWork : IUnitOfWork
     {
         private TransactionWrapper _transaction;
-
+        private string _connectString;
         public IDbConnection Session { get; private set; }
         public IDbTransaction Transaction => _transaction?.InternalTransaction;
 
         public UnitOfWork(string connectionString)
         {
             Session = new SqlConnection(connectionString);
+            _connectString = connectionString;
         }
 
         public void Init()
@@ -47,6 +48,14 @@ namespace Data.Access
             Session?.Close();
             Session?.Dispose();
             Session = null;
+        }
+
+        public IDbConnection GetConnection()
+        {
+            SqlConnection connection = new SqlConnection(_connectString);
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+            return connection;
         }
     }
 }

@@ -163,7 +163,7 @@ WHERE G.GOODARTICLE = @GoodArticle", new { _query.GoodArticle });
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -192,7 +192,7 @@ BEGIN
     SELECT  G.Id, G.GOODARTICLE, G.GOODNAME
     FROM GOODS G 
     WHERE G.GoodArticle= @GoodArticle
-END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskId });
+END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskId }, transaction);
 
                     if (!entity.Any())
                     {
@@ -200,7 +200,7 @@ END", new { _query.BarCode, _query.GoodArticle, _query.ProcessType, _query.TaskI
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'NotFound'),
-        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId });
+        'ШК: '+@BarCode+' , Артикуль: '+@GoodArticle)", new { _query.BarCode, _query.GoodArticle, _query.TaskId }, transaction);
                     }
 
                     transaction.Commit();
@@ -222,7 +222,7 @@ VALUES (@TaskId,
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -281,17 +281,17 @@ END",
                     {
                         session.Execute(@"
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
-VALUES (Source.TaskId, 
+VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'UpdateGood'),
-        'Артикуль:'+@GoodArticle+', ШК:'+ @BarCode +', Было:'+ (@CountQty-1) + ', Стало:'+ @CountQty)", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+        'Артикуль:'+@GoodArticle+', ШК:'+ @BarCode +', Было:'+ (@CountQty-1) + ', Стало:'+ @CountQty)", new { _query.TaskId, _query.GoodArticle, _query.BarCode, _query.CountQty }, transaction);
                     }
                     else
                     {
                         session.Execute(@"
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
-VALUES (Source.TaskId, 
+VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'CreateGood'),
-        'Артикуль:'+@GoodArticle+', ШК:'+@BarCode);", new { _query.TaskId, _query.GoodArticle, _query.CountQty });
+        'Артикуль:'+@GoodArticle+', ШК:'+@BarCode);", new { _query.TaskId, _query.GoodArticle, _query.CountQty, _query.BarCode }, transaction);
                     }
 
                     transaction.Commit();
@@ -311,7 +311,7 @@ VALUES (Source.TaskId,
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -349,7 +349,7 @@ VALUES (@TaskId,
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -369,7 +369,7 @@ from Scaner_Goods where Id=@Id;
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'DeleteGood'),
-        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id, _query.BarCode }, transaction);
 
                     transaction.Commit();
                 }
@@ -389,7 +389,7 @@ VALUES (@TaskId,
             var _query = query as GoodQuery;
             if (_query == null) throw new InvalidCastException(nameof(_query));
 
-            using (var session = UnitOfWork.Session)
+            using (var session = UnitOfWork.GetConnection())
             {
                 var transaction = session.BeginTransaction();
                 try
@@ -415,14 +415,14 @@ from Scaner_Goods where Id=@Id;
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Defect'),
-        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id, _query.BarCode }, transaction);
                     }
                     else
                     {
                         session.Execute(@"
 delete from Scaner_Goods where BoxId = @Id
 update Scaner_Goods SET DefectId = NULL where Id = @Id
-delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId });
+delete from Defects Where Id = @DefectId", new { _query.Id, _query.DefectId }, transaction);
                         session.Execute(@"
 DECLARE @TaskId int,
 @Barcode nvarchar(50), 
@@ -434,7 +434,7 @@ from Scaner_Goods where Id=@Id;
 INSERT INTO Logs (TaskId, ProcessTypeId, Description) 
 VALUES (@TaskId, 
         (SELECT TOP 1 Id FROM hProcessType WHERE Code = 'Undefect'),
-        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id }, transaction);
+        'Артикуль:'+@Article+', ШК:'+ @BarCode)", new { _query.Id, _query.BarCode }, transaction);
                     }
 
                     transaction.Commit();
